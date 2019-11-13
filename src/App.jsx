@@ -49,6 +49,7 @@ class App extends Component {
       init: false,
       user: null,
       accountOpen: false,
+      mode: 0
     };
   }
 
@@ -125,11 +126,9 @@ class App extends Component {
     localStorage.removeItem(localStorageUserItem);
     this.setState({ user: null });
   }
-
-  onLanguageChange = (language) => {
-    if (language !== this.state.language) {
-      this.setLanguage(language);
-    }
+  
+  onModeChange = (mode) => {
+    this.setState({ mode: mode });
   }
 
   openAccounts = (open = !this.state.accountOpen) => {
@@ -155,13 +154,13 @@ class App extends Component {
       <div className='App' onClick={this.closeMenu}>
         <ThemeProvider theme={theme}>
             {
-                <MainMenu
-                  user={this.state.user}
-                  onLanguageChange={this.onLanguageChange}
-                  scrollToBottom={this.scrollToBottom}
-                  openAccounts={this.openAccounts}
-                />
-
+              <MainMenu
+                user={this.state.user}
+                mode={this.state.mode}
+                onModeChange={this.onModeChange}
+                scrollToBottom={this.scrollToBottom}
+                openAccounts={this.openAccounts}
+              />
             }
             <div className={contentClassName}>
               <div ref={this.topItemRef}></div>

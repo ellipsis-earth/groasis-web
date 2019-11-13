@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import {
   Button,
+  FormControlLabel,
+  Switch
 } from '@material-ui/core';
 import { ToggleButton } from '@material-ui/lab';
 import { NavLink } from 'react-router-dom';
@@ -81,6 +83,15 @@ export class MainMenu extends Component {
     this.onToggle(false);
   }
 
+  onModeToggle = (e) => {
+    let checked = e.target.checked;
+    let mode = checked ? 1 : 0;
+
+    if (mode !== this.props.mode) {
+      this.props.onModeChange(mode);
+    }
+  }
+
   render() {
     let displayStyle = {
         display: 'block'
@@ -106,16 +117,25 @@ export class MainMenu extends Component {
         >
           <Navbar.Brand>
             <NavLink exact to='/' className='main-menu-logo-item noselect' onClick={() => {this.props.openAccounts(false); this.onNavItemClick('home')}}>
-              <img className='main-menu-logo' src='/images/logos/logo_v2_white_sat.svg' alt='Ellipsis Earth Intelligence'/>
+              <img className='main-menu-logo' src='/images/groasis-logo.png' alt='Groasis'/>
             </NavLink>
           </Navbar.Brand>
-            <Nav>
-              <NavItem>
-                <ToggleButton selected={navItemClass(navKeys.login)} value={this.props.user ? this.props.user.username : 'Login'} onClick={() => this.props.openAccounts()}>
-                  {this.props.user ? this.props.user.username : 'Login'}
-                </ToggleButton>
-              </NavItem>
-            </Nav>
+          <Nav>
+            <NavItem>
+              <Switch 
+                size='small'
+                checked={this.props.mode === 1} 
+                onChange={this.onModeToggle} 
+
+              />
+              <span>{this.props.mode === 0 ? 'Viewer' : 'Planner'}</span>
+            </NavItem>
+            <NavItem>
+              <ToggleButton selected={navItemClass(navKeys.login)} value={this.props.user ? this.props.user.username : 'Login'} onClick={() => this.props.openAccounts()}>
+                {this.props.user ? this.props.user.username : 'Login'}
+              </ToggleButton>
+            </NavItem>
+          </Nav>
         </Navbar>
       </div>
     )

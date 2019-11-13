@@ -3,11 +3,10 @@
   padding-left: 70px;
   padding-right: 70px;
   z-index: 1100;
-  background-color: #026464;
+  background-color: #87cef3;
 }
 
-.main-menu.navbar
-{
+.main-menu.navbar {
   flex-wrap: nowrap;
 }
 
@@ -16,6 +15,7 @@
 }
 
 .main-menu .navbar-nav {
+  display: block;
   width: 100%;
 }
 
@@ -27,21 +27,20 @@
 
 .main-menu-logo {
   width: auto;
-  height: 45px;
+  height: 35px;
 }
 
 .navbar-nav button.MuiToggleButton-root {
-  display: block;
   height: 100%;
   font-size: 16px;
-  color: #d5d5d5;
+  color: #4b483f;
   text-decoration: none;
   border: 0px;
   border-radius: 0px;
 }
 
 .navbar-nav button.MuiToggleButton-root:hover {
-  background-color: #037d7d;
+  background-color: #39f;
 }
 
 .navbar-nav button.MuiToggleButton-root.Mui-selected {
@@ -49,10 +48,18 @@
 }
 
 .main-menu .nav-item {
+  display: inline-block;
   height: 59px;
   line-height: 59px;
-  text-align: center;
-  margin-left: auto;
+  text-align: center;  
+}
+
+.main-menu .nav-item:first-of-type {
+  width: 60%;
+}
+
+.main-menu .nav-item:nth-of-type(2) {
+  width: 40%;
 }
 
 .navbar-nav a:hover {
@@ -66,8 +73,7 @@
   }
 
   .main-menu .nav-item {
-    margin: auto;
-    width: 100%;
+    margin: 0px;
   }
 
   .main-menu .nav-item a {
