@@ -56,10 +56,12 @@
 
 .main-menu .nav-item:first-of-type {
   width: 60%;
+  text-align: left;
 }
 
 .main-menu .nav-item:nth-of-type(2) {
   width: 40%;
+  text-align: right;
 }
 
 .navbar-nav a:hover {

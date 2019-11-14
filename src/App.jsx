@@ -168,7 +168,8 @@ class App extends Component {
                 render={() =>
                   <Viewer
                     key={this.state.user ? this.state.user.name : 'default'}
-                    user = {this.state.user}
+                    user={this.state.user}
+                    mode={this.state.mode}
                     scrollToBottom={this.scrollToBottom}
                   />
                 }

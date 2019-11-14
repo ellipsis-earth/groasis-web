@@ -11,6 +11,7 @@ import ApiManager from '../../ApiManager';
 
 import Utility from '../../Utility';
 import ViewerUtility from './ViewerUtility';
+import GroasisUtility from './GroasisUtility';
 
 import TimestampSelector from './TimestampSelector/TimestampSelector';
 
@@ -22,9 +23,6 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
 
 import './Viewer.css';
-
-
-
 
 // This block is purely to get the marker icon of Leaflet to work.
 // Taken somewhere from the web.
@@ -141,6 +139,11 @@ class Viewer extends PureComponent {
     });
 
     this.initializeDrawingControl();
+
+    GroasisUtility.getGroasisMaps(this.props.user)
+      .then(groasisMaps => {
+        this.setState({ groasisMaps: groasisMaps });
+      });
   }
 
   setLocation = (position) => {
