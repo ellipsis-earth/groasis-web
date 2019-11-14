@@ -7,8 +7,6 @@ import FileSaver from 'file-saver';
 import streamSaver from 'streamsaver';
 import { isAndroid, isIOS, isMobile } from 'react-device-detect';
 
-import RoomIcon from '@material-ui/icons/RoomTwoTone';
-
 const TILE = 'image_tile';
 const STANDARD_TILE = 'tile';
 const POLYGON = 'polygon';
@@ -114,8 +112,9 @@ const ViewerUtility = {
 
   isPrivateProperty: 'isPrivate',
 
-  returnMarker: (color, markerSize) => {
-    let temp = <RoomIcon viewBox={`${markerSize.y/4} 0 ${markerSize.y/2} ${markerSize.y}`} className="layerMarker" style={{fill: color, filter: 'drop-shadow(1px 1px 1px rgba(0,0,0,0.5))', width: markerSize.x*2 + 'px', height: markerSize.y*2 + 'px'}}/>;
+  returnMarker: (color, markerSize, iconName) => {
+    let IconClass = require(('@material-ui/icons/' + iconName)).default;
+    let temp = <IconClass viewBox={`${markerSize.y/4} 0 ${markerSize.y/2} ${markerSize.y}`} className="layerMarker" style={{fill: color, filter: 'drop-shadow(1px 1px 1px rgba(0,0,0,0.5))', width: markerSize.x*2 + 'px', height: markerSize.y*2 + 'px'}}/>;
     let markerIcon = renderToStaticMarkup(temp);
     let icon = divIcon({
       className: 'layerDivIcon',

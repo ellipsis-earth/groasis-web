@@ -203,7 +203,7 @@ class Viewer extends PureComponent {
       this.selectFeature(ViewerUtility.drawnPolygonLayerType, geoJson, true);
     }
 
-    let icon = ViewerUtility.returnMarker('#3388ff', markerSize)
+    let icon = ViewerUtility.returnMarker('#3388ff', markerSize, 'RoomTwoTone');
 
     let drawnPolygonLayer = (
       <GeoJSON
@@ -374,7 +374,7 @@ class Viewer extends PureComponent {
 
     color = !color ? '#3388ff' : color;
 
-    let icon = ViewerUtility.returnMarker(color, markerSize)
+    let icon = ViewerUtility.returnMarker(color, markerSize, 'RoomTwoTone');
 
     let selectedElementLayer = (
       <GeoJSON
@@ -676,7 +676,7 @@ class Viewer extends PureComponent {
               onViewportChanged={this.onLeafletMapViewportChanged}
             >
               {this.state.allLayers}
-              {this.state.geolocation ? <Marker position={this.state.geolocation}/> : null}
+              {this.state.geolocation ? <Marker position={this.state.geolocation} icon={ViewerUtility.returnMarker('#3388ff', markerSize, 'PersonPinCircle')}/> : null}
             </Map>
           </div>
 
