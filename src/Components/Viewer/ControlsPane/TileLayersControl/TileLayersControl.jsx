@@ -126,6 +126,7 @@ class TileLayersControl extends PureComponent {
   }
 
   getAvailableLayers = (map) => {
+    map = map.referenceMap;
     let availableLayersUnsorted = [];
 
     for (let i = 0; i < map.layers.tile.length; i++) {

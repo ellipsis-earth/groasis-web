@@ -14,6 +14,7 @@ import ClearIcon from '@material-ui/icons/Clear';
 import SaveAlt from '@material-ui/icons/SaveAlt';
 
 import ViewerUtility from '../ViewerUtility';
+import GroasisUtility from '../GroasisUtility';
 
 import ApiManager from '../../../ApiManager';
 
@@ -138,7 +139,7 @@ class SelectionPane extends PureComponent {
       return null;
     }
 
-    let map = this.props.map;
+    let map = this.props.map ? this.props.map.referenceMap : null;
     let element = this.props.element;
 
     if (!element) {
@@ -176,13 +177,12 @@ class SelectionPane extends PureComponent {
           color='primary'
           size='small'
           className='selection-pane-button selection-pane-button-single'
-          // onClick={() => this.onElementActionClick(ViewerUtility.dataPaneAction.createCustomPolygon)}
-          // disabled={!canAdd}
+          onClick={this.props.onSelectMap}
         >
           {'GO'}
         </Button>
       ];
-      title = element.feature.properties['_subatlas'].toUpperCase();
+      title = element.feature.properties[GroasisUtility.subatlasProperty].toUpperCase();
     }
     else if (element.type !== ViewerUtility.drawnPolygonLayerType) {
       firstRowButtons.push((

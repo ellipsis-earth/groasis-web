@@ -171,6 +171,7 @@ class PolygonLayersControl extends PureComponent {
   }
 
   prepareLayers = async (map, timestampRange, availableLayers, selectedLayers) => {
+    map = map.referenceMap;
     let promises = [];
 
     for (let i = 0; i < availableLayers.length; i++) {
@@ -340,7 +341,7 @@ class PolygonLayersControl extends PureComponent {
     let decimals = 4;
 
     let nameComponents = [
-      this.props.map.name,
+      this.props.map.referenceMap.name,
       'polygons',
       layerName,
       bounds.xMin.toFixed(decimals),

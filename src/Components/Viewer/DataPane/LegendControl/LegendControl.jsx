@@ -76,7 +76,7 @@ class LegendControl extends PureComponent {
       return types;
     }
 
-    let map = this.props.map;
+    let map = this.props.map.referenceMap;
 
     let availableClasses = getTypes(map.classes, 'classes', [
       ViewerUtility.specialClassName.outside_area, ViewerUtility.specialClassName.mask, ViewerUtility.specialClassName.noClass

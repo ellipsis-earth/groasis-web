@@ -147,8 +147,6 @@ class Viewer extends PureComponent {
         hasAggregatedData: false,
         feature: feature,
       };
-
-      console.log('Hi');
       
       this.setState({ selectedElement: element });
     }
@@ -156,6 +154,7 @@ class Viewer extends PureComponent {
     GroasisUtility.getGroasisMaps(this.props.user, onSubatlasClick)
       .then(groasisMaps => {
         this.subatlasesLayer = groasisMaps.geoJsonElement;
+        this.rebuildAllLayers();
         this.setState({ groasisMaps: groasisMaps });
       });
   }
@@ -280,7 +279,7 @@ class Viewer extends PureComponent {
     }
   }
 
-  onSelectMap = (map) => {
+  onSelectMap = () => {
     this.selectedElementLayer = null;
     this.drawnPolygonLayer = null;
     this.drawnPolygonGeoJson = null;
@@ -290,18 +289,26 @@ class Viewer extends PureComponent {
       dataPaneAction = null;
     }
 
-    this.setState({
-      map: map,
-      dataPaneAction: dataPaneAction,
-      selectedElement: null,
-      timestampRange: {
-        start: map.timestamps.length - 1,
-        end: map.timestamps.length - 1
-      },
-      overrideLeafletLayers: null
-    }, () => {
-      this.onFlyTo({ type: ViewerUtility.flyToType.map, delay: true });
-    });
+    let subatlas = this.state.selectedElement.feature.properties[GroasisUtility.subatlasProperty];
+    let map = this.state.groasisMaps[subatlas];
+    
+    GroasisUtility.getMetadata(map, this.props.user)
+      .then(() => {
+        let lastTimestamp = map.referenceMap.timestamps.length - 1;
+
+        this.setState({
+          map: map,
+          dataPaneAction: dataPaneAction,
+          selectedElement: null,
+          timestampRange: {
+            start: lastTimestamp,
+            end: lastTimestamp
+          },
+          overrideLeafletLayers: null
+        }, () => {
+          this.onFlyTo({ type: ViewerUtility.flyToType.map, delay: true });
+        });
+      }); 
   }
 
   onLayersChange = (layers, isOverride) => {
@@ -370,7 +377,7 @@ class Viewer extends PureComponent {
 
     let markerPane = this.leafletMap.current.leafletElement.getPane('markerPane');
 
-    let map = this.state.map;
+    let map = this.state.map.referenceMap;
     let layerCollection = null;
 
     if (!color) {
@@ -478,7 +485,7 @@ class Viewer extends PureComponent {
     let type = flyToInfo.type;
 
     if (type === ViewerUtility.flyToType.map) {
-      let map = this.state.map;
+      let map = this.state.map.referenceMap;
       flyToInfo.target = L.latLngBounds(L.latLng(map.yMin, map.xMin), L.latLng(map.yMax, map.xMax));
     }
     else if (type === ViewerUtility.flyToType.currentLocation) {
@@ -529,7 +536,7 @@ class Viewer extends PureComponent {
             flyToInfo.layer = feature.properties.layer;
 
             if (flyToInfo.type === ViewerUtility.polygonLayerType) {
-              let mapPolygonlayers = this.state.map.layers.polygon;
+              let mapPolygonlayers = this.state.map.referenceMap.layers.polygon;
 
               for (let i = 0; i < mapPolygonlayers.length; i++) {
                 let hasAggregatedData = mapPolygonlayers[i].hasAggregatedData;
@@ -562,7 +569,7 @@ class Viewer extends PureComponent {
   }
 
   getElementGeoJson = () => {
-    let map = this.state.map;
+    let map = this.state.map.referenceMap;
     let type = this.flyToInfo.type;
     
     let body = {
@@ -610,7 +617,10 @@ class Viewer extends PureComponent {
         this.leafletMap.current.leafletElement.flyTo(this.flyToInfo.target);
       }
       else {
-        this.leafletMap.current.leafletElement.flyToBounds(this.flyToInfo.target, { maxZoom: this.state.map.zoom });
+        this.leafletMap.current.leafletElement.flyToBounds(
+          this.flyToInfo.target, 
+          { maxZoom: this.state.map.referenceMap.zoom }
+        );
       }
 
       if (this.flyToInfo.layer) {
@@ -643,7 +653,7 @@ class Viewer extends PureComponent {
 
     let maxZoom = 22;
     if (this.state.map && this.leafletMap.current) {
-      maxZoom = Math.max(22, this.state.map.zoom + 3);
+      maxZoom = Math.max(22, this.state.map.referenceMap.zoom + 3);
       this.leafletMap.current.leafletElement.setMaxZoom(maxZoom);
     }
 
@@ -673,7 +683,7 @@ class Viewer extends PureComponent {
               onSelectTimestamp={this.onSelectTimestamp}
             />
             <MapHeader
-              mapCollection={this.state.mapCollection}
+              map={this.state.map}
             />
             <SelectionPane
               ref={this.selectionPane}
@@ -685,6 +695,7 @@ class Viewer extends PureComponent {
               onFlyTo={this.onFlyTo}
               onDeselect={this.deselectCurrentElement}
               onDeletePolygon={this.updatePolygons}
+              onSelectMap={this.onSelectMap}
             />
             <Map
               center={DEFAULT_VIEWPORT.center}

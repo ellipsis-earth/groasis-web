@@ -14,14 +14,20 @@ export class MapHeader extends PureComponent {
   }
 
   render() {
-    let text = 'Zoom into an area to select it';
+    let groasisMap = this.props.map;
+
+    let text = 'Select an area of interest';
+    if (this.props.map) {
+      text = groasisMap.subatlas.toUpperCase();
+    }
 
     return (
-      <Chip
-        className='map-header'
-        color='primary'
-        label={text}
-      />
+      <div className='map-header'>
+        <Chip        
+          color='primary'
+          label={text}
+        />  
+      </div>      
     );
   }
 }

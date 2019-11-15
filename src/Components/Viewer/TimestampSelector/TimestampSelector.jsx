@@ -18,8 +18,9 @@ export class TimestampSelector extends PureComponent {
 
   componentDidUpdate(prevProps) {
     if (this.props.map !== prevProps.map && this.props.map) {
-      let lastTimestamp = this.props.map.timestamps.length - 1;
-      let timestamps = this.props.map.timestamps;
+      let timestamps = this.props.map.referenceMap.timestamps;
+      let lastTimestamp = timestamps.length - 1;
+      
       let dateFormat = 'YYYY-MM-DD';
 
       let dates = [];
@@ -111,7 +112,7 @@ export class TimestampSelector extends PureComponent {
           marks
           step={1}
           min={0}
-          max={this.props.map.timestamps.length - 1}
+          max={this.props.map.referenceMap.timestamps.length - 1}
         />
         <div>{dateText}</div>
       </div>

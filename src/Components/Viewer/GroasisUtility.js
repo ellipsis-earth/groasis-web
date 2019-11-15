@@ -8,6 +8,7 @@ import ViewerUtility from './ViewerUtility';
 const GROASIS_COLOR = '#87cef3';
 
 const GROASIS_ATLAS = 'Groasis';
+const SUBATLAS_PROPERTY = '_subatlas';
 
 const ALTITUDE_TYPE = 'altitude';
 const HIGHRES_TYPE = 'highres';
@@ -23,6 +24,16 @@ const MAP_TYPES = [
   WEATHER_TYPE
 ];
 
+const METADATA_TYPES = [
+  { key: 'timestamps', function: (map, result) => { map.timestamps = result; } },
+  { key: 'classes', function: (map, result) => { map.classes = result; } },
+  { key: 'measurements', function: (map, result) => { map.measurements = result; } },
+  { key: 'tileLayers', function: (map, result) => { map.layers.tile = result; } },
+  { key: 'polygonLayers', function: (map, result) => { map.layers.polygon = result; } },
+  { key: 'bands', function: (map, result) => { map.bands = result; } },
+  { key: 'forms', function: (map, result) => { map.forms = result; } }
+];
+
 const GroasisUtility = {
   types: {
     altitude: ALTITUDE_TYPE,
@@ -33,6 +44,8 @@ const GroasisUtility = {
   },
 
   allTypes: MAP_TYPES,
+
+  subatlasProperty: SUBATLAS_PROPERTY,
 
   getGroasisMaps: async (user, onFeatureClick) => {
     return ApiManager.get('/account/myMaps', null, user)
@@ -50,12 +63,17 @@ const GroasisUtility = {
           let subatlas = mapInfo.subatlas;
 
           if (!groasisMaps[subatlas]) {
-            groasisMaps[subatlas] = {};
+            groasisMaps[subatlas] = {
+              subatlas: subatlas
+            };
             groasisMaps.subatlases.push(subatlas);
           }
 
           let groasisMap = groasisMaps[subatlas];
           groasisMap[mapInfo.type] = map;
+          if (mapInfo.type === HIGHRES_TYPE) {
+            groasisMap.referenceMap = map;
+          }
         }
 
         for (let i = 0; i < groasisMaps.subatlases.length; i++) {
@@ -80,7 +98,7 @@ const GroasisUtility = {
           let subatlas = groasisMaps.subatlases[i];
           let groasisMap = groasisMaps[subatlas];
 
-          let referenceMap = groasisMap[HIGHRES_TYPE];
+          let referenceMap = groasisMap.referenceMap;
           groasisMap.center = [
             referenceMap.xMin + (referenceMap.xMax - referenceMap.xMin) / 2,
             referenceMap.yMin + (referenceMap.yMax - referenceMap.yMin) / 2
@@ -88,7 +106,7 @@ const GroasisUtility = {
           groasisMap.geoJson = {
             type: 'Feature',
             properties: {
-              _subatlas: subatlas
+              [SUBATLAS_PROPERTY]: subatlas
             },
             geometry: {
               type: 'Point',
@@ -116,6 +134,47 @@ const GroasisUtility = {
         return groasisMaps;
       });
   },
+  
+  getMetadata: async (groasisMap, user) => {
+    if (groasisMap.metadataLoaded) {
+      return Promise.resolve();
+    }
+
+    let promises = [];
+
+    for (let y = 0; y < MAP_TYPES.length; y++) {
+      let type = MAP_TYPES[y];
+      let subMap = groasisMap[type];
+      let subPromises = [];
+
+      for (let i = 0; i < METADATA_TYPES.length; i++) {
+        let metadataType = METADATA_TYPES[i];
+  
+        subPromises.push(
+          ApiManager.post('/metadata', { mapId: subMap.id, type: metadataType.key }, user)
+        );
+      }
+
+      promises.push(
+        Promise.all(subPromises)
+          .then(results => {
+            subMap.layers = {};
+
+            for (let i = 0; i < results.length; i++) {
+              let result = results[i];
+              let metadataType = METADATA_TYPES[i];
+
+              metadataType.function(subMap, result);
+            }
+          })
+      );
+    }  
+
+    return Promise.all(promises)
+      .then(() => {
+        groasisMap.metadataLoaded = true;
+      });
+  }
 
 }
 
