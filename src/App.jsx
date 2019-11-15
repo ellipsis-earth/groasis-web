@@ -22,10 +22,10 @@ const localStorageUserItem = 'user';
 const theme = createMuiTheme({
   palette: {
     primary: {
-      main: '#026464'
+      main: '#87cef3'
     },
     secondary: {
-      main: '#f5f5f5'
+      main: '#4b483f'
     }
   },
 });

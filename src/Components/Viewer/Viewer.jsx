@@ -14,6 +14,7 @@ import ViewerUtility from './ViewerUtility';
 import GroasisUtility from './GroasisUtility';
 
 import TimestampSelector from './TimestampSelector/TimestampSelector';
+import MapHeader from './MapHeader/MapHeader';
 
 import ControlsPane from './ControlsPane/ControlsPane';
 import DataPane from './DataPane/DataPane';
@@ -80,7 +81,7 @@ class Viewer extends PureComponent {
 
       panes: [CONTROL_PANE_NAME, MAP_PANE_NAME],
 
-      map: null,
+      mapCollection: null,
       timestampRange: {
         start: 0,
         end: 0
@@ -656,6 +657,9 @@ class Viewer extends PureComponent {
             <TimestampSelector
               map={this.state.map}
               onSelectTimestamp={this.onSelectTimestamp}
+            />
+            <MapHeader
+              mapCollection={this.state.mapCollection}
             />
             <SelectionPane
               ref={this.selectionPane}
