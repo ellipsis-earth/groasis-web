@@ -1,4 +1,11 @@
+import React from 'react';
+import { GeoJSON } from 'react-leaflet';
+import L from 'leaflet';
+
 import ApiManager from '../../ApiManager';
+import ViewerUtility from './ViewerUtility';
+
+const GROASIS_COLOR = '#87cef3';
 
 const GROASIS_ATLAS = 'Groasis';
 
@@ -17,7 +24,17 @@ const MAP_TYPES = [
 ];
 
 const GroasisUtility = {
-  getGroasisMaps: async (user) => {
+  types: {
+    altitude: ALTITUDE_TYPE,
+    highres: HIGHRES_TYPE,
+    lowres: LOWRES_TYPE,
+    soil: SOIL_TYPE,
+    weather: WEATHER_TYPE
+  },
+
+  allTypes: MAP_TYPES,
+
+  getGroasisMaps: async (user, onFeatureClick) => {
     return ApiManager.get('/account/myMaps', null, user)
       .then(maps => {
         maps = maps.filter(x => x.atlases.includes(GROASIS_ATLAS));
@@ -54,9 +71,52 @@ const GroasisUtility = {
           }
         }
 
+        groasisMaps.geoJson = {
+          type: 'FeatureCollection',
+          features: []
+        };
+
+        for (let i = 0; i < groasisMaps.subatlases.length; i++) {
+          let subatlas = groasisMaps.subatlases[i];
+          let groasisMap = groasisMaps[subatlas];
+
+          let referenceMap = groasisMap[HIGHRES_TYPE];
+          groasisMap.center = [
+            referenceMap.xMin + (referenceMap.xMax - referenceMap.xMin) / 2,
+            referenceMap.yMin + (referenceMap.yMax - referenceMap.yMin) / 2
+          ];
+          groasisMap.geoJson = {
+            type: 'Feature',
+            properties: {
+              _subatlas: subatlas
+            },
+            geometry: {
+              type: 'Point',
+              coordinates: groasisMap.center
+            }
+          };
+
+          groasisMaps.geoJson.features.push(groasisMap.geoJson);
+        }
+
+        let icon = ViewerUtility.returnMarker(GROASIS_COLOR, { x: 17, y: 24 }, 'RoomTwoTone');          
+
+        groasisMaps.geoJsonElement = (
+          <GeoJSON
+            data={groasisMaps.geoJson}
+            style={ViewerUtility.createGeoJsonLayerStyle(GROASIS_COLOR)}
+            zIndex={ViewerUtility.polygonLayerZIndex}
+            onEachFeature={(feature, layer) => {
+              layer.on({ click: () => onFeatureClick(feature) })
+            }}
+            pointToLayer={(_, latlng) => L.marker(latlng, { icon: icon, pane: 'overlayPane' })}
+          />
+        );
+
         return groasisMaps;
       });
-  }
+  },
+
 }
 
 export default GroasisUtility;

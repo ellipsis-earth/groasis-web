@@ -36,7 +36,7 @@ class SelectionPane extends PureComponent {
   }
 
   componentDidUpdate(prevProps) {
-    if (!this.props.map || prevProps.map !== this.props.map || !this.props.element) {
+    if (!this.props.element) {
       this.setState({ isOpen: false });
     }
     else if (prevProps.element !== this.props.element) {
@@ -141,14 +141,14 @@ class SelectionPane extends PureComponent {
     let map = this.props.map;
     let element = this.props.element;
 
-    if (!map || !element) {
+    if (!element) {
       return null;
     }
 
     let title = null;
 
     let user = this.props.user;
-    let mapAccessLevel = map.accessLevel;
+    let mapAccessLevel = map ? map.accessLevel : 0;
 
     let firstRowButtons = [];
     let secondRowButtons = [];
@@ -168,7 +168,23 @@ class SelectionPane extends PureComponent {
 
     let elementProperties = { ...element.feature.properties };
 
-    if (element.type !== ViewerUtility.drawnPolygonLayerType) {
+    if (element.type === ViewerUtility.subatlasElementType) {
+      firstRowButtons = [
+        <Button
+          key='go'
+          variant='contained'
+          color='primary'
+          size='small'
+          className='selection-pane-button selection-pane-button-single'
+          // onClick={() => this.onElementActionClick(ViewerUtility.dataPaneAction.createCustomPolygon)}
+          // disabled={!canAdd}
+        >
+          {'GO'}
+        </Button>
+      ];
+      title = element.feature.properties['_subatlas'].toUpperCase();
+    }
+    else if (element.type !== ViewerUtility.drawnPolygonLayerType) {
       firstRowButtons.push((
         <Button
           key='geoMessage'
@@ -266,6 +282,10 @@ class SelectionPane extends PureComponent {
     for (let property in elementProperties) {
       let propertyValue = elementProperties[property];
 
+      if (property[0] === '_') {
+        continue;
+      }
+
       if (element.type === ViewerUtility.drawnPolygonLayerType && property === 'id') {
         continue;
       }
@@ -285,7 +305,6 @@ class SelectionPane extends PureComponent {
         ))
       }
     }
-
        
     return (
       <div>
@@ -314,12 +333,16 @@ class SelectionPane extends PureComponent {
             }
             action={
               <div>
-                <IconButton
-                  onClick={this.onDownload}
-                  aria-label='Download'
-                >
-                  <SaveAlt />
-                </IconButton>
+                {
+                  element.type !== ViewerUtility.subatlasElementType ? 
+                    <IconButton
+                      onClick={this.onDownload}
+                      aria-label='Download'
+                    >
+                      <SaveAlt />
+                    </IconButton> : null
+                }
+                
                 <IconButton
                   onClick={this.onCloseClick}
                   aria-label='Close'

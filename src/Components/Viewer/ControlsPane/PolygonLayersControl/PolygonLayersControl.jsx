@@ -14,7 +14,6 @@ import {
   Typography
 } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import RoomIcon from '@material-ui/icons/RoomTwoTone';
 import SaveAlt from '@material-ui/icons/SaveAlt';
 
 import Utility from '../../../../Utility';

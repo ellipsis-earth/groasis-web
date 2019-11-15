@@ -12,6 +12,7 @@ const STANDARD_TILE = 'tile';
 const POLYGON = 'polygon';
 const CUSTOM_POLYGON = 'customPolygon'
 const WMS_TILE = 'wms_tile';
+const SUBATLAS_ELEMENT = 'subatlas';
 
 const ViewerUtility = {
 
@@ -20,6 +21,7 @@ const ViewerUtility = {
   tileLayerType: TILE,
   standardTileLayerType: STANDARD_TILE,
   wmsTileLayerType: WMS_TILE,
+  subatlasElementType: SUBATLAS_ELEMENT,
 
   polygonLayerType: POLYGON,
   customPolygonTileLayerType: CUSTOM_POLYGON,

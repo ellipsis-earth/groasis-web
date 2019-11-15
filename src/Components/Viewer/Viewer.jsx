@@ -59,6 +59,7 @@ class Viewer extends PureComponent {
   leafletLayers = null;
   selectedElementLayer = null;
   drawnPolygonLayer = null;
+  subatlasesLayer = null;
 
   setNewViewportTimer = null;
   selectTimestampTimer = null;
@@ -114,7 +115,6 @@ class Viewer extends PureComponent {
 
     map.addControl(drawControl);
     map.on(L.Draw.Event.CREATED, this.onShapeDrawnClosure);
-
   }
 
   componentDidMount() {
@@ -141,8 +141,21 @@ class Viewer extends PureComponent {
 
     this.initializeDrawingControl();
 
-    GroasisUtility.getGroasisMaps(this.props.user)
+    let onSubatlasClick = (feature) => {
+      let element = {
+        type: ViewerUtility.subatlasElementType,
+        hasAggregatedData: false,
+        feature: feature,
+      };
+
+      console.log('Hi');
+      
+      this.setState({ selectedElement: element });
+    }
+
+    GroasisUtility.getGroasisMaps(this.props.user, onSubatlasClick)
       .then(groasisMaps => {
+        this.subatlasesLayer = groasisMaps.geoJsonElement;
         this.setState({ groasisMaps: groasisMaps });
       });
   }
@@ -431,6 +444,7 @@ class Viewer extends PureComponent {
     let allLayers = [
       this.leafletLayers,
       this.state.overrideLeafletLayers,
+      this.subatlasesLayer,
       this.selectedElementLayer,
       this.drawnPolygonLayer,
     ];
