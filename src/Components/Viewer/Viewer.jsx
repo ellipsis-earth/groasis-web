@@ -83,6 +83,11 @@ class Viewer extends PureComponent {
       panes: [CONTROL_PANE_NAME, MAP_PANE_NAME],
 
       mapCollection: null,
+      selectedLayers: {
+        [ViewerUtility.tileLayerType]: [],
+        [ViewerUtility.polygonLayerType]: [],
+        [ViewerUtility.standardTileLayerType]: []
+      },
       timestampRange: {
         start: 0,
         end: 0
@@ -309,6 +314,31 @@ class Viewer extends PureComponent {
           this.onFlyTo({ type: ViewerUtility.flyToType.map, delay: true });
         });
       }); 
+  }
+
+  onSelectedLayersChange = (type, layerChanges) => {
+    let selectedLayers = this.state.selectedLayers;
+
+    let newSelectedLayers = {
+      [ViewerUtility.tileLayerType]: [...selectedLayers[ViewerUtility.tileLayerType]],
+      [ViewerUtility.polygonLayerType]: [...selectedLayers[ViewerUtility.polygonLayerType]],
+      [ViewerUtility.standardTileLayerType]: [...selectedLayers[ViewerUtility.standardTileLayerType]]
+    };
+
+    for (let i = 0; i < layerChanges.length; i++) {
+      let layerChange = layerChanges[i];
+
+      if (layerChange.add) {
+        newSelectedLayers[type].push(layerChange.name);
+      }
+      else {
+        Utility.arrayRemove(newSelectedLayers[type], layerChange.name);
+      }
+    }
+
+    debugger;
+
+    this.setState({ selectedLayers: newSelectedLayers });
   }
 
   onLayersChange = (layers, isOverride) => {
@@ -665,11 +695,14 @@ class Viewer extends PureComponent {
             user={this.props.user}
             isOpen={this.state.panes.includes(CONTROL_PANE_NAME)}
             leafletMapViewport={this.state.leafletMapViewport}
+            map={this.state.map}
             timestampRange={this.state.timestampRange}
+            selectedLayers={this.state.selectedLayers}
             geolocation={this.state.geolocation}
             override={this.state.overrideLeafletLayers ? true : false}
             onSelectMap={this.onSelectMap}
             onDataPaneAction={this.onDataPaneAction}
+            onSelectedLayersChange={this.onSelectedLayersChange}
             onLayersChange={this.onLayersChange}
             onFeatureClick={this.selectFeature}
             onFlyTo={this.onFlyTo}

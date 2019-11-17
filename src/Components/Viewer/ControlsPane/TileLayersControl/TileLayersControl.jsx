@@ -15,15 +15,16 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 import Utility from '../../../../Utility';
 import ViewerUtility from '../../ViewerUtility';
+import GroasisUtility from '../../GroasisUtility';
 
 import './TileLayersControl.css';
 
 import ApiManager from '../../../../ApiManager';
 
 const BASE_SATELLITE_LAYER_NAME = 'base';
-const IMAGES_TILE_LAYER_NAME = 'images';
-const LABELS_TILE_LAYER_NAME = 'labels';
-const IMAGES2_TILE_LAYER_NAME = 'images2';
+const IMAGES_LAYER_TYPE = 'images';
+const LABELS_LAYER_TYPE = 'labels';
+const IMAGES2_LAYER_TYPE = 'images2';
 
 const BASE_SATELLITE_LAYER_TYPE = {
   name: BASE_SATELLITE_LAYER_NAME,
@@ -37,28 +38,29 @@ const BASE_SATELLITE_AVAILABLE_LAYER = {
   name: BASE_SATELLITE_LAYER_NAME
 }
 
-const tileLayerTypes = [
-  BASE_SATELLITE_LAYER_TYPE,
+const AVAILABLE_LAYERS = [
   {
-    name: IMAGES_TILE_LAYER_NAME,
-    defaultSelected: true,
+    name: GroasisUtility.layers.tile.base,
+    type: null,
+    mapType: null,
+    stacking: false,
+    urlName: null,
+  },
+  {
+    name: GroasisUtility.layers.tile.highRes,
+    type: IMAGES_LAYER_TYPE,
+    mapType: GroasisUtility.types.highRes,
     stacking: true,
-    zIndex: ViewerUtility.tileLayerZIndex + 1
+    urlName: 'rgb'
   },
   {
-    name: LABELS_TILE_LAYER_NAME,
-    defaultSelected: true,
-    stacking: false,
-    zIndex: ViewerUtility.tileLayerZIndex + 1 + 300,
-  },
-  {
-    name: IMAGES2_TILE_LAYER_NAME,
-    defaultSelected: true,
-    stacking: false,
-    zIndex: ViewerUtility.tileLayerZIndex + 1 + 400
+    name: GroasisUtility.layers.tile.lowRes,
+    type: IMAGES_LAYER_TYPE,
+    mapType: GroasisUtility.types.lowres,
+    stacking: true,
+    urlName: 'rgb'
   }
 ];
-
 
 class TileLayersControl extends PureComponent {
 
@@ -73,15 +75,13 @@ class TileLayersControl extends PureComponent {
       noWrap={true}
       maxZoom={40}
       maxNativeZoom={21}
-    />)
+    />
+  );
 
   constructor(props, context) {
     super(props, context);
 
     this.state = {
-      availableLayers: [],
-      selectedLayers: [],
-
       options: [],
 
       expanded: true
@@ -89,104 +89,46 @@ class TileLayersControl extends PureComponent {
   }
 
   componentDidMount() {
-    this.props.onLayersChange([this.baseLayer]);
   }
 
   componentDidUpdate(prevProps) {
     if (!this.props.map || !this.props.timestampRange) {
-      this.props.onLayersChange([this.baseLayer]);
       return;
     }
 
     let differentMap = this.props.map !== prevProps.map;
     let differentTimestamp = !prevProps.timestampRange ||
       this.props.timestampRange.start !== prevProps.timestampRange.start ||
-      this.props.timestampRange.end !== prevProps.timestampRange.end
+      this.props.timestampRange.end !== prevProps.timestampRange.end;
 
-    if (differentMap || differentTimestamp) {
+    let prevSelectedLayers = prevProps.selectedLayers[ViewerUtility.tileLayerType];
+    let curSelectedLayers = this.props.selectedLayers[ViewerUtility.tileLayerType];
 
-      let availableLayers = this.state.availableLayers;
-      let selectedLayers = this.state.selectedLayers;
-
-      if (differentMap) {
-        availableLayers = this.getAvailableLayers(this.props.map);
-        selectedLayers = this.getDefaultSelectedLayers(availableLayers);
-        // let layerCheckboxes = this.createLayerCheckboxes(availableLayers, selectedLayers);
-
-        this.setState({
-          availableLayers: availableLayers,
-          selectedLayers: selectedLayers
-        });
-      }
-
-      let newLeafletTileLayers = this.prepareLayers(this.props.map, this.props.timestampRange, selectedLayers);
-
-      this.props.onLayersChange(newLeafletTileLayers);
-    }
-  }
-
-  getAvailableLayers = (map) => {
-    map = map.referenceMap;
-    let availableLayersUnsorted = [];
-
-    for (let i = 0; i < map.layers.tile.length; i++) {
-
-      let mapTimestampTileLayers = map.layers.tile[i];
-
-      for (let y = 0; y < mapTimestampTileLayers.layers.length; y++) {
-        let layer = mapTimestampTileLayers.layers[y];
-
-        let availableLayer = availableLayersUnsorted.find(x => x.type === layer.type && x.name === layer.name);
-
-        if (!availableLayer) {
-          availableLayersUnsorted.push({
-            type: layer.type,
-            name: layer.name
-          });
-        }
+    let differentSelectedLayers = prevSelectedLayers.length !== curSelectedLayers.length;
+    if (!differentSelectedLayers) {
+      for (let i = 0; i < prevSelectedLayers.length; i++) {
+        if (prevSelectedLayers[i] !== curSelectedLayers[i]) {
+          differentSelectedLayers = true;
+          break;
+        }        
       }
     }
 
-    let imageLayers = availableLayersUnsorted.filter(x => x.type === IMAGES_TILE_LAYER_NAME);
-    let labelLayers = availableLayersUnsorted.filter(x => x.type === LABELS_TILE_LAYER_NAME);
-    let images2Layers = availableLayersUnsorted.filter(x => x.type === IMAGES2_TILE_LAYER_NAME);
-
-    let availableLayers = [BASE_SATELLITE_AVAILABLE_LAYER, ...imageLayers, ...labelLayers, ...images2Layers];
-
-    return availableLayers;
-
-  }
-
-  getDefaultSelectedLayers = (availableLayers) => {
-    let selectedLayers = [];
-
-    for (let i = 0; i < availableLayers.length; i++) {
-      let availableLayer = availableLayers[i];
-
-      let tileLayerType = tileLayerTypes.find(x => x.name === availableLayer.type);
-
-      if (!tileLayerType) {
-        continue;
-      }
-
-      if (tileLayerType.defaultSelected) {
-        selectedLayers.push(availableLayer);
-      }
+    if (differentMap || differentTimestamp || differentSelectedLayers) {
+      this.prepareLayers();
     }
-
-    return selectedLayers;
   }
 
   createLayerCheckboxes = () => {
     let options = [];
 
-    let availableLayers = this.state.availableLayers;
-    let selectedLayers = this.state.selectedLayers;
+    let availableLayers = AVAILABLE_LAYERS;
+    let selectedLayers = this.props.selectedLayers[ViewerUtility.tileLayerType];
 
     for (let i = 0; i < availableLayers.length; i++) {
 
       let availableLayer = availableLayers[i];
-      let checked = selectedLayers.find(x => x === availableLayer) ? true : false;
+      let checked = selectedLayers.find(x => x === availableLayer.name) ? true : false;
 
       let option = (
         <div key={availableLayer.name}>
@@ -209,120 +151,86 @@ class TileLayersControl extends PureComponent {
     return options;
   }
 
-  prepareLayers = (map, timestampRange, selectedLayers) => {
-    let leafletTileLayersGrouped = [];
+  prepareLayers = () => {
+    let map = this.props.map;
+    let timestampRange = this.props.timestampRange;
+    let selectedLayers = this.props.selectedLayers[ViewerUtility.tileLayerType];
 
-    // Loop through all types, so they are created in the order they should appear.
-    for (let i = 0; i < tileLayerTypes.length; i++) {
-      let tileLayerType = tileLayerTypes[i];
+    let layerElements = [];
+    if (selectedLayers.includes(BASE_SATELLITE_LAYER_NAME)) {
+      layerElements.push(this.baseLayer);
+    }
 
-      let timestampStart = tileLayerType.stacking ? timestampRange.start : timestampRange.end;
+    let zIndex = ViewerUtility.tileLayerZIndex + 2;
+
+    for (let i = 1; i < AVAILABLE_LAYERS.length; i++) {
+      let availableLayer = AVAILABLE_LAYERS[i];
+
+      if (!selectedLayers.includes(availableLayer.name)) {
+        continue;
+      }
+
+      let subMap = map[availableLayer.mapType];
+
+      let timestampStart = availableLayer.stacking ? timestampRange.start : timestampRange.end;
       let timestampEnd = timestampRange.end;
 
       for (let y = timestampStart; y <= timestampEnd; y++) {
+        let mapTimestamp = subMap.timestamps[y];
 
-        let mapTimestamp = map.timestamps[y];
-
-        if (!mapTimestamp) {
-          continue;
+        let key = `${subMap.id}_${mapTimestamp.timestampNumber}_${availableLayer.name}`;
+        let url = `${ApiManager.apiUrl}/tileService/${subMap.id}/${mapTimestamp.timestampNumber}/${availableLayer.urlName}/{z}/{x}/{y}`;
+       
+        if (this.props.user) {
+          url += `?token=${this.props.user.token}`;
         }
 
-        // Find the layer information of the timestamp.
-        let mapTimestampTileLayers = map.layers.tile.find(x => x.timestampNumber === mapTimestamp.timestampNumber);
+        let layerElement = (<TileLayer
+          key={key}
+          url={url}
+          tileSize={256}
+          noWrap={true}
+          maxNativeZoom={map.zoom}
+          format={'image/png'}
+          zIndex={zIndex++}
+        />);
 
-        if (!mapTimestampTileLayers) {
-          continue;
-        }
-
-        // Find all layers of the current type.
-        let mapTimestampTileLayersOfType = mapTimestampTileLayers.layers.filter(x => x.type === tileLayerType.name);
-
-        for (let p = 0; p < mapTimestampTileLayersOfType.length; p++) {
-          let tileLayer = mapTimestampTileLayersOfType[p];
-
-          let isSelected = selectedLayers.find(x => x.name === tileLayer.name);
-
-          if (!isSelected) {
-            continue;
-          }
-
-          let leafletTileLayersGroup = leafletTileLayersGrouped.find(x => x.type === tileLayer.type && x.name === tileLayer.name);
-
-          if (!leafletTileLayersGroup) {
-            leafletTileLayersGroup = {
-              type: tileLayer.type,
-              name: tileLayer.name,
-              zIndexOffset: p * map.timestamps.length,
-              leafletTileLayers: []
-            };
-
-            leafletTileLayersGrouped.push(leafletTileLayersGroup);
-          }
-
-          let key = `${map.id}_${mapTimestamp.timestampNumber}_${tileLayer.type}_${tileLayer.name}`;
-          let url = `${ApiManager.apiUrl}/tileService/${map.id}/${mapTimestamp.timestampNumber}/${tileLayer.name}/{z}/{x}/{y}`;
-          let zIndex = tileLayerType.zIndex + leafletTileLayersGroup.zIndexOffset + leafletTileLayersGroup.leafletTileLayers.length;
-
-          if (this.props.user) {
-            url += `?token=${this.props.user.token}`;
-          }
-
-          let leafletTileLayer = (<TileLayer
-            key={key}
-            url={url}
-            tileSize={256}
-            noWrap={true}
-            maxNativeZoom={map.zoom}
-            format={'image/png'}
-            zIndex={zIndex}
-          />);
-
-          leafletTileLayersGroup.leafletTileLayers.push(leafletTileLayer);
-        }
-      }
+        layerElements.push(layerElement);
+      }      
     }
 
-    let leafletTileLayers = [];
-    if (selectedLayers.find(x => x.name === BASE_SATELLITE_LAYER_NAME)) {
-      leafletTileLayers.push(this.baseLayer);
-    }
+    debugger;
 
-    for (let i = 0; i < leafletTileLayersGrouped.length; i++) {
-      leafletTileLayers.push(leafletTileLayersGrouped[i].leafletTileLayers);
-    }
-
-    return leafletTileLayers;
+    this.props.onLayersChange(layerElements);    
   }
 
   onLayerChange = (e) => {
     let layerName = e.target.value;
     let checked = e.target.checked;
 
-    let isSelected = this.state.selectedLayers.find(x => x.name === layerName);
+    let layerChanges = [{
+      name: layerName,
+      add: checked
+    }];
 
-    let newSelectedLayers = null;
-    let changed = false;
+    let selectedLayers = this.props.selectedLayers[ViewerUtility.tileLayerType];
 
-    if (checked && !isSelected) {
-      let availableLayer = this.state.availableLayers.find(x => x.name === layerName);
-
-      newSelectedLayers = [...this.state.selectedLayers, availableLayer];
-
-      changed = true;
+    if (layerName === GroasisUtility.layers.tile.highRes && 
+      selectedLayers.includes(GroasisUtility.layers.tile.lowRes)) {
+      layerChanges.push({
+        name: GroasisUtility.layers.tile.lowRes,
+        add: false
+      });
     }
-    else if (!checked && isSelected) {
-      newSelectedLayers = Utility.arrayRemove(this.state.selectedLayers, isSelected);
-
-      newSelectedLayers = [...newSelectedLayers];
-
-      changed = true;
+    else if (layerName === GroasisUtility.layers.tile.lowRes &&
+      selectedLayers.includes(GroasisUtility.layers.tile.highRes)) {
+        layerChanges.push({
+          name: GroasisUtility.layers.tile.highRes,
+          add: false
+        });
     }
 
-    if (changed) {
-      this.setState({ selectedLayers: newSelectedLayers });
-      let newLayers = this.prepareLayers(this.props.map, this.props.timestampRange, newSelectedLayers);
-      this.props.onLayersChange(newLayers);
-    }
+    this.props.onSelectedLayersChange(ViewerUtility.tileLayerType, layerChanges);
   }
 
   onExpandClick = () => {
@@ -330,7 +238,6 @@ class TileLayersControl extends PureComponent {
   }
 
   render() {
-
     if (!this.props.map) {
       return null;
     }

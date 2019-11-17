@@ -37,10 +37,18 @@ const METADATA_TYPES = [
 const GroasisUtility = {
   types: {
     altitude: ALTITUDE_TYPE,
-    highres: HIGHRES_TYPE,
+    highRes: HIGHRES_TYPE,
     lowres: LOWRES_TYPE,
     soil: SOIL_TYPE,
     weather: WEATHER_TYPE
+  },
+
+  layers: {
+    tile: {
+      base: 'base',
+      highRes: 'high res',
+      lowRes: 'low res'
+    }
   },
 
   allTypes: MAP_TYPES,

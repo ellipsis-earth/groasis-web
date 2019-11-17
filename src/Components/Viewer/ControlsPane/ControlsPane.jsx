@@ -74,12 +74,14 @@ class ControlsPane extends PureComponent {
       <div className='viewer-pane controls-pane' style={style}>
         <TileLayersControl
           user={this.props.user}
-          map={this.state.map}
+          map={this.props.map}
           timestampRange={this.props.timestampRange}
+          selectedLayers={this.props.selectedLayers}
+          onSelectedLayersChange={this.props.onSelectedLayersChange}
           onLayersChange={(layers) => this.onLayersChange(ViewerUtility.tileLayerType, layers)}
         />
 
-        <PolygonLayersControl
+        {/* <PolygonLayersControl
           ref={this.polygonLayersControl}
           user={this.props.user}
           map={this.state.map}
@@ -100,7 +102,7 @@ class ControlsPane extends PureComponent {
           override={this.props.override}
           onLayersChange={(layers) => this.onLayersChange(ViewerUtility.standardTileLayerType, layers)}
           onFeatureClick={(feature) => this.props.onFeatureClick(ViewerUtility.standardTileLayerType, feature, true)}
-        />
+        /> */}
       </div>
     );
   }
