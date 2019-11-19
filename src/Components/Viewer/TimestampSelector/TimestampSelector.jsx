@@ -1,6 +1,9 @@
 import React, { PureComponent} from 'react';
-import Moment from 'moment';
+import moment from 'moment';
 import { Slider } from '@material-ui/core';
+
+import ViewerUtility from '../ViewerUtility';
+import GroasisUtility from '../GroasisUtility';
 
 import './TimestampSelector.css';
 
@@ -17,22 +20,32 @@ export class TimestampSelector extends PureComponent {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.map !== prevProps.map && this.props.map) {
-      let timestamps = this.props.map.referenceMap.timestamps;
-      let lastTimestamp = timestamps.length - 1;
-      
-      let dateFormat = 'YYYY-MM-DD';
+    let diffMap = this.props.map !== prevProps.map && this.props.map;
+    let diffLayers = this.props.selectedLayers !== prevProps.selectedLayers;
 
-      let dates = [];
-      for (let i = 0; i < timestamps.length; i++) {
-        dates[i] = Moment(timestamps[i].dateTo).format(dateFormat);
+    if (diffMap || diffLayers) {
+      let tileLayers = this.props.selectedLayers[ViewerUtility.tileLayerType];
+      let timestampReferenceMap = this.props.map[GroasisUtility.types.highRes];
+
+      if (tileLayers.includes(GroasisUtility.layers.tile.lowRes) || tileLayers.includes(GroasisUtility.layers.tile.lowResCir)) {
+        timestampReferenceMap = this.props.map[GroasisUtility.types.lowRes];
       }
 
-      this.setState({
-        start: lastTimestamp,
-        end: lastTimestamp,
-        dates: dates
-      });
+      if (this.state.timestampReferenceMap !== timestampReferenceMap) {
+        let timestamps = timestampReferenceMap.timestamps;
+        let lastTimestamp = timestamps.length - 1;
+        
+        let dateFormat = 'YYYY-MM-DD';
+  
+        let dates = timestamps.map(x => moment(x.dateTo).format(dateFormat));
+  
+        this.setState({
+          timestampReferenceMap: timestampReferenceMap,
+          start: lastTimestamp,
+          end: lastTimestamp,
+          dates: dates
+        });
+      }
     }
   }
 
@@ -112,7 +125,7 @@ export class TimestampSelector extends PureComponent {
           marks
           step={1}
           min={0}
-          max={this.props.map.referenceMap.timestamps.length - 1}
+          max={this.state.dates.length - 1}
         />
         <div>{dateText}</div>
       </div>

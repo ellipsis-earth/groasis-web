@@ -36,14 +36,12 @@ class App extends Component {
 
   constructor(props, context) {
     super(props, context)
-    document.title = 'Ellipsis Earth Intelligence';
 
     this.topItemRef = React.createRef();
     this.bottomItemRef = React.createRef();
 
     this.accountsUrl = 'https://account.ellipsis-earth.com/';
     // this.accountsUrl = 'http://localhost:3001/';
-
 
     this.state = {
       init: false,

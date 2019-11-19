@@ -49,7 +49,8 @@ const GroasisUtility = {
       highRes: 'rgb (high res)',
       highResCir: 'CIR (high res)',
       lowRes: 'rgb (low res)',
-      lowResCir: 'CIR (low res)'
+      lowResCir: 'CIR (low res)',
+      contour: 'contour'
     }
   },
 
@@ -81,7 +82,7 @@ const GroasisUtility = {
 
           let groasisMap = groasisMaps[subatlas];
           groasisMap[mapInfo.type] = map;
-          if (mapInfo.type === HIGHRES_TYPE) {
+          if (mapInfo.type === LOWRES_TYPE) {
             groasisMap.referenceMap = map;
           }
         }

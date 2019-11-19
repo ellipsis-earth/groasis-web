@@ -84,7 +84,7 @@ class Viewer extends PureComponent {
 
       mapCollection: null,
       selectedLayers: {
-        [ViewerUtility.tileLayerType]: [],
+        [ViewerUtility.tileLayerType]: [GroasisUtility.layers.tile.base, GroasisUtility.layers.tile.lowRes],
         [ViewerUtility.polygonLayerType]: [],
         [ViewerUtility.standardTileLayerType]: []
       },
@@ -316,7 +316,7 @@ class Viewer extends PureComponent {
       }); 
   }
 
-  onSelectedLayersChange = (type, layerChanges) => {
+  onSelectedLayersChange = (type, layerChanges, resetTimestamps) => {
     let selectedLayers = this.state.selectedLayers;
 
     let newSelectedLayers = {
@@ -336,9 +336,28 @@ class Viewer extends PureComponent {
       }
     }
 
-    debugger;
+    let timestampRange = this.state.timestampRange;
 
-    this.setState({ selectedLayers: newSelectedLayers });
+    if (resetTimestamps) {
+      let tileLayers = newSelectedLayers[ViewerUtility.tileLayerType];
+      let timestampReferenceMap = this.state.map[GroasisUtility.types.lowRes];
+
+      if (tileLayers.includes(GroasisUtility.layers.tile.highRes) || tileLayers.includes(GroasisUtility.layers.tile.highResCir)) {
+        timestampReferenceMap = this.state.map[GroasisUtility.types.highRes];
+      }
+
+      let lastTimestamp = timestampReferenceMap.timestamps.length - 1;
+
+      timestampRange = {
+        start: lastTimestamp,
+        end: lastTimestamp
+      };
+    }
+
+    this.setState({ 
+      selectedLayers: newSelectedLayers,
+      timestampRange: timestampRange
+    });
   }
 
   onLayersChange = (layers, isOverride) => {
@@ -713,6 +732,7 @@ class Viewer extends PureComponent {
           <div className='viewer-pane map-pane' style={mapPaneStyle}>
             <TimestampSelector
               map={this.state.map}
+              selectedLayers={this.state.selectedLayers}
               onSelectTimestamp={this.onSelectTimestamp}
             />
             <MapHeader

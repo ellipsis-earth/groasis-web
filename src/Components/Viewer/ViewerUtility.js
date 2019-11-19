@@ -18,6 +18,7 @@ const ViewerUtility = {
 
   admin: 'admin',
 
+  baseLayer: 'base',
   tileLayerType: TILE,
   standardTileLayerType: STANDARD_TILE,
   wmsTileLayerType: WMS_TILE,

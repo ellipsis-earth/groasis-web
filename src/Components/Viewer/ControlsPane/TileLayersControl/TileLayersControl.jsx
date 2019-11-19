@@ -21,7 +21,6 @@ import './TileLayersControl.css';
 
 import ApiManager from '../../../../ApiManager';
 
-const BASE_SATELLITE_LAYER_NAME = 'base';
 const IMAGES_LAYER_TYPE = 'images';
 const LABELS_LAYER_TYPE = 'labels';
 const IMAGES2_LAYER_TYPE = 'images2';
@@ -33,6 +32,20 @@ const AVAILABLE_LAYERS = [
     mapType: null,
     stacking: false,
     urlName: null,
+  },
+  {
+    name: GroasisUtility.layers.tile.lowRes,
+    type: IMAGES_LAYER_TYPE,
+    mapType: GroasisUtility.types.lowRes,
+    stacking: true,
+    urlName: 'rgb'
+  },
+  {
+    name: GroasisUtility.layers.tile.lowResCir,
+    type: IMAGES_LAYER_TYPE,
+    mapType: GroasisUtility.types.lowRes,
+    stacking: true,
+    urlName: 'CIR'
   },
   {
     name: GroasisUtility.layers.tile.highRes,
@@ -49,18 +62,11 @@ const AVAILABLE_LAYERS = [
     urlName: 'CIR'
   },
   {
-    name: GroasisUtility.layers.tile.lowRes,
-    type: IMAGES_LAYER_TYPE,
-    mapType: GroasisUtility.types.lowRes,
-    stacking: true,
-    urlName: 'rgb'
-  },
-  {
-    name: GroasisUtility.layers.tile.lowResCir,
-    type: IMAGES_LAYER_TYPE,
-    mapType: GroasisUtility.types.lowRes,
-    stacking: true,
-    urlName: 'CIR'
+    name: GroasisUtility.layers.tile.contour,
+    type: IMAGES2_LAYER_TYPE,
+    mapType: GroasisUtility.types.altitude,
+    stacking: false,
+    urlName: 'contour'
   }
 ];
 
@@ -91,6 +97,7 @@ class TileLayersControl extends PureComponent {
   }
 
   componentDidMount() {
+    this.prepareLayers();
   }
 
   componentDidUpdate(prevProps) {
@@ -134,10 +141,13 @@ class TileLayersControl extends PureComponent {
 
       let label = null;
       if (i === 1) {
-        label = (<div>High res</div>);
+        label = (<div>Low res:</div>);
       }
       else if (i === 3) {
-        label = (<div>Low res</div>);
+        label = (<div>High res:</div>);
+      }
+      else if (i === 5) {
+        label = (<div>Altitude:</div>);
       }
 
       let name = 'base';
@@ -146,6 +156,9 @@ class TileLayersControl extends PureComponent {
       }
       else if (i === 2 || i === 4) {
         name = 'CIR';
+      }
+      else if (i === 5) {
+        name = 'contour';
       }
 
       let option = (
@@ -171,13 +184,19 @@ class TileLayersControl extends PureComponent {
   }
 
   prepareLayers = () => {
-    let map = this.props.map;
-    let timestampRange = this.props.timestampRange;
     let selectedLayers = this.props.selectedLayers[ViewerUtility.tileLayerType];
 
     let layerElements = [];
-    if (selectedLayers.includes(BASE_SATELLITE_LAYER_NAME)) {
+    if (selectedLayers.includes(GroasisUtility.layers.tile.base)) {
       layerElements.push(this.baseLayer);
+    }
+
+    let map = this.props.map;
+    let timestampRange = this.props.timestampRange;
+
+    if (!map || !timestampRange) {
+      this.props.onLayersChange(layerElements);
+      return;      
     }
 
     let zIndex = ViewerUtility.tileLayerZIndex + 2;
@@ -195,24 +214,30 @@ class TileLayersControl extends PureComponent {
       let timestampEnd = timestampRange.end;
 
       for (let y = timestampStart; y <= timestampEnd; y++) {
-        let mapTimestamp = subMap.timestamps[y];
+        let timestampNumber = 0;        
 
-        let key = `${subMap.id}_${mapTimestamp.timestampNumber}_${availableLayer.name}`;
-        let url = `${ApiManager.apiUrl}/tileService/${subMap.id}/${mapTimestamp.timestampNumber}/${availableLayer.urlName}/{z}/{x}/{y}`;
+        if (availableLayer.name !== GroasisUtility.layers.tile.contour) {
+          timestampNumber = subMap.timestamps[y].timestampNumber;
+        }
+
+        let key = `${subMap.id}_${timestampNumber}_${availableLayer.name}`;
+        let url = `${ApiManager.apiUrl}/tileService/${subMap.id}/${timestampNumber}/${availableLayer.urlName}/{z}/{x}/{y}`;
        
         if (this.props.user) {
           url += `?token=${this.props.user.token}`;
         }
 
-        let layerElement = (<TileLayer
-          key={key}
-          url={url}
-          tileSize={256}
-          noWrap={true}
-          maxNativeZoom={map.zoom}
-          format={'image/png'}
-          zIndex={zIndex++}
-        />);
+        let layerElement = (
+          <TileLayer
+            key={key}
+            url={url}
+            tileSize={256}
+            noWrap={true}
+            maxNativeZoom={subMap.zoom}
+            format={'image/png'}
+            zIndex={zIndex++}
+          />
+        );
 
         layerElements.push(layerElement);
       }      
@@ -232,12 +257,21 @@ class TileLayersControl extends PureComponent {
 
     let selectedLayers = this.props.selectedLayers[ViewerUtility.tileLayerType];
 
-    if (layerName === GroasisUtility.layers.tile.highRes) {
-      if (selectedLayers.includes(GroasisUtility.layers.tile.lowRes)){
+    let resetTimestamps = false;
+    if (!selectedLayers.includes(GroasisUtility.layers.tile.lowRes) &&
+      !selectedLayers.includes(GroasisUtility.layers.tile.lowResCir) &&
+      !selectedLayers.includes(GroasisUtility.layers.tile.highRes) &&
+      !selectedLayers.includes(GroasisUtility.layers.tile.highResCir)) {
+      resetTimestamps = true;
+    }
+
+    if (layerName === GroasisUtility.layers.tile.highRes || layerName === GroasisUtility.layers.tile.highResCir) {
+      if (selectedLayers.includes(GroasisUtility.layers.tile.lowRes)) {
         layerChanges.push({
           name: GroasisUtility.layers.tile.lowRes,
           add: false
         });
+        resetTimestamps = true;
       }
 
       if (selectedLayers.includes(GroasisUtility.layers.tile.lowResCir)){
@@ -245,14 +279,16 @@ class TileLayersControl extends PureComponent {
           name: GroasisUtility.layers.tile.lowResCir,
           add: false
         });
+        resetTimestamps = true;
       }
     }
-    else if (layerName === GroasisUtility.layers.tile.lowRes) {
+    else if (layerName === GroasisUtility.layers.tile.lowRes || layerName === GroasisUtility.layers.tile.lowResCir) {
       if (selectedLayers.includes(GroasisUtility.layers.tile.highRes)) {
         layerChanges.push({
           name: GroasisUtility.layers.tile.highRes,
           add: false
         });
+        resetTimestamps = true;
       }
 
       if (selectedLayers.includes(GroasisUtility.layers.tile.highResCir)) {
@@ -260,10 +296,11 @@ class TileLayersControl extends PureComponent {
           name: GroasisUtility.layers.tile.highResCir,
           add: false
         });
+        resetTimestamps = true;
       }
     }
 
-    this.props.onSelectedLayersChange(ViewerUtility.tileLayerType, layerChanges);
+    this.props.onSelectedLayersChange(ViewerUtility.tileLayerType, layerChanges, resetTimestamps);
   }
 
   onExpandClick = () => {
