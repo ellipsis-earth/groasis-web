@@ -81,10 +81,10 @@ class ControlsPane extends PureComponent {
           onLayersChange={(layers) => this.onLayersChange(ViewerUtility.tileLayerType, layers)}
         />
 
-        {/* <PolygonLayersControl
+        <PolygonLayersControl
           ref={this.polygonLayersControl}
           user={this.props.user}
-          map={this.state.map}
+          map={this.props.map}
           leafletMapViewport={this.props.leafletMapViewport}
           timestampRange={this.props.timestampRange}
           override={this.props.override}
@@ -93,7 +93,7 @@ class ControlsPane extends PureComponent {
           markerSize={this.props.markerSize}
         />
 
-        <StandardTileLayersControl
+        {/* <StandardTileLayersControl
           ref={this.standardTileLayersControl}
           user={this.props.user}
           map={this.state.referenceMap}

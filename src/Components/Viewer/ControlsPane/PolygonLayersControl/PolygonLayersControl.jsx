@@ -17,6 +17,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import SaveAlt from '@material-ui/icons/SaveAlt';
 
 import Utility from '../../../../Utility';
+import GroasisUtility from '../../GroasisUtility';
 import ViewerUtility from '../../ViewerUtility';
 
 import './PolygonLayersControl.css';
@@ -72,7 +73,17 @@ class PolygonLayersControl extends PureComponent {
       let selectedLayers = this.state.selectedLayers;
 
       if (differentMap) {
-        availableLayers = this.props.map.layers.polygon;
+        let referenceMap = this.props.map.referenceMap;
+        let polygonLayers = referenceMap.layers.polygon;
+
+        let groasisPolygonLayers = GroasisUtility.layers.polygon;
+
+        availableLayers = [
+          polygonLayers.find(x => x.id === groasisPolygonLayers.trees),
+          polygonLayers.find(x => x.id === groasisPolygonLayers.objectOfInterest),
+          polygonLayers.find(x => x.id === groasisPolygonLayers.plantingLines)
+        ];
+
         selectedLayers = [];
         this.layerGeoJsons = {};
 
@@ -176,7 +187,7 @@ class PolygonLayersControl extends PureComponent {
 
     for (let i = 0; i < availableLayers.length; i++) {
 
-      let polygonLayer = availableLayers[i]
+      let polygonLayer = availableLayers[i];
 
       if (!selectedLayers.find(x => x.name === polygonLayer.name)) {
         continue;
@@ -236,10 +247,8 @@ class PolygonLayersControl extends PureComponent {
             features: []
           };
 
-          for (let i = polygonsGeoJson.features.length - 1; i >= 0; i--)
-          {
-            if (polygonsGeoJson.features[i] && polygonsGeoJson.features[i].geometry.type === 'LineString')
-            {
+          for (let i = polygonsGeoJson.features.length - 1; i >= 0; i--) {
+            if (polygonsGeoJson.features[i] && polygonsGeoJson.features[i].geometry.type === 'LineString') {
               linesCollection.features.push(polygonsGeoJson.features[i]);
               linesCollection.count = linesCollection.count + 1;
 

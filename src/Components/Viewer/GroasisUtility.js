@@ -16,6 +16,8 @@ const LOWRES_TYPE = 'lowres';
 const SOIL_TYPE = 'soil';
 const WEATHER_TYPE = 'weather';
 
+const POLYGON_TREES_LAYER_ID = '3e79cd22-7deb-4303-bbd3-84a74f43a14e';
+
 const MAP_TYPES = [
   ALTITUDE_TYPE,
   HIGHRES_TYPE,
@@ -51,6 +53,11 @@ const GroasisUtility = {
       lowRes: 'rgb (low res)',
       lowResCir: 'CIR (low res)',
       contour: 'contour'
+    },
+    polygon: {
+      trees: '3e79cd22-7deb-4303-bbd3-84a74f43a14e',
+      objectOfInterest: 'a2cd2b9f-9bda-4f5e-80dd-abf300708f96',
+      plantingLines: 'c3aafae2-3b85-4117-a2df-97ba6ea3b324'
     }
   },
 

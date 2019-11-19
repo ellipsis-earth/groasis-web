@@ -102,24 +102,26 @@ class Viewer extends PureComponent {
   }
 
   initializeDrawingControl = () => {
-    let map = this.leafletMap.current.leafletElement;
+    // let map = this.leafletMap.current.leafletElement;
 
-    let drawControl = new L.Control.Draw({
-      draw: {
-        polygon: {
-          allowIntersection: false
-        },
-        rectangle: false,
-        marker: true,
-        polyline: true,
-        circle: false,
-        circlemarker: false
-      },
-      edit: false
-    });
+    // let drawControl = new L.Control.Draw({
+    //   draw: {
+    //     polygon: {
+    //       allowIntersection: false
+    //     },
+    //     rectangle: false,
+    //     marker: true,
+    //     polyline: true,
+    //     circle: false,
+    //     circlemarker: false
+    //   },
+    //   edit: false
+    // });
 
-    map.addControl(drawControl);
-    map.on(L.Draw.Event.CREATED, this.onShapeDrawnClosure);
+    // map.removeC
+
+    // map.addControl(drawControl);
+    // map.on(L.Draw.Event.CREATED, this.onShapeDrawnClosure);
   }
 
   componentDidMount() {

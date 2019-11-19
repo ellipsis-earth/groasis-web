@@ -56,7 +56,7 @@ class SelectionPane extends PureComponent {
   deleteCustomPolygon = () => {
     this.setState({ loading: true }, () => {
       let body = {
-        mapId: this.props.map.id,
+        mapId: this.props.map.referenceMap.id,
         polygonId: this.props.element.feature.properties.id
       };
 
@@ -102,7 +102,7 @@ class SelectionPane extends PureComponent {
     let type = element.type;
     let feature = element.feature;
 
-    let nameComponents = [this.props.map.name];
+    let nameComponents = [this.props.map.refenceMap.name];
 
     if (type === ViewerUtility.standardTileLayerType) {
       nameComponents.push(
@@ -255,7 +255,7 @@ class SelectionPane extends PureComponent {
     else if (element.type === ViewerUtility.drawnPolygonLayerType) {
       title = 'Drawn polygon';
 
-      let nonRestrictedLayer = this.props.map.layers.polygon.find(x => !x.restricted);
+      let nonRestrictedLayer = this.props.map.referenceMap.layers.polygon.find(x => !x.restricted);
 
       let canAdd = user && 
         mapAccessLevel >= ApiManager.accessLevels.addPolygons &&
@@ -310,7 +310,7 @@ class SelectionPane extends PureComponent {
       <div>
         {this.state.annotate ? 
           <AnnotatePane 
-            map={this.props.map}
+            map={this.props.map.referenceMap}
             user={this.props.user}
             tileId={this.props.element.id}
             timestamp={this.props.timestampRange.end}
