@@ -26,18 +26,6 @@ const IMAGES_LAYER_TYPE = 'images';
 const LABELS_LAYER_TYPE = 'labels';
 const IMAGES2_LAYER_TYPE = 'images2';
 
-const BASE_SATELLITE_LAYER_TYPE = {
-  name: BASE_SATELLITE_LAYER_NAME,
-  defaultSelected: true,
-  stacking: false,
-  zIndex: ViewerUtility.tileLayerZIndex
-}
-
-const BASE_SATELLITE_AVAILABLE_LAYER = {
-  type: BASE_SATELLITE_LAYER_NAME,
-  name: BASE_SATELLITE_LAYER_NAME
-}
-
 const AVAILABLE_LAYERS = [
   {
     name: GroasisUtility.layers.tile.base,
@@ -54,11 +42,25 @@ const AVAILABLE_LAYERS = [
     urlName: 'rgb'
   },
   {
+    name: GroasisUtility.layers.tile.highResCir,
+    type: IMAGES_LAYER_TYPE,
+    mapType: GroasisUtility.types.highRes,
+    stacking: true,
+    urlName: 'CIR'
+  },
+  {
     name: GroasisUtility.layers.tile.lowRes,
     type: IMAGES_LAYER_TYPE,
-    mapType: GroasisUtility.types.lowres,
+    mapType: GroasisUtility.types.lowRes,
     stacking: true,
     urlName: 'rgb'
+  },
+  {
+    name: GroasisUtility.layers.tile.lowResCir,
+    type: IMAGES_LAYER_TYPE,
+    mapType: GroasisUtility.types.lowRes,
+    stacking: true,
+    urlName: 'CIR'
   }
 ];
 
@@ -119,7 +121,7 @@ class TileLayersControl extends PureComponent {
     }
   }
 
-  createLayerCheckboxes = () => {
+  renderCheckboxes = () => {
     let options = [];
 
     let availableLayers = AVAILABLE_LAYERS;
@@ -130,8 +132,25 @@ class TileLayersControl extends PureComponent {
       let availableLayer = availableLayers[i];
       let checked = selectedLayers.find(x => x === availableLayer.name) ? true : false;
 
+      let label = null;
+      if (i === 1) {
+        label = (<div>High res</div>);
+      }
+      else if (i === 3) {
+        label = (<div>Low res</div>);
+      }
+
+      let name = 'base';
+      if (i === 1 || i === 3) {
+        name = 'rgb';
+      }
+      else if (i === 2 || i === 4) {
+        name = 'CIR';
+      }
+
       let option = (
         <div key={availableLayer.name}>
+          {label}
           <Checkbox
             key={availableLayer.name}
             classes={{ root: 'layers-control-checkbox' }}
@@ -141,7 +160,7 @@ class TileLayersControl extends PureComponent {
             onChange={this.onLayerChange}
             checked={checked}
           />
-          {availableLayer.name}
+          {name}
         </div>
       )
 
@@ -199,8 +218,6 @@ class TileLayersControl extends PureComponent {
       }      
     }
 
-    debugger;
-
     this.props.onLayersChange(layerElements);    
   }
 
@@ -215,19 +232,35 @@ class TileLayersControl extends PureComponent {
 
     let selectedLayers = this.props.selectedLayers[ViewerUtility.tileLayerType];
 
-    if (layerName === GroasisUtility.layers.tile.highRes && 
-      selectedLayers.includes(GroasisUtility.layers.tile.lowRes)) {
-      layerChanges.push({
-        name: GroasisUtility.layers.tile.lowRes,
-        add: false
-      });
+    if (layerName === GroasisUtility.layers.tile.highRes) {
+      if (selectedLayers.includes(GroasisUtility.layers.tile.lowRes)){
+        layerChanges.push({
+          name: GroasisUtility.layers.tile.lowRes,
+          add: false
+        });
+      }
+
+      if (selectedLayers.includes(GroasisUtility.layers.tile.lowResCir)){
+        layerChanges.push({
+          name: GroasisUtility.layers.tile.lowResCir,
+          add: false
+        });
+      }
     }
-    else if (layerName === GroasisUtility.layers.tile.lowRes &&
-      selectedLayers.includes(GroasisUtility.layers.tile.highRes)) {
+    else if (layerName === GroasisUtility.layers.tile.lowRes) {
+      if (selectedLayers.includes(GroasisUtility.layers.tile.highRes)) {
         layerChanges.push({
           name: GroasisUtility.layers.tile.highRes,
           add: false
         });
+      }
+
+      if (selectedLayers.includes(GroasisUtility.layers.tile.highResCir)) {
+        layerChanges.push({
+          name: GroasisUtility.layers.tile.highResCir,
+          add: false
+        });
+      }
     }
 
     this.props.onSelectedLayersChange(ViewerUtility.tileLayerType, layerChanges);
@@ -266,7 +299,7 @@ class TileLayersControl extends PureComponent {
           <CardContent
             className={'card-content'}
           >
-            {this.createLayerCheckboxes()}
+            {this.renderCheckboxes()}
           </CardContent>
         </Collapse>
       </Card>

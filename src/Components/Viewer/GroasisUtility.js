@@ -38,7 +38,7 @@ const GroasisUtility = {
   types: {
     altitude: ALTITUDE_TYPE,
     highRes: HIGHRES_TYPE,
-    lowres: LOWRES_TYPE,
+    lowRes: LOWRES_TYPE,
     soil: SOIL_TYPE,
     weather: WEATHER_TYPE
   },
@@ -46,8 +46,10 @@ const GroasisUtility = {
   layers: {
     tile: {
       base: 'base',
-      highRes: 'high res',
-      lowRes: 'low res'
+      highRes: 'rgb (high res)',
+      highResCir: 'CIR (high res)',
+      lowRes: 'rgb (low res)',
+      lowResCir: 'CIR (low res)'
     }
   },
 
