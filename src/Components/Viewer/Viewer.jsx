@@ -87,7 +87,7 @@ class Viewer extends PureComponent {
 
       mapCollection: null,
       selectedLayers: {
-        [ViewerUtility.tileLayerType]: [GroasisUtility.layers.tile.base, GroasisUtility.layers.tile.lowRes],
+        [ViewerUtility.tileLayerType]: [GroasisUtility.layers.tile.base, GroasisUtility.layers.tile.highRes],
         [ViewerUtility.polygonLayerType]: [],
         [ViewerUtility.standardTileLayerType]: []
       },
@@ -304,16 +304,13 @@ class Viewer extends PureComponent {
     
     GroasisUtility.getMetadata(map, this.props.user)
       .then(() => {
-        let lastTimestamp = map.referenceMap.timestamps.length - 1;
+        let timestampRange = calculateTimestamps(map, this.state.selectedLayers);
 
         this.setState({
           map: map,
           dataPaneAction: dataPaneAction,
           selectedElement: null,
-          timestampRange: {
-            start: lastTimestamp,
-            end: lastTimestamp
-          },
+          timestampRange: timestampRange,
           overrideLeafletLayers: null
         }, () => {
           this.onFlyTo({ type: ViewerUtility.flyToType.map, delay: true });
@@ -344,19 +341,7 @@ class Viewer extends PureComponent {
     let timestampRange = this.state.timestampRange;
 
     if (resetTimestamps) {
-      let tileLayers = newSelectedLayers[ViewerUtility.tileLayerType];
-      let timestampReferenceMap = this.state.map[GroasisUtility.types.lowRes];
-
-      if (tileLayers.includes(GroasisUtility.layers.tile.highRes) || tileLayers.includes(GroasisUtility.layers.tile.highResCir)) {
-        timestampReferenceMap = this.state.map[GroasisUtility.types.highRes];
-      }
-
-      let lastTimestamp = timestampReferenceMap.timestamps.length - 1;
-
-      timestampRange = {
-        start: lastTimestamp,
-        end: lastTimestamp
-      };
+      timestampRange = calculateTimestamps(this.state.map, newSelectedLayers);
     }
 
     this.setState({ 
@@ -832,6 +817,22 @@ function getLeafletMapBounds(leafletMap) {
   }
 
   return bounds;
+}
+
+function calculateTimestamps(map, selectedLayers) {
+  let tileLayers = selectedLayers[ViewerUtility.tileLayerType];
+  let timestampReferenceMap = map[GroasisUtility.types.lowRes];
+
+  if (tileLayers.includes(GroasisUtility.layers.tile.highRes) || tileLayers.includes(GroasisUtility.layers.tile.highResCir)) {
+    timestampReferenceMap = map[GroasisUtility.types.highRes];
+  }
+
+  let lastTimestamp = timestampReferenceMap.timestamps.length - 1;
+
+  return {
+    start: lastTimestamp,
+    end: lastTimestamp
+  };
 }
 
 export default Viewer;

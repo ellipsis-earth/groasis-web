@@ -34,20 +34,6 @@ const AVAILABLE_LAYERS = [
     urlName: null,
   },
   {
-    name: GroasisUtility.layers.tile.lowRes,
-    type: IMAGES_LAYER_TYPE,
-    mapType: GroasisUtility.types.lowRes,
-    stacking: true,
-    urlName: 'rgb'
-  },
-  {
-    name: GroasisUtility.layers.tile.lowResCir,
-    type: IMAGES_LAYER_TYPE,
-    mapType: GroasisUtility.types.lowRes,
-    stacking: true,
-    urlName: 'CIR'
-  },
-  {
     name: GroasisUtility.layers.tile.highRes,
     type: IMAGES_LAYER_TYPE,
     mapType: GroasisUtility.types.highRes,
@@ -61,6 +47,21 @@ const AVAILABLE_LAYERS = [
     stacking: true,
     urlName: 'CIR'
   },
+  {
+    name: GroasisUtility.layers.tile.lowRes,
+    type: IMAGES_LAYER_TYPE,
+    mapType: GroasisUtility.types.lowRes,
+    stacking: true,
+    urlName: 'rgb'
+  },
+  {
+    name: GroasisUtility.layers.tile.lowResCir,
+    type: IMAGES_LAYER_TYPE,
+    mapType: GroasisUtility.types.lowRes,
+    stacking: true,
+    urlName: 'CIR'
+  },
+
   {
     name: GroasisUtility.layers.tile.contour,
     type: IMAGES2_LAYER_TYPE,
@@ -141,10 +142,10 @@ class TileLayersControl extends PureComponent {
 
       let label = null;
       if (i === 1) {
-        label = (<div>Low res:</div>);
+        label = (<div>High res:</div>);
       }
       else if (i === 3) {
-        label = (<div>High res:</div>);
+        label = (<div>Low res:</div>);
       }
       else if (i === 5) {
         label = (<div>Altitude:</div>);
