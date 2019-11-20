@@ -13,6 +13,7 @@ import {
   faPen, 
   faSearchPlus, 
   faSearchMinus, 
+  faSearchLocation,
   faPlus, 
   faMinus,
   faTree,
@@ -41,6 +42,16 @@ export class MapControl extends PureComponent {
 
   onPlantTree = () => {
     new L.Draw.Marker(this.props.leafletMap.current.leafletElement).enable();
+  }
+
+  onShowLocations = () => {
+    let groasisMaps = this.props.groasisMaps;
+
+    let latLngBounds = [
+      [groasisMaps.bounds.yMin, groasisMaps.bounds.xMin],
+      [groasisMaps.bounds.yMax, groasisMaps.bounds.xMax],
+    ];
+    this.props.leafletMap.current.leafletElement.fitBounds(latLngBounds);
   }
 
   render() {
@@ -82,6 +93,15 @@ export class MapControl extends PureComponent {
               onClick={() => this.onZoom(-1)}
             >
               <FontAwesomeIcon icon={faMinus} />              
+            </IconButton>
+          </NavItem>
+          <NavItem>
+            <IconButton
+              className='tool-button'
+              color='secondary'
+              onClick={() => this.onShowLocations()}
+            >
+              <FontAwesomeIcon icon={faSearchLocation} />              
             </IconButton>
           </NavItem>
         </Nav>

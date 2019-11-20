@@ -73,6 +73,12 @@ const GroasisUtility = {
         let groasisMaps = {
           subatlases: []
         };
+        let bounds = {
+          xMin: Number.MAX_VALUE,
+          xMax: -Number.MAX_VALUE,
+          yMin: Number.MAX_VALUE,
+          yMax: -Number.MAX_VALUE
+        };
         
         for (let i = 0; i < maps.length; i++) {
           let map = maps[i];
@@ -92,18 +98,37 @@ const GroasisUtility = {
           if (mapInfo.type === LOWRES_TYPE) {
             groasisMap.referenceMap = map;
           }
+
+          if (map.xMin < bounds.xMin) {
+            bounds.xMin = map.xMin;
+          }
+          if (map.xMax > bounds.xMax) {
+            bounds.xMax = map.xMax;
+          }
+  
+          if (map.yMin < bounds.yMin) {
+            bounds.yMin = map.yMin;
+          }
+          if (map.yMax > bounds.yMax) {
+            bounds.yMax = map.yMax;
+          }
         }
+
+        groasisMaps.bounds = bounds;
 
         for (let i = 0; i < groasisMaps.subatlases.length; i++) {
           let subatlas = groasisMaps.subatlases[i];
-          let groasisMap = groasisMaps[subatlas];
+          let groasisMap = groasisMaps[subatlas];  
 
           for (let y = 0; y < MAP_TYPES.length; y++) {
             let mapType = MAP_TYPES[y];
-            if (!groasisMap[mapType]) {
+
+            let subMap = groasisMap[mapType];
+
+            if (!subMap) {
               delete groasisMap[subatlas];
               break;
-            }
+            } 
           }
         }
 

@@ -166,6 +166,12 @@ class Viewer extends PureComponent {
         this.subatlasesLayer = groasisMaps.geoJsonElement;
         this.rebuildAllLayers();
         this.setState({ groasisMaps: groasisMaps });
+
+        let latLngBounds = [
+          [groasisMaps.bounds.yMin, groasisMaps.bounds.xMin],
+          [groasisMaps.bounds.yMax, groasisMaps.bounds.xMax],
+        ];
+        this.leafletMap.current.leafletElement.fitBounds(latLngBounds);
       });
   }
 
@@ -755,6 +761,7 @@ class Viewer extends PureComponent {
             <MapControl
               leafletMap={this.leafletMap}
               mode={this.props.mode}
+              groasisMaps={this.state.groasisMaps}
               geolocation={this.state.geolocation}
             />            
           </div>
