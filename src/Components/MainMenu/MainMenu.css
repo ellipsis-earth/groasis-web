@@ -64,6 +64,10 @@
   text-align: right;
 }
 
+.main-menu .MuiSwitch-colorSecondary.Mui-checked {
+  color: #fafafa;
+}
+
 .navbar-nav a:hover {
   color: rgba(255,255,255,.75);
 }

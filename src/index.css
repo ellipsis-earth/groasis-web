@@ -42,7 +42,7 @@ img {
 }
 
 h1, h2, h3, h4 {
-  color: #026464;
+  color: #39f;
   font-weight: bold;
 }
 
@@ -56,7 +56,7 @@ a.MuiButton-containedPrimary:hover {
 }
 
 a.MuiButton-outlinedPrimary:hover {
-  color: #026464;
+  color: #39f;
 }
 
 h4 {

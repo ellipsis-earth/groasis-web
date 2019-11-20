@@ -80,6 +80,9 @@ const ViewerUtility = {
     customPolygon: CUSTOM_POLYGON
   },
 
+  viewerMode: 0,
+  plannerMode: 1,
+
   download: (fileName, text, mime) => {
     if (isMobile && isAndroid) {
       const fileStream = streamSaver.createWriteStream(fileName);

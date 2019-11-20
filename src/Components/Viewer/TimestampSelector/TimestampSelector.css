@@ -14,13 +14,13 @@
 
 
 .timestamp-selector span.MuiSlider-root {
-  color: #027777;
+  color: #39f;
   height: 6px;
 }
 
 .timestamp-selector span.MuiSlider-rail {
   height: 6px;
-  background-color: #026464;
+  background-color: #87cef3;
 }
 
 .timestamp-selector span.MuiSlider-track {
@@ -37,19 +37,8 @@
 }
 
 .timestamp-selector span.MuiSlider-mark {
-  background-color: #039e9e;
+  background-color: #4b483f;
   height: 8px;
   width: 1px;
   margin-top: -1px;
 }
-
-/* .time-range-selector {
-  opacity: 0.25;
-  -webkit-transition: opacity 0.25s;
-  transition: opacity 0.25s;
-}
-
-.time-range-selector:hover, .time-range-selector:active, .time-range-selector:focus
-{
-  opacity: 1;
-} */

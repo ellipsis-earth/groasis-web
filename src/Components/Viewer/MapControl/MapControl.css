@@ -1,0 +1,31 @@
+.map-control {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  width: 30px;
+  height: auto;
+  background-color: #ffffff;
+  outline: #b0b0b0 solid 2px;
+  z-index: 500;
+}
+
+.map-control .nav-item:not(:last-of-type) {
+  border-bottom: 1px solid #b0b0b0;
+}
+
+.map-control .nav-item button {
+  display: block;
+  width: 30px;
+  height: 30px;
+  padding: 4px;
+  font-size: 14px;
+}
+
+.map-control-planner {
+  top: 104px;
+  outline: #87cef3 solid 2px;
+}
+
+.map-control-planner .nav-item:not(:last-of-type) {
+  border-bottom: 1px solid #87cef3;
+}

@@ -1,6 +1,8 @@
 import React, { PureComponent } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-
+import {
+  Button
+} from '@material-ui/core';
 import { Map, Marker, GeoJSON } from 'react-leaflet';
 import 'leaflet-draw';
 import L, {divIcon} from 'leaflet';
@@ -15,6 +17,7 @@ import GroasisUtility from './GroasisUtility';
 
 import TimestampSelector from './TimestampSelector/TimestampSelector';
 import MapHeader from './MapHeader/MapHeader';
+import MapControl from './MapControl/MapControl';
 
 import ControlsPane from './ControlsPane/ControlsPane';
 import DataPane from './DataPane/DataPane';
@@ -102,7 +105,7 @@ class Viewer extends PureComponent {
   }
 
   initializeDrawingControl = () => {
-    // let map = this.leafletMap.current.leafletElement;
+    let map = this.leafletMap.current.leafletElement;
 
     // let drawControl = new L.Control.Draw({
     //   draw: {
@@ -121,7 +124,7 @@ class Viewer extends PureComponent {
     // map.removeC
 
     // map.addControl(drawControl);
-    // map.on(L.Draw.Event.CREATED, this.onShapeDrawnClosure);
+    map.on(L.Draw.Event.CREATED, this.onShapeDrawnClosure);
   }
 
   componentDidMount() {
@@ -736,10 +739,7 @@ class Viewer extends PureComponent {
               map={this.state.map}
               selectedLayers={this.state.selectedLayers}
               onSelectTimestamp={this.onSelectTimestamp}
-            />
-            <MapHeader
-              map={this.state.map}
-            />
+            />  
             <SelectionPane
               ref={this.selectionPane}
               user={this.props.user}
@@ -757,11 +757,21 @@ class Viewer extends PureComponent {
               zoom={DEFAULT_VIEWPORT.zoom}
               ref={this.leafletMap}
               maxZoom={maxZoom}
+              zoomControl={false}
+              attributionControl={false}
               onViewportChanged={this.onLeafletMapViewportChanged}
             >
               {this.state.allLayers}
               {this.state.geolocation ? <Marker position={this.state.geolocation} icon={ViewerUtility.returnMarker('#3388ff', markerSize, 'PersonPinCircle')}/> : null}
             </Map>
+            <MapHeader
+              map={this.state.map}
+            />
+            <MapControl
+              leafletMap={this.leafletMap}
+              mode={this.props.mode}
+              geolocation={this.state.geolocation}
+            />            
           </div>
 
           <DataPane
@@ -784,21 +794,27 @@ class Viewer extends PureComponent {
         </div>
 
         <div className='viewer-menu'>
-          <div className='button viewer-menu-button' onClick={() => this.openPane(CONTROL_PANE_NAME, true)}>
-            <div className='viewer-menu-button-content'>
-              {"Control"}
-            </div>
-          </div>
-          <div className='button viewer-menu-button' onClick={() => this.openPane(MAP_PANE_NAME, true)}>
-            <div className='viewer-menu-button-content'>
-              {"Map"}
-            </div>
-          </div>
-          <div className='button viewer-menu-button' onClick={() => this.openPane(DATA_PANE_NAME, true)}>
-            <div className='viewer-menu-button-content'>
-              {"Data"}
-            </div>
-          </div>
+          <Button
+            variant='contained'
+            color='primary'
+            onClick={() => this.openPane(CONTROL_PANE_NAME, true)}
+          >
+            Control
+          </Button>
+          <Button
+            variant='contained'
+            color='primary'
+            onClick={() => this.openPane(MAP_PANE_NAME, true)}
+          >
+            Map
+          </Button>
+          <Button
+            variant='contained'
+            color='primary'
+            onClick={() => this.openPane(DATA_PANE_NAME, true)}
+          >
+            Data
+          </Button>
         </div>
       </div>
     );
