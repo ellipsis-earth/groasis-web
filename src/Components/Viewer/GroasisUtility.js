@@ -55,9 +55,9 @@ const GroasisUtility = {
       contour: 'contour'
     },
     polygon: {
-      trees: '3e79cd22-7deb-4303-bbd3-84a74f43a14e',
-      objectOfInterest: 'a2cd2b9f-9bda-4f5e-80dd-abf300708f96',
-      plantingLines: 'c3aafae2-3b85-4117-a2df-97ba6ea3b324'
+      trees: 'Trees',
+      objectOfInterest: 'Objects of interest',
+      plantingLines: 'Planting lines'
     }
   },
 

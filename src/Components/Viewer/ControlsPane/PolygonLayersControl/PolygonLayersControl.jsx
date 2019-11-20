@@ -79,9 +79,9 @@ class PolygonLayersControl extends PureComponent {
         let groasisPolygonLayers = GroasisUtility.layers.polygon;
 
         availableLayers = [
-          polygonLayers.find(x => x.id === groasisPolygonLayers.trees),
-          polygonLayers.find(x => x.id === groasisPolygonLayers.objectOfInterest),
-          polygonLayers.find(x => x.id === groasisPolygonLayers.plantingLines)
+          polygonLayers.find(x => x.name === groasisPolygonLayers.trees),
+          polygonLayers.find(x => x.name === groasisPolygonLayers.objectOfInterest),
+          polygonLayers.find(x => x.name === groasisPolygonLayers.plantingLines)
         ];
 
         selectedLayers = [];
@@ -259,7 +259,7 @@ class PolygonLayersControl extends PureComponent {
               linesCollection.features.push(feature);
             }
             else {
-              if (polygonLayer.id === GroasisUtility.layers.polygon.trees && geometry.type === 'Polygon') {
+              if (polygonLayer.name === GroasisUtility.layers.polygon.trees && geometry.type === 'Polygon') {
                 let treeBounds = ViewerUtility.getBounds(geometry.coordinates);
 
                 if (treeBounds === null) {
