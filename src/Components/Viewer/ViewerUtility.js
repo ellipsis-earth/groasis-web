@@ -113,6 +113,59 @@ const ViewerUtility = {
     };
   },
 
+  getBounds: (coordinates) => {
+    let bounds = {
+      xMin: Number.MAX_VALUE,
+      xMax: -Number.MAX_VALUE,
+      yMin: Number.MAX_VALUE,
+      yMax: -Number.MAX_VALUE,
+      length: 0
+    };
+
+    let getBoundsAux = (subCoordinates, bounds) => {
+      if (!Array.isArray(subCoordinates)) {
+        return;
+      }
+
+      let xCoord = subCoordinates[0];
+      let yCoord = subCoordinates[1]; 
+
+      if (!isNaN(xCoord) && !isNaN(yCoord)) {
+        let validX = xCoord >= -180 && xCoord <= 180;
+        let validY = yCoord >= -90 && yCoord <= 90;
+  
+        if (!validX || !validY) {
+          return null;
+        }
+
+        if (xCoord < bounds.xMin) {
+          bounds.xMin = xCoord;
+        }
+        if (xCoord > bounds.xMax) {
+          bounds.xMax = xCoord;
+        }
+
+        if (yCoord < bounds.yMin) {
+          bounds.yMin = yCoord;
+        }
+        if (yCoord > bounds.yMax) {
+          bounds.yMax = yCoord;
+        }
+
+        bounds.length++;
+      }
+      else {
+        for (let i = 0; i < subCoordinates.length; i++) {
+          getBoundsAux(subCoordinates[i], bounds);
+        }
+      }
+    }
+
+    getBoundsAux(coordinates, bounds);
+
+    return bounds;
+  },
+
   isPrivateProperty: 'isPrivate',
 
   returnMarker: (color, markerSize, iconName) => {

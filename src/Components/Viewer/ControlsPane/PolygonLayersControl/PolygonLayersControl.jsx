@@ -241,21 +241,51 @@ class PolygonLayersControl extends PureComponent {
 
           let icon = ViewerUtility.returnMarker(`#${polygonLayer.color}`, this.props.markerSize, 'RoomTwoTone');          
 
-          let linesCollection = {
+          let geometryCollection = {
             type: 'FeatureCollection',
-            count: 0,
             features: []
           };
 
-          for (let i = polygonsGeoJson.features.length - 1; i >= 0; i--) {
-            if (polygonsGeoJson.features[i] && polygonsGeoJson.features[i].geometry.type === 'LineString') {
-              linesCollection.features.push(polygonsGeoJson.features[i]);
-              linesCollection.count = linesCollection.count + 1;
+          let linesCollection = {
+            type: 'FeatureCollection',
+            features: []
+          };
 
-              polygonsGeoJson.count = polygonsGeoJson.count - 1;
-              polygonsGeoJson.features.splice(i,1);
+          for (let i = 0; i < polygonsGeoJson.features.length; i++) {
+            let feature = polygonsGeoJson.features[i];
+            let geometry = feature.geometry;
+
+            if (geometry.type === 'LineString') {
+              linesCollection.features.push(feature);
+            }
+            else {
+              if (polygonLayer.id === GroasisUtility.layers.polygon.trees && geometry.type === 'Polygon') {
+                let treeBounds = ViewerUtility.getBounds(geometry.coordinates);
+
+                if (treeBounds === null) {
+                  continue;
+                }
+
+                let center = [
+                  treeBounds.xMin + (treeBounds.xMax - treeBounds.xMin) / 2,
+                  treeBounds.yMin + (treeBounds.yMax - treeBounds.yMin) / 2
+                ];
+
+                let pointGeometry = {
+                  type: 'Point',
+                  coordinates: center
+                };
+
+                feature.originalGeometry = feature.geometry;
+                feature.geometry = pointGeometry;
+              } 
+
+              geometryCollection.features.push(feature);
             }
           }
+
+          geometryCollection.count = geometryCollection.features.length;
+          linesCollection.count = linesCollection.features.length;
 
           return (
             [<GeoJSON
