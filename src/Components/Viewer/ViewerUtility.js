@@ -1,5 +1,6 @@
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
+import L from 'leaflet';
 
 import {divIcon} from 'leaflet';
 
@@ -23,6 +24,9 @@ const ViewerUtility = {
   standardTileLayerType: STANDARD_TILE,
   wmsTileLayerType: WMS_TILE,
   subatlasElementType: SUBATLAS_ELEMENT,
+
+  treeElementType: 'tree',
+  newTreeElementType: 'new_tree',
 
   polygonLayerType: POLYGON,
   customPolygonTileLayerType: CUSTOM_POLYGON,
@@ -82,6 +86,34 @@ const ViewerUtility = {
 
   viewerMode: 0,
   plannerMode: 1,
+
+  markerSize: { x: 17, y: 24 },
+
+  selection: {
+    specialProperty: {
+      prefix: '_',
+
+      type: '_type'
+    }
+  },
+
+  createMarker: (latlng, icon) => {
+    return L.marker(latlng, { icon: icon });
+  },
+
+  returnMarker: (color, markerSize, iconName) => {
+    let IconClass = require(('@material-ui/icons/' + iconName)).default;
+    let temp = <IconClass viewBox={`${markerSize.y/4} 0 ${markerSize.y/2} ${markerSize.y}`} className="layerMarker" style={{fill: color, filter: 'drop-shadow(1px 1px 1px rgba(0,0,0,0.5))', width: markerSize.x*2 + 'px', height: markerSize.y*2 + 'px'}}/>;
+    let markerIcon = renderToStaticMarkup(temp);
+    let icon = divIcon({
+      className: 'layerDivIcon',
+      html: markerIcon,
+      iconSize: [markerSize.x*2, markerSize.y*2],
+      iconAnchor: [markerSize.x, markerSize.y*2],
+    });
+
+    return icon;
+  },
 
   download: (fileName, text, mime) => {
     if (isMobile && isAndroid) {
@@ -171,19 +203,7 @@ const ViewerUtility = {
 
   isPrivateProperty: 'isPrivate',
 
-  returnMarker: (color, markerSize, iconName) => {
-    let IconClass = require(('@material-ui/icons/' + iconName)).default;
-    let temp = <IconClass viewBox={`${markerSize.y/4} 0 ${markerSize.y/2} ${markerSize.y}`} className="layerMarker" style={{fill: color, filter: 'drop-shadow(1px 1px 1px rgba(0,0,0,0.5))', width: markerSize.x*2 + 'px', height: markerSize.y*2 + 'px'}}/>;
-    let markerIcon = renderToStaticMarkup(temp);
-    let icon = divIcon({
-      className: 'layerDivIcon',
-      html: markerIcon,
-      iconSize: [markerSize.x*2, markerSize.y*2],
-      iconAnchor: [markerSize.x, markerSize.y*2],
-    });
 
-    return icon;
-  }
 
 }
 

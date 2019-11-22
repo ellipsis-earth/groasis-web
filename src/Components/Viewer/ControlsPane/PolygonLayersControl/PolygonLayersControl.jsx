@@ -287,13 +287,18 @@ class PolygonLayersControl extends PureComponent {
           geometryCollection.count = geometryCollection.features.length;
           linesCollection.count = linesCollection.features.length;
 
+          let elementType = polygonLayer.name === GroasisUtility.layers.polygon.trees ?
+            ViewerUtility.treeElementType : ViewerUtility.polygonLayerType;
+
           return (
             [<GeoJSON
               key={Math.random()}
               data={polygonsGeoJson}
               style={ViewerUtility.createGeoJsonLayerStyle(`#${polygonLayer.color}`)}
               zIndex={ViewerUtility.polygonLayerZIndex + i}
-              onEachFeature={(feature, layer) => {layer.on({ click: () => this.onFeatureClick(feature, polygonLayer.hasAggregatedData) })}}
+              onEachFeature={(feature, layer) => {layer.on({ 
+                click: () => this.props.onFeatureClick(elementType, feature, polygonLayer.hasAggregatedData) 
+              })}}
               pointToLayer={(geoJsonPoint, latlng) => this.markerReturn(latlng, icon)}
             />,
             <GeoJSON
@@ -301,7 +306,9 @@ class PolygonLayersControl extends PureComponent {
               data={linesCollection}
               style={ViewerUtility.createGeoJsonLayerStyle(`#${polygonLayer.color}`, 3)}
               zIndex={ViewerUtility.polygonLayerZIndex + i}
-              onEachFeature={(feature, layer) => {layer.on({ click: () => this.onFeatureClick(feature, polygonLayer.hasAggregatedData) })}}
+              onEachFeature={(feature, layer) => {layer.on({ 
+                click: () => this.props.onFeatureClick(elementType, feature, polygonLayer.hasAggregatedData) 
+              })}}
             />
             ]
           );
@@ -362,10 +369,6 @@ class PolygonLayersControl extends PureComponent {
 
   onExpandClick = () => {
     this.setState({ expanded: !this.state.expanded });
-  }
-
-  onFeatureClick = (feature, hasAggregatedData) => {
-    this.props.onFeatureClick(feature, hasAggregatedData);
   }
 
   onDownload = (layerName) => {

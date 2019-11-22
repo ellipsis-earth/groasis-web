@@ -30,7 +30,6 @@ import './Viewer.css';
 
 // This block is purely to get the marker icon of Leaflet to work.
 // Taken somewhere from the web.
-const markerSize = {x: 17, y: 24};
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -38,8 +37,8 @@ L.Icon.Default.mergeOptions({
   iconUrl: '/images/marker.svg',
   shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
   className: 'layerDivIcon',
-  iconSize: [markerSize.x * 2, markerSize.y * 2],
-  iconAnchor: [markerSize.x, markerSize.y * 2],
+  iconSize: [ViewerUtility.markerSize.x * 2, ViewerUtility.markerSize.y * 2],
+  iconAnchor: [ViewerUtility.markerSize.x, ViewerUtility.markerSize.y * 2],
 });
 
 const MAP_PANE_NAME = 'map_pane';
@@ -104,29 +103,6 @@ class Viewer extends PureComponent {
     };
   }
 
-  initializeDrawingControl = () => {
-    let map = this.leafletMap.current.leafletElement;
-
-    // let drawControl = new L.Control.Draw({
-    //   draw: {
-    //     polygon: {
-    //       allowIntersection: false
-    //     },
-    //     rectangle: false,
-    //     marker: true,
-    //     polyline: true,
-    //     circle: false,
-    //     circlemarker: false
-    //   },
-    //   edit: false
-    // });
-
-    // map.removeC
-
-    // map.addControl(drawControl);
-    map.on(L.Draw.Event.CREATED, this.onShapeDrawnClosure);
-  }
-
   componentDidMount() {
     navigator.geolocation.getCurrentPosition(
       this.setLocation,
@@ -148,8 +124,6 @@ class Viewer extends PureComponent {
 
       this.setState({ panes: panes }, () => this.leafletMap.current.leafletElement.invalidateSize());
     });
-
-    this.initializeDrawingControl();
 
     let onSubatlasClick = (feature) => {
       let element = {
@@ -212,51 +186,6 @@ class Viewer extends PureComponent {
     else if (cb) {
       cb();
     }
-  }
-
-  markerReturn = (latlng, icon) => {
-    return L.marker(latlng, {icon: icon});
-  }
-
-  onShapeDrawnClosure = (e) => {
-    let layer = e.layer;
-
-    let geoJson = layer.toGeoJSON();
-    geoJson.properties.id = Math.random();
-
-    let selectDrawnPolygon = () => {
-      if (!this.state.map) {
-        return;
-      }
-
-      this.selectFeature(ViewerUtility.drawnPolygonLayerType, geoJson, true);
-    }
-
-    let icon = ViewerUtility.returnMarker('#3388ff', markerSize, 'RoomTwoTone');
-
-    let drawnPolygonLayer = (
-      <GeoJSON
-        key={Math.random()}
-        data={geoJson}
-        zIndex={ViewerUtility.drawnPolygonLayerZIndex}
-        onEachFeature={(_, layer) => layer.on({ click: selectDrawnPolygon })}
-        pointToLayer={(geoJsonPoint, latlng) => this.markerReturn(latlng, icon)}
-      />
-    );
-
-    this.drawnPolygonGeoJson = geoJson;
-    let dataPaneAction = this.state.dataPaneAction;
-    if (dataPaneAction !== ViewerUtility.dataPaneAction.createCustomPolygon) {
-      dataPaneAction = null;
-    }
-
-    this.setState({
-      drawnPolygonLayer: drawnPolygonLayer ,
-      dataPaneAction: dataPaneAction
-    }, () => {
-      this.rebuildAllLayers();
-      selectDrawnPolygon();
-    });
   }
 
   openPane = (paneName, closePane) => {
@@ -395,6 +324,37 @@ class Viewer extends PureComponent {
     );
   }
 
+  onDrawGeometry = (geoJson, drawnGeometryElement) => {
+    this.drawnPolygonGeoJson = geoJson;
+    let dataPaneAction = this.state.dataPaneAction;
+    if (dataPaneAction !== ViewerUtility.dataPaneAction.createCustomPolygon) {
+      dataPaneAction = null;
+    }
+
+    let newState = {
+      dataPaneAction: dataPaneAction
+    };
+
+    let cb = () => {
+      this.drawnPolygonLayer = drawnGeometryElement;
+
+      this.rebuildAllLayers();
+      if (!this.state.map) {
+        return;
+      }
+
+      let type = ViewerUtility.drawnPolygonLayerType;
+      let overrideType = geoJson.properties[ViewerUtility.selection.specialProperty.type];
+      if (overrideType) {
+        type = overrideType;
+      }
+
+      this.selectFeature(type, geoJson, false);
+    }
+
+    this.setState(newState, cb);
+  }
+
   selectFeature = (type, feature, hasAggregatedData, color, cb) => {
     let id = feature.properties.id;
     if (type === ViewerUtility.standardTileLayerType) {
@@ -440,7 +400,7 @@ class Viewer extends PureComponent {
 
     color = !color ? '#3388ff' : color;
 
-    let icon = ViewerUtility.returnMarker(color, markerSize, 'RoomTwoTone');
+    let icon = ViewerUtility.returnMarker(color, ViewerUtility.markerSize, 'RoomTwoTone');
 
     let selectedElementLayer = (
       <GeoJSON
@@ -449,7 +409,7 @@ class Viewer extends PureComponent {
         style={ViewerUtility.createGeoJsonLayerStyle(color, 2, 0.3)}
         pane={markerPane}
         onEachFeature={(_, layer) => layer.on({ click: () => this.selectionPane.current.open() })}
-        pointToLayer={(geoJsonPoint, latlng) => this.markerReturn(latlng, icon)}
+        pointToLayer={(geoJsonPoint, latlng) => ViewerUtility.createMarker(latlng, icon)}
       />
     );
 
@@ -471,7 +431,8 @@ class Viewer extends PureComponent {
     }
 
     let selectedElement = this.state.selectedElement;
-    if (selectedElement && selectedElement.type === ViewerUtility.drawnPolygonLayerType) {
+    if (selectedElement && (selectedElement.type === ViewerUtility.drawnPolygonLayerType ||
+        selectedElement.type === ViewerUtility.newTreeElementType)) {
       this.removeDrawnPolygon(false)
     }
 
@@ -668,9 +629,9 @@ class Viewer extends PureComponent {
         );
       }
 
-      if (this.flyToInfo.layer) {
-        this.controlsPane.current.selectLayer(this.flyToInfo.layerType, this.flyToInfo.layer);
-      }
+      // if (this.flyToInfo.layer) {
+      //   this.controlsPane.current.selectLayer(this.flyToInfo.layerType, this.flyToInfo.layer);
+      // }
 
       this.flyToInfo = null;
     }
@@ -722,7 +683,7 @@ class Viewer extends PureComponent {
             onFeatureClick={this.selectFeature}
             onFlyTo={this.onFlyTo}
             onDeselect={this.deselectCurrentElement}
-            markerSize={markerSize}
+            markerSize={ViewerUtility.markerSize}
           />
 
           <div className='viewer-pane map-pane' style={mapPaneStyle}>
@@ -753,7 +714,7 @@ class Viewer extends PureComponent {
               onViewportChanged={this.onLeafletMapViewportChanged}
             >
               {this.state.allLayers}
-              {this.state.geolocation ? <Marker position={this.state.geolocation} icon={ViewerUtility.returnMarker('#3388ff', markerSize, 'PersonPinCircle')}/> : null}
+              {this.state.geolocation ? <Marker position={this.state.geolocation} icon={ViewerUtility.returnMarker('#3388ff', ViewerUtility.markerSize, 'PersonPinCircle')}/> : null}
             </Map>
             <MapHeader
               map={this.state.map}
@@ -763,6 +724,8 @@ class Viewer extends PureComponent {
               mode={this.props.mode}
               groasisMaps={this.state.groasisMaps}
               geolocation={this.state.geolocation}
+              onSelectFeature={this.selectFeature}
+              onDrawGeometry={this.onDrawGeometry}
             />            
           </div>
 

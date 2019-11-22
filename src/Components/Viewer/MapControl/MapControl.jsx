@@ -1,6 +1,7 @@
 import React, { PureComponent} from 'react';
 import { Navbar, Nav, NavItem } from 'react-bootstrap';
 import L, { DrawC } from 'leaflet';
+import { GeoJSON } from 'react-leaflet';
 
 import {
   Button,
@@ -13,7 +14,7 @@ import {
   faPen, 
   faSearchPlus, 
   faSearchMinus, 
-  faSearchLocation,
+  faGlobeAmericas,
   faPlus, 
   faMinus,
   faTree,
@@ -26,13 +27,31 @@ import {
 import './MapControl.css';
 import Viewer from '../Viewer';
 import ViewerUtility from '../ViewerUtility';
+import GroasisUtility from '../GroasisUtility';
 
 export class MapControl extends PureComponent {
   constructor(props, context) {
     super(props, context)
 
     this.state = {
+      drawMode: null
     };
+  }
+
+  componentDidMount = () => {
+    if (this.props.leafletMap) {
+      this.props.leafletMap.current.leafletElement.on(
+        L.Draw.Event.CREATED, this.onShapeDraw
+      );
+    }
+  }
+
+  componentDidUpdate = (prevProps) => {
+    if (prevProps.leafletMap !== this.props.leafletMap && this.props.leafletMap) {
+      this.props.leafletMap.current.leafletElement.on(
+        L.Draw.Event.CREATED, this.onShapeDraw
+      );
+    }
   }
 
   onZoom = (delta) => {
@@ -41,7 +60,32 @@ export class MapControl extends PureComponent {
   }
 
   onPlantTree = () => {
+    this.setState({ drawMode: ViewerUtility.newTreeElementType });
     new L.Draw.Marker(this.props.leafletMap.current.leafletElement).enable();
+  }
+
+  onShapeDraw = (e) => {
+    let layer = e.layer;
+
+    let geoJson = layer.toGeoJSON();
+    geoJson.properties.id = Math.random();
+    geoJson.properties[ViewerUtility.selection.specialProperty.type] = this.state.drawMode;
+
+    let icon = ViewerUtility.returnMarker('#3388ff', ViewerUtility.markerSize, 'RoomTwoTone');
+
+    let drawnGeometryElement = (
+      <GeoJSON
+        key={Math.random()}
+        data={geoJson}
+        zIndex={ViewerUtility.drawnPolygonLayerZIndex}
+        onEachFeature={(_, layer) => layer.on({ 
+          click: () => this.props.onSelectFeature(ViewerUtility.drawnPolygonLayerType, geoJson, false) 
+        })}
+        pointToLayer={(geoJsonPoint, latlng) => ViewerUtility.createMarker(latlng, icon)}
+      />
+    );
+
+    this.props.onDrawGeometry(geoJson, drawnGeometryElement);
   }
 
   onShowLocations = () => {
@@ -51,7 +95,7 @@ export class MapControl extends PureComponent {
       [groasisMaps.bounds.yMin, groasisMaps.bounds.xMin],
       [groasisMaps.bounds.yMax, groasisMaps.bounds.xMax],
     ];
-    this.props.leafletMap.current.leafletElement.fitBounds(latLngBounds);
+    this.props.leafletMap.current.leafletElement.flyToBounds(latLngBounds);
   }
 
   render() {
@@ -99,9 +143,10 @@ export class MapControl extends PureComponent {
             <IconButton
               className='tool-button'
               color='secondary'
+              style={{ fontSize: '18px' }}
               onClick={() => this.onShowLocations()}
             >
-              <FontAwesomeIcon icon={faSearchLocation} />              
+              <FontAwesomeIcon icon={faGlobeAmericas} />              
             </IconButton>
           </NavItem>
         </Nav>

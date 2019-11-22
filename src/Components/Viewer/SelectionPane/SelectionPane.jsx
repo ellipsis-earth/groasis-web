@@ -1,5 +1,7 @@
 import React, { PureComponent } from 'react';
 
+import DateFnsUtils from '@date-io/date-fns';
+import moment from 'moment';
 import {
   Card,
   Button,
@@ -8,8 +10,14 @@ import {
   CardActions,
   IconButton,
   Typography,
-  CircularProgress
+  CircularProgress,
+  TextField
 } from '@material-ui/core';
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import {
+  MuiPickersUtilsProvider,
+  KeyboardDatePicker,
+} from '@material-ui/pickers';
 import ClearIcon from '@material-ui/icons/Clear';
 import SaveAlt from '@material-ui/icons/SaveAlt';
 
@@ -32,7 +40,12 @@ class SelectionPane extends PureComponent {
 
     this.state = {
       isOpen: false,
-      loading: false
+      loading: false,
+
+      newTreeProps: {
+        species: null,
+        plantingDate: moment().format('YYYY-MM-DD')
+      }
     };
   }
 
@@ -134,6 +147,44 @@ class SelectionPane extends PureComponent {
     this.setState({ annotate: false });
   }
 
+  renderTreeInputs = () => {
+    return (
+      <div className='selection-input'>
+        <Autocomplete
+          id='species-select'   
+          className='selection-input-text'       
+          freeSolo
+          options={GroasisUtility.species}
+          style={{ width: '100%' }}
+          renderInput={params => (
+            <TextField {...params} label='Species' variant='outlined' fullWidth/>
+          )}
+        />
+        <MuiPickersUtilsProvider utils={DateFnsUtils}>
+          <KeyboardDatePicker
+            id='planting-date-picker'
+            disableToolbar
+            variant='inline'
+            format='yyyy-MM-dd'
+            margin='normal'
+            label='Planting date'
+            value={this.state.newTreeProps.plantingDate}
+            onChange={(date) => {
+              let newTreeProps = {
+                ...this.state.newTreeProps
+              };
+
+              newTreeProps.plantingDate = moment(date).format('YYYY-MM-DD');
+
+              this.setState({ newTreeProps: newTreeProps });
+            }}
+          />
+        </MuiPickersUtilsProvider>
+        
+      </div>
+    )
+  }
+
   render() {
     if (!this.state.isOpen) {
       return null;
@@ -184,7 +235,7 @@ class SelectionPane extends PureComponent {
       ];
       title = element.feature.properties[GroasisUtility.subatlasProperty].toUpperCase();
     }
-    else if (element.type !== ViewerUtility.drawnPolygonLayerType) {
+    else if (element.type !== ViewerUtility.drawnPolygonLayerType && element.type !== ViewerUtility.treeElementType) {
       firstRowButtons.push((
         <Button
           key='geoMessage'
@@ -252,6 +303,9 @@ class SelectionPane extends PureComponent {
         </Button>
       );
     }
+    else if (element.type === ViewerUtility.treeElementType) {
+      title = 'Tree';
+    }
     else if (element.type === ViewerUtility.drawnPolygonLayerType) {
       title = 'Drawn polygon';
 
@@ -274,27 +328,55 @@ class SelectionPane extends PureComponent {
         </Button>
       );
     }
+    else if (element.type === ViewerUtility.newTreeElementType) {
+      title = 'Plant tree';
+
+      firstRowButtons = [
+        <Button
+          key='add'
+          variant='contained'
+          color='primary'
+          size='small'
+          className='selection-pane-button selection-pane-button-single'
+          onClick={() => this.onElementActionClick(ViewerUtility.dataPaneAction.createCustomPolygon)}
+          disabled={false}
+        >
+          {'PLANT'}
+        </Button>
+      ];
+    }
 
     let properties = [];
+    let inputElements = [];
 
     let selectionPaneClass = 'selection-pane';
 
     for (let property in elementProperties) {
       let propertyValue = elementProperties[property];
 
-      if (property[0] === '_') {
+      if (property[0] === ViewerUtility.selection.specialProperty.prefix) {
         continue;
       }
 
-      if (element.type === ViewerUtility.drawnPolygonLayerType && property === 'id') {
+      if (element.type === ViewerUtility.drawnPolygonLayerType || 
+        element.type === ViewerUtility.newTreeElementType 
+        && property === 'id') {
         continue;
       }
+
       if (element.type === ViewerUtility.customPolygonTileLayerType
         && property === ViewerUtility.isPrivateProperty) {
         if (propertyValue === true) {
           selectionPaneClass += ' selection-pane-private';
         }
         continue;
+      }
+
+      if (element.type === ViewerUtility.treeElementType) {
+        if (property !== GroasisUtility.treeProperties.species && 
+          property !== GroasisUtility.treeProperties.plantingDate) {
+          continue;
+        }
       }
 
       if (elementProperties.hasOwnProperty(property)) {
@@ -304,6 +386,10 @@ class SelectionPane extends PureComponent {
           </div>
         ))
       }
+    }
+
+    if (element.type === ViewerUtility.newTreeElementType) {
+      inputElements = this.renderTreeInputs();
     }
        
     return (
@@ -326,7 +412,7 @@ class SelectionPane extends PureComponent {
                   type: ViewerUtility.flyToType.currentElement
                 })}
               >
-                <Typography variant="h6" component="h2" className='no-text-transform'>
+                <Typography variant='h6' component='h2' className='no-text-transform'>
                   {title}
                 </Typography>
               </Button>
@@ -354,6 +440,7 @@ class SelectionPane extends PureComponent {
           />
           <CardContent className={'card-content'}>
             {properties}
+            {inputElements}
             { this.state.loading ? <CircularProgress className='loading-spinner'/> : null}
           </CardContent>
           <CardActions className={'selection-pane-card-actions'}>

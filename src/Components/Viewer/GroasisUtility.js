@@ -64,6 +64,17 @@ const GroasisUtility = {
   allTypes: MAP_TYPES,
 
   subatlasProperty: SUBATLAS_PROPERTY,
+  
+  treeProperties: {
+    species: 'Species',
+    plantingDate: 'Planting date'
+  },
+
+  species: [
+    'Douglas',
+    'Oak',
+    'Willow'
+  ],
 
   getGroasisMaps: async (user, onFeatureClick) => {
     return ApiManager.get('/account/myMaps', null, user)
