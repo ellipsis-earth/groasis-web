@@ -726,6 +726,7 @@ class Viewer extends PureComponent {
               geolocation={this.state.geolocation}
               onSelectFeature={this.selectFeature}
               onDrawGeometry={this.onDrawGeometry}
+              onFlyTo={this.onFlyTo}
             />            
           </div>
 

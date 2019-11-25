@@ -8,7 +8,7 @@ import {
   IconButton,
   CircularProgress
 } from '@material-ui/core';
-import CircleIcon from '@material-ui/icons/FiberManualRecord';
+import MyLocationIcon from '@material-ui/icons/MyLocation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faPen, 
@@ -137,6 +137,17 @@ export class MapControl extends PureComponent {
               onClick={() => this.onZoom(-1)}
             >
               <FontAwesomeIcon icon={faMinus} />              
+            </IconButton>
+          </NavItem>
+          <NavItem>
+            <IconButton
+              className='tool-button'
+              color='secondary'              
+              onClick={() => this.props.onFlyTo({
+                type: ViewerUtility.flyToType.currentLocation
+              })}
+            >
+              <MyLocationIcon style={{ fontSize: '21px' }} />              
             </IconButton>
           </NavItem>
           <NavItem>
