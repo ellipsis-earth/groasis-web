@@ -234,8 +234,6 @@ class SelectionPane extends PureComponent {
       return null;
     }
 
-    let api = ApiManager;
-
     let map = this.props.map ? this.props.map.referenceMap : null;
     let element = this.props.element;
 
@@ -385,7 +383,7 @@ class SelectionPane extends PureComponent {
           size='small'
           className='selection-pane-button selection-pane-button-single'
           onClick={this.onPlantTree}
-          disabled={mapAccessLevel < ApiManager.accessLevels.addPolygons}
+          disabled={!user || mapAccessLevel < ApiManager.accessLevels.addPolygons}
         >
           {'PLANT'}
         </Button>
