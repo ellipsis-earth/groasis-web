@@ -147,6 +147,40 @@ class SelectionPane extends PureComponent {
     this.setState({ annotate: false });
   }
 
+  onPlantTree = () => {
+    let newTreeProps = this.state.newTreeProps;
+
+    if (!newTreeProps.species || !newTreeProps.plantingDate) {
+      alert('Not all fields are filled.');
+      return;
+    }
+
+    let markerGeoJson = this.props.element.feature;
+
+    let treeGeoJson = GroasisUtility.markerToTreePolygon(markerGeoJson);
+    treeGeoJson.properties = {
+      [GroasisUtility.treeProperties.species]: newTreeProps.species,
+      [GroasisUtility.treeProperties.plantingDate]: newTreeProps.plantingDate
+    };
+
+    let body = {
+      mapId: this.props.map.referenceMap.id,
+      timestamp: 0,
+      layer: GroasisUtility.layers.polygon.trees,
+      feature: treeGeoJson
+    };
+
+    ApiManager.post('/geometry/add', body, this.props.user)
+      .then(() => {
+        alert('Tree planted. It can take a few moments before it is visible.');
+        this.onCloseClick();
+      })
+      .catch(err => {
+        alert(JSON.stringify(err));        
+        console.log(err);        
+      });
+  }
+
   renderTreeInputs = () => {
     return (
       <div className='selection-input'>
@@ -159,6 +193,16 @@ class SelectionPane extends PureComponent {
           renderInput={params => (
             <TextField {...params} label='Species' variant='outlined' fullWidth/>
           )}
+          value={this.state.newTreeProps.species}
+          onChange={(e, newValue) => {
+            let newTreeProps = {
+              ...this.state.newTreeProps
+            };
+
+            newTreeProps.species = newValue;
+
+            this.setState({ newTreeProps: newTreeProps });
+          }}
         />
         <MuiPickersUtilsProvider utils={DateFnsUtils}>
           <KeyboardDatePicker
@@ -189,6 +233,8 @@ class SelectionPane extends PureComponent {
     if (!this.state.isOpen) {
       return null;
     }
+
+    let api = ApiManager;
 
     let map = this.props.map ? this.props.map.referenceMap : null;
     let element = this.props.element;
@@ -338,8 +384,8 @@ class SelectionPane extends PureComponent {
           color='primary'
           size='small'
           className='selection-pane-button selection-pane-button-single'
-          onClick={() => this.onElementActionClick(ViewerUtility.dataPaneAction.createCustomPolygon)}
-          disabled={false}
+          onClick={this.onPlantTree}
+          disabled={mapAccessLevel < ApiManager.accessLevels.addPolygons}
         >
           {'PLANT'}
         </Button>

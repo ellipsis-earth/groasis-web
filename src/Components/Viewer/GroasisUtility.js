@@ -4,6 +4,7 @@ import L from 'leaflet';
 
 import ApiManager from '../../ApiManager';
 import ViewerUtility from './ViewerUtility';
+import Utility from '../../Utility';
 
 const GROASIS_COLOR = '#87cef3';
 
@@ -35,6 +36,8 @@ const METADATA_TYPES = [
   { key: 'bands', function: (map, result) => { map.bands = result; } },
   { key: 'forms', function: (map, result) => { map.forms = result; } }
 ];
+
+const TREE_RADIUS = 2.5;
 
 const GroasisUtility = {
   types: {
@@ -81,67 +84,9 @@ const GroasisUtility = {
       .then(maps => {
         maps = maps.filter(x => x.atlases.includes(GROASIS_ATLAS));
 
-        let groasisMaps = {
-          subatlases: []
-        };
-        let bounds = {
-          xMin: Number.MAX_VALUE,
-          xMax: -Number.MAX_VALUE,
-          yMin: Number.MAX_VALUE,
-          yMax: -Number.MAX_VALUE
-        };
-        
-        for (let i = 0; i < maps.length; i++) {
-          let map = maps[i];
+        let groasisMaps = groupMaps(maps);
 
-          let mapInfo = map.info;
-          let subatlas = mapInfo.subatlas;
-
-          if (!groasisMaps[subatlas]) {
-            groasisMaps[subatlas] = {
-              subatlas: subatlas
-            };
-            groasisMaps.subatlases.push(subatlas);
-          }
-
-          let groasisMap = groasisMaps[subatlas];
-          groasisMap[mapInfo.type] = map;
-          if (mapInfo.type === LOWRES_TYPE) {
-            groasisMap.referenceMap = map;
-          }
-
-          if (map.xMin < bounds.xMin) {
-            bounds.xMin = map.xMin;
-          }
-          if (map.xMax > bounds.xMax) {
-            bounds.xMax = map.xMax;
-          }
-  
-          if (map.yMin < bounds.yMin) {
-            bounds.yMin = map.yMin;
-          }
-          if (map.yMax > bounds.yMax) {
-            bounds.yMax = map.yMax;
-          }
-        }
-
-        groasisMaps.bounds = bounds;
-
-        for (let i = 0; i < groasisMaps.subatlases.length; i++) {
-          let subatlas = groasisMaps.subatlases[i];
-          let groasisMap = groasisMaps[subatlas];  
-
-          for (let y = 0; y < MAP_TYPES.length; y++) {
-            let mapType = MAP_TYPES[y];
-
-            let subMap = groasisMap[mapType];
-
-            if (!subMap) {
-              delete groasisMap[subatlas];
-              break;
-            } 
-          }
-        }
+        deleteIncompleteMaps(groasisMaps);        
 
         groasisMaps.geoJson = {
           type: 'FeatureCollection',
@@ -228,8 +173,105 @@ const GroasisUtility = {
       .then(() => {
         groasisMap.metadataLoaded = true;
       });
+  },
+
+  markerToTreePolygon: (markerGeoJson) => {
+    let markerCoords = markerGeoJson.geometry.coordinates;
+    let markerLng = markerCoords[0];
+    let markerLat = markerCoords[1];
+
+    let deltaY = TREE_RADIUS * (360 / 40000000);
+    let deltaX = deltaY / Math.cos(markerLat);
+
+    let coordinates = [[
+      [markerLng - deltaX, markerLat - deltaY],
+      [markerLng - deltaX, markerLat + deltaY],
+      [markerLng + deltaX, markerLat + deltaY],
+      [markerLng + deltaX, markerLat - deltaY],
+      [markerLng - deltaX, markerLat - deltaY]
+    ]];
+
+    let treeGeoJson = {
+      type: 'Feature',
+      geometry: {
+        type: 'Polygon',
+        coordinates: coordinates
+      }
+    };
+
+    return treeGeoJson;
   }
 
+}
+
+function groupMaps(maps) {
+  let groasisMaps = {
+    subatlases: []
+  };
+  let bounds = {
+    xMin: Number.MAX_VALUE,
+    xMax: -Number.MAX_VALUE,
+    yMin: Number.MAX_VALUE,
+    yMax: -Number.MAX_VALUE
+  };
+  
+  for (let i = 0; i < maps.length; i++) {
+    let map = maps[i];
+
+    let mapInfo = map.info;
+    let subatlas = mapInfo.subatlas;
+
+    if (!groasisMaps[subatlas]) {
+      groasisMaps[subatlas] = {
+        subatlas: subatlas
+      };
+      groasisMaps.subatlases.push(subatlas);
+    }
+
+    let groasisMap = groasisMaps[subatlas];
+    groasisMap[mapInfo.type] = map;
+    if (mapInfo.type === LOWRES_TYPE) {
+      groasisMap.referenceMap = map;
+    }
+
+    if (map.xMin < bounds.xMin) {
+      bounds.xMin = map.xMin;
+    }
+    if (map.xMax > bounds.xMax) {
+      bounds.xMax = map.xMax;
+    }
+
+    if (map.yMin < bounds.yMin) {
+      bounds.yMin = map.yMin;
+    }
+    if (map.yMax > bounds.yMax) {
+      bounds.yMax = map.yMax;
+    }
+  }
+
+  groasisMaps.bounds = bounds;
+
+  return groasisMaps;
+}
+
+function deleteIncompleteMaps(groasisMaps) {
+  for (let i = 0; i < groasisMaps.subatlases.length; i++) {
+    let subatlas = groasisMaps.subatlases[i];
+    let groasisMap = groasisMaps[subatlas];
+
+    for (let y = 0; y < MAP_TYPES.length; y++) {
+      let mapType = MAP_TYPES[y];
+
+      let subMap = groasisMap[mapType];
+
+      if (!subMap) {
+        delete groasisMaps[subatlas];
+        Utility.arrayRemove(groasisMaps.subatlases, subatlas);
+        i--
+        break;
+      } 
+    }
+  }
 }
 
 export default GroasisUtility;

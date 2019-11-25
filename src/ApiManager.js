@@ -76,9 +76,11 @@ async function apiManagerFetch(method, url, body, user) {
       gottenResponse = response;        
 
       let contentType = response.headers.get('Content-Type');
-
-      isText = contentType.includes('text');
-      isJson = contentType.includes('application/json');
+      
+      if (contentType) {
+        isText = contentType.includes('text');
+        isJson = contentType.includes('application/json');
+      }      
 
       if (isJson) {
         return response.json();
