@@ -87,7 +87,8 @@ class ControlsPane extends PureComponent {
           map={this.props.map}
           leafletMapViewport={this.props.leafletMapViewport}
           timestampRange={this.props.timestampRange}
-          override={this.props.override}
+          selectedLayers={this.props.selectedLayers}
+          onSelectedLayersChange={this.props.onSelectedLayersChange}
           onLayersChange={(layers) => this.onLayersChange(ViewerUtility.polygonLayerType, layers)}
           onFeatureClick={this.props.onFeatureClick}
           markerSize={this.props.markerSize}

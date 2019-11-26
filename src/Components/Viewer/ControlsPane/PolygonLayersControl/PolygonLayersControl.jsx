@@ -23,6 +23,7 @@ import ViewerUtility from '../../ViewerUtility';
 import './PolygonLayersControl.css';
 
 import ApiManager from '../../../../ApiManager';
+import Viewer from '../../Viewer';
 
 const MAX_POLYGONS = 500;
 
@@ -35,7 +36,6 @@ class PolygonLayersControl extends PureComponent {
 
     this.state = {
       availableLayers: [],
-      selectedLayers: [],
 
       options: [],
 
@@ -46,12 +46,10 @@ class PolygonLayersControl extends PureComponent {
   }
 
   componentDidMount() {
-    this.props.onLayersChange([]);
   }
 
   componentDidUpdate(prevProps) {
     if (!this.props.map || !this.props.timestampRange) {
-      this.props.onLayersChange([]);
       return;
     }
 
@@ -67,10 +65,21 @@ class PolygonLayersControl extends PureComponent {
       this.props.leafletMapViewport.bounds.yMin !== prevProps.leafletMapViewport.bounds.yMin ||
       this.props.leafletMapViewport.bounds.yMax !== prevProps.leafletMapViewport.bounds.yMax;
 
-    if (differentMap || differentTimestamp || differentBounds) {
+    let prevSelectedLayers = prevProps.selectedLayers[ViewerUtility.polygonLayerType];
+    let curSelectedLayers = this.props.selectedLayers[ViewerUtility.polygonLayerType];
 
+    let differentSelectedLayers = prevSelectedLayers.length !== curSelectedLayers.length;
+    if (!differentSelectedLayers) {
+      for (let i = 0; i < prevSelectedLayers.length; i++) {
+        if (prevSelectedLayers[i] !== curSelectedLayers[i]) {
+          differentSelectedLayers = true;
+          break;
+        }        
+      }
+    }
+
+    if (differentMap || differentTimestamp || differentBounds || differentSelectedLayers) {
       let availableLayers = this.state.availableLayers;
-      let selectedLayers = this.state.selectedLayers;
 
       if (differentMap) {
         let referenceMap = this.props.map.referenceMap;
@@ -84,49 +93,32 @@ class PolygonLayersControl extends PureComponent {
           polygonLayers.find(x => x.name === groasisPolygonLayers.plantingLines)
         ];
 
-        selectedLayers = [];
         this.layerGeoJsons = {};
 
         this.setState({
           availableLayers: availableLayers,
-          selectedLayers: selectedLayers,
           count: {}
         });
       }
 
-      this.prepareLayers(this.props.map, this.props.timestampRange, availableLayers, selectedLayers)
-        .then(leafletLayers => {
-          this.props.onLayersChange(leafletLayers);
-        });
+      this.prepareLayers(availableLayers);
     }
   }
 
   refresh = () => {
-    this.prepareLayers(
-      this.props.map, this.props.timestampRange, this.state.availableLayers, this.state.selectedLayers
-    )
-      .then(leafletLayers => {
-        this.props.onLayersChange(leafletLayers);
-      });
-  }
-
-  selectLayer = (layer) => {
-    let availableLayer = this.state.availableLayers.find(x => x.name === layer);
-    if (availableLayer && !this.state.selectedLayers.find(x => x.name === layer)) {
-      this.setState({ selectedLayers: [...this.state.selectedLayers, availableLayer] });
-    }
+    this.prepareLayers(this.state.availableLayers);
   }
 
   createLayerCheckboxes = () => {
     let options = [];
 
     let availableLayers = this.state.availableLayers;
-    let selectedLayers = this.state.selectedLayers;
+    let selectedLayers = this.props.selectedLayers[ViewerUtility.polygonLayerType];
 
     for (let i = 0; i < availableLayers.length; i++) {
 
       let availableLayer = availableLayers[i];
-      let checked = selectedLayers.find(x => x === availableLayer) ? true : false;
+      let checked = selectedLayers.find(x => x === availableLayer.name) ? true : false;
 
       let counter = null;
       let count = this.state.count[availableLayer.name];
@@ -181,15 +173,16 @@ class PolygonLayersControl extends PureComponent {
     return options;
   }
 
-  prepareLayers = async (map, timestampRange, availableLayers, selectedLayers) => {
-    map = map.referenceMap;
+  prepareLayers = async (availableLayers) => {
+    let map = this.props.map.referenceMap;
+    let selectedLayers = this.props.selectedLayers[ViewerUtility.polygonLayerType];
     let promises = [];
 
     for (let i = 0; i < availableLayers.length; i++) {
 
       let polygonLayer = availableLayers[i];
 
-      if (!selectedLayers.find(x => x.name === polygonLayer.name)) {
+      if (!selectedLayers.find(x => x === polygonLayer.name)) {
         continue;
       }
 
@@ -319,7 +312,7 @@ class PolygonLayersControl extends PureComponent {
 
     let leafletGeoJsonLayers = await Promise.all(promises);
 
-    return leafletGeoJsonLayers;
+    this.props.onLayersChange(leafletGeoJsonLayers);
   }
 
   changeWeight = (feature, layer) => {
@@ -337,34 +330,12 @@ class PolygonLayersControl extends PureComponent {
     let layerName = e.target.value;
     let checked = e.target.checked;
 
-    let isSelected = this.state.selectedLayers.find(x => x.name === layerName);
+    let layerChanges = [{
+      name: layerName,
+      add: checked
+    }];
 
-    let newSelectedLayers = null;
-    let changed = false;
-
-    if (checked && !isSelected) {
-      let availableLayer = this.state.availableLayers.find(x => x.name === layerName);
-
-      newSelectedLayers = [...this.state.selectedLayers, availableLayer];
-
-      changed = true;
-    }
-    else if (!checked && isSelected) {
-      newSelectedLayers = Utility.arrayRemove(this.state.selectedLayers, isSelected);
-
-      newSelectedLayers = [...newSelectedLayers];
-
-      changed = true;
-    }
-
-    if (changed) {
-      this.setState({ selectedLayers: newSelectedLayers });
-
-      this.prepareLayers(this.props.map, this.props.timestampRange, this.state.availableLayers, newSelectedLayers)
-        .then(standardTilesLayers => {
-          this.props.onLayersChange(standardTilesLayers);
-        });
-    }
+    this.props.onSelectedLayersChange(ViewerUtility.polygonLayerType, layerChanges, false);
   }
 
   onExpandClick = () => {

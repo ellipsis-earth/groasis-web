@@ -87,7 +87,7 @@ class Viewer extends PureComponent {
       mapCollection: null,
       selectedLayers: {
         [ViewerUtility.tileLayerType]: [GroasisUtility.layers.tile.base, GroasisUtility.layers.tile.highRes],
-        [ViewerUtility.polygonLayerType]: [],
+        [ViewerUtility.polygonLayerType]: [GroasisUtility.layers.polygon.trees],
         [ViewerUtility.standardTileLayerType]: []
       },
       timestampRange: {
