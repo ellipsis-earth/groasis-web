@@ -134,6 +134,10 @@ class DataPane extends PureComponent {
         title = 'Drawn polygon';
         idText = 'Drawn polygon';
       }
+      else if (element.type === ViewerUtility.treeElementType) {
+        title = 'Tree';
+        idText = element.feature.properties.id;
+      }
     }
 
     if (action === ViewerUtility.dataPaneAction.analyse) {
