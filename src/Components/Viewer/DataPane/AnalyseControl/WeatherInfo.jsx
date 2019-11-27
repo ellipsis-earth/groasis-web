@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import Papa from 'papaparse';
-import LineChart from './LineChart/LineChart';
 
 import {
   Card,
@@ -20,24 +19,9 @@ import GroasisUtility from '../../GroasisUtility';
 import DataPaneUtility from '../DataPaneUtility';
 
 import ApiManager from '../../../../ApiManager';
-import DataTable from './DataTabel';
+import LineChart from './LineChart/LineChart';
 
-const IGNORE_COLUMNS = [
-  'timestamp',
-  'area',
-  'date_from',
-  'date_to',
-  'cloud_cover',
-  'PH',
-  'clay content mass percentage',
-  'coarse fragments m3',
-  'fine earth kg/m3',
-  'organic content g/kg',
-  'sand content mass percentage',
-  'silt mass percentage'
-];
-
-class HistoricWeatherInfo extends PureComponent {
+class WeatherInfo extends PureComponent {
 
   constructor(props, context) {
     super(props, context);
@@ -73,7 +57,7 @@ class HistoricWeatherInfo extends PureComponent {
     };
 
     let body = {
-      mapId: this.props.map[GroasisUtility.types.soil].id,
+      mapId: this.props.map[GroasisUtility.types.weather].id,
       dataType: ViewerUtility.dataType.meanMeasurement,
       type: ViewerUtility.customPolygonTileLayerType,
       element: treefeature
@@ -99,16 +83,6 @@ class HistoricWeatherInfo extends PureComponent {
       })
       .then(result => {
         data.parsed = result;
-
-        data.formatted = [['Type', 'Value']];
-
-        data.parsed.meta.fields.forEach(x => {
-          let ignore = IGNORE_COLUMNS.find(y => x.includes(y));
-
-          if (!ignore) {
-            data.formatted.push([x, data.parsed.data[0][x]]);
-          }
-        });
 
         this.setState({ data: data, loading: false });
       })
@@ -137,8 +111,10 @@ class HistoricWeatherInfo extends PureComponent {
     }
     else if (this.state.data) {
       dataElement = (
-        <DataTable 
-          data={this.state.data.formatted}
+        <LineChart
+          map={this.props.map[GroasisUtility.types.weather]}
+          data={this.state.data}
+          type={ViewerUtility.dataGraphType.measurements}
         />
       );
 
@@ -158,7 +134,7 @@ class HistoricWeatherInfo extends PureComponent {
           <CardHeader
             title={
               <Typography variant='h6' component='h2' className='no-text-transform'>
-                Historic Weather
+                Weather
               </Typography>
             }
             action={
@@ -184,4 +160,4 @@ class HistoricWeatherInfo extends PureComponent {
   }
 }
 
-export default HistoricWeatherInfo;
+export default WeatherInfo;

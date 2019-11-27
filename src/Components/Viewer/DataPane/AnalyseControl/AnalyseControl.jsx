@@ -23,9 +23,11 @@ import DataPaneUtility from '../DataPaneUtility';
 
 import SoilInfo from './SoilInfo';
 import HistoricWeatherInfo from './HistoricWeatherInfo';
+import WeatherInfo from './WeatherInfo';
 
 import './AnalyseControl.css';
 import ApiManager from '../../../../ApiManager';
+import ClassesInfo from './ClassesInfo';
 
 class AnalyseControl extends PureComponent {
 
@@ -100,7 +102,7 @@ class AnalyseControl extends PureComponent {
   }
 
   render() {
-    if (this.props.home) {
+    if (this.props.home || !this.props.element || this.props.element.type !== ViewerUtility.treeElementType) {
       return null;
     }
 
@@ -120,10 +122,22 @@ class AnalyseControl extends PureComponent {
         </Card> */}
 
         <SoilInfo
+          user={this.props.user}
           map={this.props.map}
           element={this.props.element}
         />
         <HistoricWeatherInfo
+          user={this.props.user}
+          map={this.props.map}
+          element={this.props.element}
+        />
+        <WeatherInfo
+          user={this.props.user}
+          map={this.props.map}
+          element={this.props.element}
+        />
+        <ClassesInfo
+          user={this.props.user}
           map={this.props.map}
           element={this.props.element}
         />

@@ -27,6 +27,7 @@ const IGNORE_COLUMNS = [
   'area',
   'date_from',
   'date_to',
+  'cloud_cover',
   'precipitation',
   'min temp',
   'max temp'
