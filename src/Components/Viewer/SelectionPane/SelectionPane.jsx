@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import { readAndCompressImage } from 'browser-image-resizer';
 
 import DateFnsUtils from '@date-io/date-fns';
 import moment from 'moment';
@@ -33,6 +34,13 @@ import './SelectionPane.css';
 const DELETE_CUSTOM_POLYGON_ACTION = 'delete_custom_polygon';
 const ANNOTATE_ACTION = 'annotate';
 
+const IMAGE_MIME_TYPES = ['image/gif', 'image/jpeg', 'image/png'];
+const MAX_IMAGE_DIMENSIONS = {
+  width: 1920,
+  height: 1080
+};
+const MAX_IMAGE_SIZE = 10000000;
+
 class SelectionPane extends PureComponent {
 
   constructor(props, context) {
@@ -55,6 +63,7 @@ class SelectionPane extends PureComponent {
     }
     else if (prevProps.element !== this.props.element) {
       this.setState({ isOpen: true });
+      this.uploadedImage = null;
     }
   }
 
@@ -171,7 +180,11 @@ class SelectionPane extends PureComponent {
     };
 
     ApiManager.post('/geometry/add', body, this.props.user)
-      .then(() => {
+      .then(trackingInfo => {
+        if (this.uploadedImage) {
+          this.trackAddTree(trackingInfo.trackingId, this.uploadedImage);
+        }
+
         alert('Tree planted. It can take a few moments before it is visible.');
         this.onCloseClick();
       })
@@ -179,6 +192,90 @@ class SelectionPane extends PureComponent {
         alert(JSON.stringify(err));        
         console.log(err);        
       });
+  }
+
+  trackAddTree = (trackingId, image) => {
+    let mapId = this.props.map.referenceMap.id;
+
+    let body = {
+      mapId: mapId,
+      trackingId: trackingId
+    };
+
+    let user = this.props.user;
+
+    let trackFunc = () => {
+      ApiManager.post('/geometry/track', body, user)
+        .then(trackingInfo => {
+
+          if (!trackingInfo.added) {
+            setTimeout(trackFunc, 1000);
+            return;
+          }
+
+          let polygonId = trackingInfo.polygonId;
+          let geolocation = this.props.geolocation;
+
+          body = {
+            mapId: mapId,
+            type: ViewerUtility.polygonLayerType,
+            timestamp: 0,
+            elementId: polygonId,
+            image: image,
+            location: { x: geolocation[1], y: geolocation[0] }
+          }
+
+          ApiManager.post('/geomessage/add', body, user);          
+        });
+    }
+
+    trackFunc();
+  }
+
+  onImageChange = (e) => {
+    e.preventDefault();
+
+    let file = e.target.files[0];
+
+    if (!IMAGE_MIME_TYPES.includes(file.type)) {
+      alert('Invalid image type.');
+      return;
+    }
+
+    this.setState({ loading: true }, () => {
+      const imgConfig = {
+        quality: 0.8,
+        maxWidth: MAX_IMAGE_DIMENSIONS.width,
+        maxHeight: MAX_IMAGE_DIMENSIONS.height,
+        autoRotate: true
+      };
+
+      readAndCompressImage(file, imgConfig)
+        .then(image => {
+
+          if (image.size > MAX_IMAGE_SIZE) {
+            alert(`Image too large (max ${(MAX_IMAGE_SIZE / 1000).toFixed(2)} MB).`);
+            this.setState({ loading: false });
+            return;
+          }
+
+          return new Promise(resolve => {
+            const reader = new FileReader();
+            reader.onload = function() {
+              resolve(reader.result);
+            };
+            reader.readAsDataURL(image);
+          });
+        })
+        .then(base64 => {
+          this.uploadedImage = base64;
+          this.setState({ loading: false });
+        })
+        .catch(err => {
+          this.setState({ loading: false });
+          alert('Invalid image type.');
+        });
+    });
   }
 
   renderTreeInputs = () => {
@@ -224,7 +321,14 @@ class SelectionPane extends PureComponent {
             }}
           />
         </MuiPickersUtilsProvider>
-        
+        <div className='geomessage-upload-image-label'>
+          Upload photo
+        </div>
+        <input
+          type='file'
+          accept='image/*'
+          onChange={this.onImageChange}
+        />
       </div>
     )
   }
@@ -396,7 +500,7 @@ class SelectionPane extends PureComponent {
           size='small'
           className='selection-pane-button selection-pane-button-single'
           onClick={this.onPlantTree}
-          disabled={!user || mapAccessLevel < ApiManager.accessLevels.addPolygons}
+          disabled={!user || mapAccessLevel < ApiManager.accessLevels.addPolygons || this.state.loading}
         >
           {'PLANT'}
         </Button>

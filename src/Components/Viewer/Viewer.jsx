@@ -696,6 +696,7 @@ class Viewer extends PureComponent {
               ref={this.selectionPane}
               user={this.props.user}
               map={this.state.map}
+              geolocation={this.state.geolocation}
               element={this.state.selectedElement}
               timestampRange={this.state.timestampRange}
               onDataPaneAction={this.onDataPaneAction}
@@ -727,7 +728,7 @@ class Viewer extends PureComponent {
               onSelectFeature={this.selectFeature}
               onDrawGeometry={this.onDrawGeometry}
               onFlyTo={this.onFlyTo}
-            />            
+            />       
           </div>
 
           <DataPane
