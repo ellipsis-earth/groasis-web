@@ -51,7 +51,8 @@ const ViewerUtility = {
     geoMessage: 'geoMessage',
     createCustomPolygon: 'create_custom_polygon',
     editCustomPolygon: 'edit_custom_polygon',
-    feed: 'geomessage_feed'
+    feed: 'geomessage_feed',
+    gallery: 'gallery'
   },
 
   dataGraphType: {

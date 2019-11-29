@@ -356,7 +356,8 @@ class SelectionPane extends PureComponent {
     firstRowButtons.push(
       <Button
         key='analyse'
-        variant='outlined'
+        variant='contained'
+        color='primary'
         size='small'
         className='selection-pane-button'
         onClick={() => this.onElementActionClick(ViewerUtility.dataPaneAction.analyse)}
@@ -455,6 +456,19 @@ class SelectionPane extends PureComponent {
       title = 'Tree';
 
       firstRowButtons.push(
+        <Button
+          key='gallery'
+          variant='contained'
+          color='primary'
+          size='small'
+          className='selection-pane-button'
+          onClick={() => this.onElementActionClick(ViewerUtility.dataPaneAction.geoMessage)}          
+        >
+          Gallery
+        </Button>
+      );
+
+      secondRowButtons.push(
         <Button
           key='delete'
           variant='outlined'

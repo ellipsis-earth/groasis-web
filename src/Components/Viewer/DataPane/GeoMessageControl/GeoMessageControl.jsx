@@ -29,6 +29,7 @@ import ApiManager from '../../../../ApiManager';
 
 import ElementGeoMessageControl from './ElementGeoMessageControl';
 import FeedGeoMessageControl from './FeedGeoMessageControl';
+import TreeGalleryControl from './TreeGalleryControl';
 
 class GeoMessageControl extends PureComponent {
   constructor(props, context) {
@@ -50,6 +51,24 @@ class GeoMessageControl extends PureComponent {
           timestampRange={this.props.timestampRange}
           geolocation={this.props.geolocation}
           element={this.props.element}
+          home={this.props.home}
+          onDataPaneAction={this.props.onDataPaneAction}
+          onFlyTo={this.props.onFlyTo}
+          onLayersChange={this.props.onLayersChange}
+          onFeatureClick={this.props.onFeatureClick}
+          onDeselect={this.props.onDeselect}
+        />
+      );
+    }
+    else if (this.props.element.type === ViewerUtility.treeElementType) {
+      return (
+        <TreeGalleryControl
+          user={this.props.user}
+          map={this.props.map}
+          timestampRange={this.props.timestampRange}
+          geolocation={this.props.geolocation}
+          element={this.props.element}
+          jumpToMessage={this.props.jumpToMessage}
           home={this.props.home}
           onDataPaneAction={this.props.onDataPaneAction}
           onFlyTo={this.props.onFlyTo}

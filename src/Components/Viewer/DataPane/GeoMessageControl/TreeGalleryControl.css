@@ -1,0 +1,33 @@
+.tree-control-card {
+  padding: 12px;
+}
+
+.tree-gallery-table {
+  width: 100%
+}
+
+.tree-gallery-table th {
+  color: #87cef3;
+  padding-bottom: 8px;
+}
+
+.tree-gallery-table th:first-of-type, .tree-gallery-table td:first-of-type {
+  display: block;
+}
+
+.tree-gallery-table th:nth-of-type(2), .tree-gallery-table td:nth-of-type(2) {
+  width: 60%;
+  padding-left: 16px;
+}
+
+.tree-gallery-table td:nth-of-type(2) {
+  border-left: 2px solid #87cef3;
+}
+
+.tree-gallery-table img {
+  width: auto;
+  padding-bottom: 16px;
+  cursor: pointer;
+}
+
+
