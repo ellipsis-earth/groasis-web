@@ -24,10 +24,11 @@ import DataPaneUtility from '../DataPaneUtility';
 import SoilInfo from './SoilInfo';
 import HistoricWeatherInfo from './HistoricWeatherInfo';
 import WeatherInfo from './WeatherInfo';
+import ClassesInfo from './ClassesInfo';
+import AltitudeInfo from './AltitudeInfo';
 
 import './AnalyseControl.css';
 import ApiManager from '../../../../ApiManager';
-import ClassesInfo from './ClassesInfo';
 
 class AnalyseControl extends PureComponent {
 
@@ -137,6 +138,11 @@ class AnalyseControl extends PureComponent {
           element={this.props.element}
         />
         <ClassesInfo
+          user={this.props.user}
+          map={this.props.map}
+          element={this.props.element}
+        />
+        <AltitudeInfo
           user={this.props.user}
           map={this.props.map}
           element={this.props.element}
