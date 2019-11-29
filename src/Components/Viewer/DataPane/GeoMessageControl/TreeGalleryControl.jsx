@@ -14,7 +14,7 @@ import DataPaneUtility from '../DataPaneUtility';
 import './TreeGalleryControl.css';
 import ApiManager from '../../../../ApiManager';
 
-import GeoMessageForm from './GeoMessageForm/GeoMessageForm';
+import TreeMessageForm from './GeoMessageForm/TreeMessageForm';
 
 class TreeGalleryControl extends PureComponent {
   constructor(props, context) {
@@ -105,6 +105,12 @@ class TreeGalleryControl extends PureComponent {
     this.setState({ rawGeoMessages: newRawGeoMessages});
   }
 
+  onNewMessage = (newMessage) => {
+    let newRawGeoMessages = [...this.state.rawGeoMessages, newMessage];
+
+    this.setState({ rawGeoMessages: newRawGeoMessages });
+  }
+
   renderMessages = () => {
     let rawGeoMessages = this.state.rawGeoMessages;
 
@@ -188,6 +194,14 @@ class TreeGalleryControl extends PureComponent {
               <CircularProgress className='loading-spinner'/> : this.renderMessages()
           }
         </Card>
+        <TreeMessageForm
+          user={this.props.user}
+          map={this.props.map}
+          timestampRange={this.props.timestampRange}
+          geolocation={this.props.geolocation}
+          element={this.props.element}
+          onNewMessage={this.onNewMessage}
+        />
         {modal}
       </div>
     );
