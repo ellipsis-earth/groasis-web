@@ -106,7 +106,7 @@ class TreeGalleryControl extends PureComponent {
   }
 
   onNewMessage = (newMessage) => {
-    let newRawGeoMessages = [...this.state.rawGeoMessages, newMessage];
+    let newRawGeoMessages = [newMessage, ...this.state.rawGeoMessages];
 
     this.setState({ rawGeoMessages: newRawGeoMessages });
   }
@@ -121,7 +121,7 @@ class TreeGalleryControl extends PureComponent {
     if (rawGeoMessages.length === 0) {
       return (
         <div>
-          No messages.
+          No photos
         </div>
       );
     }
