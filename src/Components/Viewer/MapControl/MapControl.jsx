@@ -9,6 +9,7 @@ import {
   CircularProgress
 } from '@material-ui/core';
 import MyLocationIcon from '@material-ui/icons/MyLocation';
+import TimeLineIcon from '@material-ui/icons/Timeline';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faPen, 
@@ -64,6 +65,24 @@ export class MapControl extends PureComponent {
     new L.Draw.Marker(this.props.leafletMap.current.leafletElement).enable();
   }
 
+  onDrawPolygon = () => {
+    this.setState({ drawMode: ViewerUtility.drawnPolygonLayerType });
+    let d = new L.Draw.Polygon(this.props.leafletMap.current.leafletElement);
+    d.setOptions({
+      allowIntersection: false
+    });
+    d.enable();
+  }
+
+  onDrawLine = () => {
+    this.setState({ drawMode: ViewerUtility.drawnPolygonLayerType });
+    let d = new L.Draw.Polyline(this.props.leafletMap.current.leafletElement);
+    d.setOptions({
+      allowIntersection: false
+    });
+    d.enable();
+  }
+
   onShapeDraw = (e) => {
     let layer = e.layer;
 
@@ -113,8 +132,25 @@ export class MapControl extends PureComponent {
               <FontAwesomeIcon icon={faTree} />              
             </IconButton>
           </NavItem>
-        </Nav>
-        
+          <NavItem>
+            <IconButton
+              className='tool-button'
+              color='secondary'  
+              onClick={this.onDrawPolygon}
+            >
+              <FontAwesomeIcon icon={faDrawPolygon} />              
+            </IconButton>
+          </NavItem>
+          <NavItem>
+            <IconButton
+              className='tool-button'
+              color='secondary'  
+              onClick={this.onDrawLine}
+            >
+              <TimeLineIcon/>  
+            </IconButton>
+          </NavItem>
+        </Nav>        
       );
     }
 

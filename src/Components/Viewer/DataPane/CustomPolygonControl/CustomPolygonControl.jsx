@@ -45,7 +45,7 @@ class CustomPolygonControl extends PureComponent {
       (prevProps.map && !this.props.map);
 
     if (!differentMap && prevProps.map && this.props.map) {
-      differentMap = prevProps.map.id !== this.props.map.id;
+      differentMap = prevProps.map !== this.props.map;
     }
 
     if (differentMap) {
@@ -125,10 +125,10 @@ class CustomPolygonControl extends PureComponent {
     let feature = this.props.element.feature;
     feature.properties = this.state.propertyValues;
 
-    let timestampNumber = this.props.map.timestamps[this.props.timestampRange.end].timestampNumber;
+    let timestampNumber = this.props.map.referenceMap.timestamps[this.props.timestampRange.end].timestampNumber;
 
     let body = {
-      mapId: this.props.map.id,
+      mapId: this.props.map.referenceMap.id,
       timestamp: timestampNumber,
       layer: layer,
       feature: feature
@@ -157,7 +157,7 @@ class CustomPolygonControl extends PureComponent {
     let layer = this.state.selectedLayer;
     let properties = this.state.propertyValues;
 
-    let selectedLayerProperties = this.props.map.layers.polygon.find(
+    let selectedLayerProperties = this.props.map.referenceMap.layers.polygon.find(
       x => x.name === this.state.selectedLayer
     ).properties;
 
@@ -171,7 +171,7 @@ class CustomPolygonControl extends PureComponent {
     let oldProperties = this.props.element.feature.properties;
 
     let body = {
-      mapId: this.props.map.id,
+      mapId: this.props.map.referenceMap.id,
       polygonId: oldProperties.id,
       newLayerName: layer,
       newProperties: properties,
@@ -203,7 +203,7 @@ class CustomPolygonControl extends PureComponent {
     }
 
     let layerSelect = null;
-    let layers = this.props.map.layers.polygon;
+    let layers = this.props.map.referenceMap.layers.polygon;
     if (layers.length > 0) {
       let options = [
         <MenuItem key='default' value='default' disabled hidden>Select a layer</MenuItem>
@@ -212,7 +212,7 @@ class CustomPolygonControl extends PureComponent {
       for (let i = 0; i < layers.length; i++) {
         let layer = layers[i];
 
-        if (layer.restricted && this.props.map.accessLevel < ApiManager.accessLevels.addRestrictedPolygons) {
+        if (layer.restricted && this.props.map.referenceMap.accessLevel < ApiManager.accessLevels.addRestrictedPolygons) {
           continue;
         }
 
