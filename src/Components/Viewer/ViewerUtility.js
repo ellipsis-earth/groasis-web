@@ -25,8 +25,7 @@ const ViewerUtility = {
   wmsTileLayerType: WMS_TILE,
   subatlasElementType: SUBATLAS_ELEMENT,
 
-  treeElementType: 'tree',
-  newTreeElementType: 'new_tree',
+
 
   polygonLayerType: POLYGON,
   customPolygonTileLayerType: CUSTOM_POLYGON,
@@ -38,6 +37,10 @@ const ViewerUtility = {
   },
 
   drawnPolygonLayerType: 'drawn_polygon',
+  treeElementType: 'tree',
+  newTreeElementType: 'new_tree',
+  ooiElementType: 'ooi',
+  plantingLineElementType: 'planting_line',
 
   tileLayerZIndex: 200,
   standardTileLayerZIndex: 1000,

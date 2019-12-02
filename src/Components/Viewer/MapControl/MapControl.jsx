@@ -11,10 +11,8 @@ import {
 import MyLocationIcon from '@material-ui/icons/MyLocation';
 import TimeLineIcon from '@material-ui/icons/Timeline';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {
-  faPen, 
-  faSearchPlus, 
-  faSearchMinus, 
+import {  
+  faTimes,
   faGlobeAmericas,
   faPlus, 
   faMinus,
@@ -31,6 +29,9 @@ import ViewerUtility from '../ViewerUtility';
 import GroasisUtility from '../GroasisUtility';
 
 export class MapControl extends PureComponent {
+
+  drawControl = null
+
   constructor(props, context) {
     super(props, context)
 
@@ -61,26 +62,45 @@ export class MapControl extends PureComponent {
   }
 
   onPlantTree = () => {
-    this.setState({ drawMode: ViewerUtility.newTreeElementType });
-    new L.Draw.Marker(this.props.leafletMap.current.leafletElement).enable();
+    if (this.state.drawControl) {
+      this.state.drawControl.disable();
+    }
+
+    let d = new L.Draw.Marker(this.props.leafletMap.current.leafletElement);
+    d.enable();
+
+    this.setState({ drawControl: d, drawMode: ViewerUtility.newTreeElementType });
   }
 
   onDrawPolygon = () => {
-    this.setState({ drawMode: ViewerUtility.drawnPolygonLayerType });
+    if (this.state.drawControl) {
+      this.state.drawControl.disable();
+    }
+
     let d = new L.Draw.Polygon(this.props.leafletMap.current.leafletElement);
     d.setOptions({
-      allowIntersection: false
+      allowIntersection: false,
+      showArea: true,
+      metric: ['km', 'm']
     });
     d.enable();
+
+    this.setState({ drawControl: d, drawMode: ViewerUtility.ooiElementType });
   }
 
   onDrawLine = () => {
-    this.setState({ drawMode: ViewerUtility.drawnPolygonLayerType });
+    if (this.state.drawControl) {
+      this.state.drawControl.disable();
+    }
+
     let d = new L.Draw.Polyline(this.props.leafletMap.current.leafletElement);
     d.setOptions({
-      allowIntersection: false
+      allowIntersection: false,
+      showLength: true
     });
     d.enable();
+    
+    this.setState({ drawControl: d, drawMode: ViewerUtility.plantingLineElementType });
   }
 
   onShapeDraw = (e) => {
@@ -117,6 +137,14 @@ export class MapControl extends PureComponent {
     this.props.leafletMap.current.leafletElement.flyToBounds(latLngBounds);
   }
 
+  onStopDraw = () => {
+    if (this.state.drawControl) {
+      this.state.drawControl.disable();
+    }
+
+    this.setState({ drawControl: null });
+  }
+
   render() {
     let plannerButtons = [];
 
@@ -150,6 +178,19 @@ export class MapControl extends PureComponent {
               <TimeLineIcon/>  
             </IconButton>
           </NavItem>
+          {
+            this.state.drawControl ? (
+              <NavItem>
+                <IconButton
+                  className='tool-button'
+                  color='secondary'  
+                  onClick={this.onStopDraw}
+                >
+                  <FontAwesomeIcon icon={faTimes} />                  
+                </IconButton>
+              </NavItem>
+            ) : null
+          }
         </Nav>        
       );
     }

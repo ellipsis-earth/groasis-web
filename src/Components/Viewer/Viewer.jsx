@@ -350,6 +350,7 @@ class Viewer extends PureComponent {
       }
 
       this.selectFeature(type, geoJson, false);
+      this.removeDrawnPolygon();
     }
 
     this.setState(newState, cb);

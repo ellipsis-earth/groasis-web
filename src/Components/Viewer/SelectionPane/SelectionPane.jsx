@@ -194,6 +194,45 @@ class SelectionPane extends PureComponent {
       });
   }
 
+  onAddGeometry = () => {
+    let element = this.props.element;
+
+    let layer = null;
+    if (element.type === ViewerUtility.plantingLineElementType) {
+      layer = GroasisUtility.layers.polygon.plantingLines;
+    }
+    else if (element.type === ViewerUtility.ooiElementType) {
+      layer = GroasisUtility.layers.polygon.objectOfInterest;      
+    }
+
+    let body = {
+      mapId: this.props.map.referenceMap.id,
+      timestamp: 0,
+      layer: layer,
+      feature: {
+        ...element.feature,
+        properties: {}
+      }
+    };
+
+    ApiManager.post('/geometry/add', body, this.props.user)
+      .then(() => {
+        let stringPart = null;
+        if (element.type === ViewerUtility.plantingLineElementType) {
+          stringPart = 'Planting line added.';
+        }
+        else if (element.type === ViewerUtility.ooiElementType) {
+          stringPart = 'Object of interest added.';
+        }
+        alert(`${stringPart} It can take a few moments before it is visible.`);
+        this.onCloseClick();
+      })
+      .catch(err => {
+        alert(JSON.stringify(err));        
+        console.log(err);        
+      });
+  }
+
   trackAddTree = (trackingId, image) => {
     let mapId = this.props.map.referenceMap.id;
 
@@ -520,6 +559,41 @@ class SelectionPane extends PureComponent {
         </Button>
       ];
     }
+    else if (element.type === ViewerUtility.ooiElementType) {
+      title = 'New object of interest';
+
+      firstRowButtons = [
+        <Button
+          key='add'
+          variant='contained'
+          color='primary'
+          size='small'
+          className='selection-pane-button selection-pane-button-single'
+          onClick={this.onAddGeometry}
+          disabled={!user || mapAccessLevel < ApiManager.accessLevels.addPolygons}
+        >
+          Add
+        </Button>
+      ];
+    }
+    else if (element.type === ViewerUtility.plantingLineElementType) {
+      title = 'New planting line';
+
+      firstRowButtons = [
+        <Button
+          key='add'
+          variant='contained'
+          color='primary'
+          size='small'
+          className='selection-pane-button selection-pane-button-single'
+          onClick={this.onAddGeometry}
+          disabled={!user || mapAccessLevel < ApiManager.accessLevels.addPolygons}
+        >
+          Add
+        </Button>
+      ];
+    }
+
 
     let properties = [];
     let inputElements = [];
@@ -533,9 +607,13 @@ class SelectionPane extends PureComponent {
         continue;
       }
 
-      if (element.type === ViewerUtility.drawnPolygonLayerType || 
-        element.type === ViewerUtility.newTreeElementType 
-        && property === 'id') {
+      let drawnType = 
+        element.type === ViewerUtility.drawnPolygonLayerType || 
+        element.type === ViewerUtility.newTreeElementType ||
+        element.type === ViewerUtility.plantingLineElementType ||
+        element.type === ViewerUtility.ooiElementType;
+
+      if (drawnType && property === 'id') {
         continue;
       }
 
