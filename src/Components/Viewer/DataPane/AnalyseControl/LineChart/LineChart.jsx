@@ -47,7 +47,7 @@ export class LineChart extends PureComponent {
 
   componentWillMount = () => {
     let columnInfo = this.getColumnInfo();
-    let checkedSeries = columnInfo.map(x => x.name);
+    let checkedSeries = [columnInfo[0].name];
     this.setState({ 
       columnInfo: columnInfo,
       checkedSeries: checkedSeries 
@@ -61,7 +61,7 @@ export class LineChart extends PureComponent {
 
     if (differentData || differentType) {
       let columnInfo = this.getColumnInfo();
-      let checkedSeries = columnInfo.map(x => x.name);
+      let checkedSeries = [columnInfo[0].name];
       this.setState({ 
         columnInfo: columnInfo,
         checkedSeries: checkedSeries 
@@ -275,6 +275,7 @@ export class LineChart extends PureComponent {
 
     chart = (
       <VictoryChart
+        key={graphElements}
         theme={VictoryTheme.material}
         scale={{ x: 'time' }}
         containerComponent={<VictoryZoomVoronoiContainer radius={12} zoomDimension={'x'}/>}
