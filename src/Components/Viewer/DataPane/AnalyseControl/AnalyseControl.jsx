@@ -1,34 +1,15 @@
 import React, { PureComponent } from 'react';
-import Papa from 'papaparse';
-import LineChart from './LineChart/LineChart';
-
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardActions,
-  Typography,
-  CircularProgress,
-  Slider,
-  Select,
-  MenuItem,
-  Collapse,
-  IconButton,
-} from '@material-ui/core';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import SaveAlt from '@material-ui/icons/SaveAlt';
 
 import ViewerUtility from '../../ViewerUtility';
-import DataPaneUtility from '../DataPaneUtility';
 
 import SoilInfo from './SoilInfo';
 import HistoricWeatherInfo from './HistoricWeatherInfo';
 import WeatherInfo from './WeatherInfo';
 import ClassesInfo from './ClassesInfo';
+import SpectralIndicesInfo from './SpectralIndicesInfo';
 import AltitudeInfo from './AltitudeInfo';
 
 import './AnalyseControl.css';
-import ApiManager from '../../../../ApiManager';
 
 class AnalyseControl extends PureComponent {
 
@@ -138,6 +119,11 @@ class AnalyseControl extends PureComponent {
           element={this.props.element}
         />
         <ClassesInfo
+          user={this.props.user}
+          map={this.props.map}
+          element={this.props.element}
+        />
+        <SpectralIndicesInfo
           user={this.props.user}
           map={this.props.map}
           element={this.props.element}
