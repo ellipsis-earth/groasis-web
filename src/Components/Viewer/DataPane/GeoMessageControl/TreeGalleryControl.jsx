@@ -7,6 +7,7 @@ import {
   IconButton
 } from '@material-ui/core';
 import ClearIcon from '@material-ui/icons/ClearOutlined';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 import ViewerUtility from '../../ViewerUtility';
 import DataPaneUtility from '../DataPaneUtility';
@@ -100,9 +101,18 @@ class TreeGalleryControl extends PureComponent {
   }
 
   onDeleteMessage = (deletedMessage) => {
-    let newRawGeoMessages = [...this.state.rawGeoMessages.filter(x => x.id !== deletedMessage.id)];
+    let body = {
+      mapId: this.props.map.referenceMap.id,
+      messageId: deletedMessage.id,
+      type: ViewerUtility.polygonLayerType
+    };
 
-    this.setState({ rawGeoMessages: newRawGeoMessages});
+    ApiManager.post(`/geomessage/delete`, body, this.props.user)
+      .then(() => {
+        let newRawGeoMessages = [...this.state.rawGeoMessages.filter(x => x.id !== deletedMessage.id)];
+
+        this.setState({ rawGeoMessages: newRawGeoMessages});
+      });
   }
 
   onNewMessage = (newMessage) => {
@@ -125,26 +135,51 @@ class TreeGalleryControl extends PureComponent {
         </div>
       );
     }
+
+    let user = this.props.user;
+    let accessLevel = this.props.map.accessLevel;
     
     let rows = rawGeoMessages.map(x => {
+      let canDelete = this.props.user && 
+        (x.user === user.username || accessLevel > ApiManager.accessLevels.deleteGeomessages);
+
       return (
         <tr>
-          <td>{moment(x.date).format('YYYY-MM-DD')}</td>          
           <td>
-            <img 
-              src={x.thumbnail}
-              onClick={() => {
-                if (!x.fullImage) {
-                  this.getImage(x.id, (fullImage) => {
-                    x.fullImage = fullImage
+            <span className='date-span'>{moment(x.date).format('YYYY-MM-DD')}</span>
+          </td>
+          <td>
+            <div className='timeline-span-container'>
+              <img 
+                src={x.thumbnail}
+                onClick={() => {
+                  if (!x.fullImage) {
+                    this.getImage(x.id, (fullImage) => {
+                      x.fullImage = fullImage
+                      this.setState({ fullImage: x.fullImage });
+                    });
+                  }
+                  else {
                     this.setState({ fullImage: x.fullImage });
-                  });
-                }
-                else {
-                  this.setState({ fullImage: x.fullImage });
-                }
-              }}
-            />
+                  }
+                }}
+              />
+              <span className='timeline-span'></span>
+            </div>            
+          </td>
+          <td>
+            {
+              canDelete ? (
+                <IconButton
+                  className='geomessage-card-action-button .delete-button'
+                  style={{ top: '-8px' }}
+                  aria-label='Delete'
+                  onClick={() => this.onDeleteMessage(x)}
+                >
+                  <DeleteIcon className='geomessage-delete-button'/>
+                </IconButton>
+              ) : null
+            }
           </td>
         </tr>
       )
@@ -152,11 +187,14 @@ class TreeGalleryControl extends PureComponent {
 
     return (
       <table className='tree-gallery-table'>
-        <tr>
-          <th>Date</th>
-          <th>Photo</th>
-        </tr>
-        {rows}
+        <tbody>
+          <tr>
+            <th>Date</th>
+            <th>Photo</th>
+            <th></th>
+          </tr>
+          {rows}
+        </tbody>        
       </table>
     );
   }

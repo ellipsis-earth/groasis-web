@@ -125,6 +125,8 @@ export class MapControl extends PureComponent {
     );
 
     this.props.onDrawGeometry(geoJson, drawnGeometryElement);
+
+    this.setState({ drawControl: null });
   }
 
   onShowLocations = () => {

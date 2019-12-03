@@ -16,12 +16,39 @@
 }
 
 .tree-gallery-table th:nth-of-type(2), .tree-gallery-table td:nth-of-type(2) {
-  width: 60%;
+  width: 50%;
   padding-left: 16px;
+}
+
+.tree-gallery-table td:first-of-type {
+  width: 100px;
+  font-size: 14px;
 }
 
 .tree-gallery-table td:nth-of-type(2) {
   border-left: 2px solid #87cef3;
+}
+
+.tree-gallery-table .date-span {
+  position: relative;
+  top: 27px;
+}
+
+.tree-gallery-table .timeline-span-container {
+  position: relative;
+}
+
+.tree-gallery-table .timeline-span {
+  display: inline-block;
+  position: absolute;
+  border-bottom: 2px solid #87cef3;
+  width: 20px;
+  top: 37px;
+  left: -27px;
+}
+
+.tree-gallery-table .delete-button {
+  top: -8px;
 }
 
 .tree-gallery-table img {
