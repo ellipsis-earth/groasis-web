@@ -17,8 +17,6 @@ const LOWRES_TYPE = 'lowres';
 const SOIL_TYPE = 'soil';
 const WEATHER_TYPE = 'weather';
 
-const POLYGON_TREES_LAYER_ID = '3e79cd22-7deb-4303-bbd3-84a74f43a14e';
-
 const MAP_TYPES = [
   ALTITUDE_TYPE,
   HIGHRES_TYPE,
@@ -38,6 +36,8 @@ const METADATA_TYPES = [
 ];
 
 const TREE_RADIUS = 2.5;
+
+const WATCH_FORM = 'watch';
 
 const GroasisUtility = {
   types: {
@@ -131,6 +131,35 @@ const GroasisUtility = {
         );
 
         return groasisMaps;
+      })
+      .then(groasisMaps => {
+        if (!user) {
+          groasisMaps.wachtList = [];
+          return groasisMaps;
+        }
+
+        let promises = groasisMaps.subatlases.map(x => {
+          let body = {
+            mapId: groasisMaps[x].referenceMap.id,
+            type: ViewerUtility.polygonLayerType,
+            filters: {
+              forms: [WATCH_FORM],
+              user: user.username
+            }
+          }
+
+          return ApiManager.post('/geomessage/ids', body, user)
+            .then(watchlistMessages => {
+              groasisMaps[x].watchList = watchlistMessages.messages.map(y => {
+                return { id: y.id, elementId: y.elementId }
+              });
+            });
+        });
+
+        return Promise.all(promises)
+          .then(() => {
+            return groasisMaps;
+          })
       });
   },
   
@@ -167,7 +196,7 @@ const GroasisUtility = {
             }
           })
       );
-    }  
+    }
 
     return Promise.all(promises)
       .then(() => {

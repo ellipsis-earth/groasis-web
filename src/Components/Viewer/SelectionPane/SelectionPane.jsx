@@ -320,6 +320,14 @@ class SelectionPane extends PureComponent {
   renderTreeInputs = () => {
     return (
       <div className='selection-input'>
+        
+      </div>
+    )
+  }
+
+  renderNewTreeInputs = () => {
+    return (
+      <div className='selection-input'>
         <Autocomplete
           id='species-select'   
           className='selection-input-text'       
@@ -641,8 +649,11 @@ class SelectionPane extends PureComponent {
       }
     }
 
-    if (element.type === ViewerUtility.newTreeElementType) {
-      inputElements = this.renderTreeInputs();
+    if (element.type === ViewerUtility.treeElementType) {
+
+    }
+    else if (element.type === ViewerUtility.newTreeElementType) {
+      inputElements = this.renderNewTreeInputs();
     }
        
     return (

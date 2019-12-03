@@ -77,6 +77,8 @@ class TreeGalleryControl extends PureComponent {
         return ApiManager.post(`/geoMessage/get`, body, this.props.user);
       })
       .then((result) => {
+        result = result.filter(x => x.image);
+
         this.setState({ loading: false, rawGeoMessages: result } );
       })
       .catch(err => {
