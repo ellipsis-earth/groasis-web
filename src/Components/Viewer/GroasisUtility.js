@@ -79,6 +79,8 @@ const GroasisUtility = {
     'Willow'
   ],
 
+  watchForm: WATCH_FORM,
+
   getGroasisMaps: async (user, onFeatureClick) => {
     return ApiManager.get('/account/myMaps', null, user)
       .then(maps => {
@@ -134,7 +136,7 @@ const GroasisUtility = {
       })
       .then(groasisMaps => {
         if (!user) {
-          groasisMaps.wachtList = [];
+          groasisMaps.watchlist = [];
           return groasisMaps;
         }
 
@@ -150,7 +152,7 @@ const GroasisUtility = {
 
           return ApiManager.post('/geomessage/ids', body, user)
             .then(watchlistMessages => {
-              groasisMaps[x].watchList = watchlistMessages.messages.map(y => {
+              groasisMaps[x].watchlist = watchlistMessages.messages.map(y => {
                 return { id: y.id, elementId: y.elementId }
               });
             });

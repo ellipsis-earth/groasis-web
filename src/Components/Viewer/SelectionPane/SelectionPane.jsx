@@ -5,6 +5,7 @@ import DateFnsUtils from '@date-io/date-fns';
 import moment from 'moment';
 import {
   Card,
+  Checkbox,
   Button,
   CardHeader,
   CardContent,
@@ -317,10 +318,65 @@ class SelectionPane extends PureComponent {
     });
   }
 
+  onWatchTree = (e) => {
+    let checked = e.target.checked;
+
+    if (checked) {
+      let body = {
+        mapId: this.props.map.referenceMap.id,
+        elementId: this.props.element.id,
+        type: ViewerUtility.polygonLayerType,
+        timestamp: 0,
+        form: {
+          formName: GroasisUtility.watchForm,
+          answers: []
+        }
+      };
+
+      ApiManager.post('/geomessage/add', body, this.props.user) 
+        .then((result) => {
+          this.props.map.watchlist.push({
+            id: result.id,
+            elementId: this.props.element.id
+          });
+
+          this.forceUpdate();
+        })
+    }
+    else {
+      let geoMessage = this.props.map.watchlist.find(x => x.elementId === this.props.element.id);
+
+      if (!geoMessage) {
+        return;
+      }
+
+      let body = {
+        mapId: this.props.map.referenceMap.id,
+        messageId: geoMessage.id,
+        type: ViewerUtility.polygonLayerType
+      };
+
+      ApiManager.post('/geomessage/delete', body, this.props.user)
+        .then(() => {
+          this.props.map.watchlist = this.props.map.watchlist.filter(x => x !== geoMessage);
+          this.forceUpdate();
+        })
+    }
+
+  }
+
   renderTreeInputs = () => {
+    let checked = this.props.map.watchlist.find(x => x.elementId === this.props.element.id) ? true : false;
+
     return (
       <div className='selection-input'>
-        
+        <Checkbox
+          color='primary'
+          name={`Watch Tree`}
+          onChange={this.onWatchTree}
+          checked={checked}
+        />
+        Watch Tree
       </div>
     )
   }
@@ -650,7 +706,7 @@ class SelectionPane extends PureComponent {
     }
 
     if (element.type === ViewerUtility.treeElementType) {
-
+      inputElements = this.renderTreeInputs();
     }
     else if (element.type === ViewerUtility.newTreeElementType) {
       inputElements = this.renderNewTreeInputs();
