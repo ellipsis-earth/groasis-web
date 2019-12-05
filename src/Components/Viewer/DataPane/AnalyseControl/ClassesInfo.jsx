@@ -115,6 +115,7 @@ class ClassesInfo extends PureComponent {
           map={this.props.map[GroasisUtility.types.highRes]}
           data={this.state.data}
           type={ViewerUtility.dataGraphType.classes}
+          maxMask={this.props.maxMask}
         />
       );
 

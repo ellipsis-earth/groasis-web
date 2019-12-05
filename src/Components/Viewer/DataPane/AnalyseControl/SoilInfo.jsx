@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import Papa from 'papaparse';
-import LineChart from './LineChart/LineChart';
 
 import {
   Card,
@@ -17,7 +16,6 @@ import SaveAlt from '@material-ui/icons/SaveAlt';
 
 import ViewerUtility from '../../ViewerUtility';
 import GroasisUtility from '../../GroasisUtility';
-import DataPaneUtility from '../DataPaneUtility';
 
 import ApiManager from '../../../../ApiManager';
 import DataTable from './DataTabel';
@@ -135,6 +133,7 @@ class SoilInfo extends PureComponent {
       dataElement = (
         <DataTable 
           data={this.state.data.formatted}
+          maxMask={this.props.maxMask}
         />
       );
 

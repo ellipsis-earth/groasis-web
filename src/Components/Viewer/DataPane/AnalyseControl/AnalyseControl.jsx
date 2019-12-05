@@ -1,4 +1,9 @@
 import React, { PureComponent } from 'react';
+import {
+  Card,
+  CardContent,
+  Slider
+} from '@material-ui/core';
 
 import ViewerUtility from '../../ViewerUtility';
 
@@ -83,23 +88,24 @@ class AnalyseControl extends PureComponent {
       user: this.props.user,
       map: this.props.map,
       element: this.props.element,
+      maxMask: this.state.maxMask,
       onDownloadData: this.onDownloadData
     };
 
     return (
       <div>
-        {/* <Card className='data-pane-card'>
+        <Card className='data-pane-card'>
           <CardContent>
-            <div>{'Maximum allowed cloud cover'}: {Math.round(this.state.maxMask * 100)}%</div>
+            <div>{'Max cloud cover'}: {Math.round(this.state.maxMask * 100)}%</div>
             <Slider
               step={0.01}
               value={this.state.maxMask}
               min={0}
               max={1}
-              onChange={this.onMaxMaskChange}
+              onChange={ (_, v) => { this.setState({ maxMask: v }); }}
             />
           </CardContent>
-        </Card> */}
+        </Card>
 
         <SoilInfo {...generalProps} />
         <HistoricWeatherInfo {...generalProps} />

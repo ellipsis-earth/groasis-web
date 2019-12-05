@@ -116,6 +116,7 @@ class SpectralIndicesInfo extends PureComponent {
           map={this.props.map[GroasisUtility.types.lowRes]}
           data={this.state.data}
           type={ViewerUtility.dataGraphType.measurements}
+          maxMask={this.props.maxMask}
         />
       );
 
