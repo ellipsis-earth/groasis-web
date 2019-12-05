@@ -140,7 +140,7 @@ class AltitudeInfo extends PureComponent {
 
       actionElement = ( 
         <IconButton
-          onClick={() => this.onDownloadData(false)}
+          onClick={() => this.props.onDownloadData(this.state.data, 'altitude')}        
           aria-label='Download data'
         >
           <SaveAlt />

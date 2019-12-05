@@ -120,7 +120,7 @@ class ClassesInfo extends PureComponent {
 
       actionElement = ( 
         <IconButton
-          onClick={() => this.onDownloadData(false)}
+          onClick={() => this.props.onDownloadData(this.state.data, 'classes')}        
           aria-label='Download data'
         >
           <SaveAlt />

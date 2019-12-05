@@ -121,7 +121,7 @@ class SpectralIndicesInfo extends PureComponent {
 
       actionElement = ( 
         <IconButton
-          onClick={() => this.onDownloadData(false)}
+          onClick={() => this.props.onDownloadData(this.state.data, 'spectral_indices')}              
           aria-label='Download data'
         >
           <SaveAlt />

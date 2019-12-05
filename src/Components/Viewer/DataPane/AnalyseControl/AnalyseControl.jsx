@@ -27,17 +27,10 @@ class AnalyseControl extends PureComponent {
   componentDidUpdate(prevProps) {
   }
 
-  onDownloadData = (isMeasurements) => {
-    let csvData = null;
+  onDownloadData = (data, type) => {
+    let csvData = data.raw;
 
-    if (!isMeasurements && this.state.classesData) {
-      csvData = this.state.classesData.raw;
-    }
-    else if (this.state.measurementsData[this.state.selectedClass]) {
-      csvData = this.state.measurementsData[this.state.selectedClass].raw;
-    }
-
-    let nameComponents = [this.props.map.name];
+    let nameComponents = [this.props.map.subatlas];
 
     let element = this.props.element;
     let elementProperties = element.feature.properties;
@@ -56,6 +49,12 @@ class AnalyseControl extends PureComponent {
         elementProperties.id
       );
     }
+    else if (element.type === ViewerUtility.treeElementType) {
+      nameComponents.push(
+        'tree',
+        elementProperties.id
+      );
+    }
     else if (element.type === ViewerUtility.customPolygonTileLayerType) {
       nameComponents.push(
         'customPolygon',
@@ -67,16 +66,8 @@ class AnalyseControl extends PureComponent {
         'drawnPolygon'
       );
     }
-
-    if (!isMeasurements) {
-      nameComponents.push('classes');
-    }
-    else {
-      nameComponents.push(
-        'measurements',
-        this.state.selectedClass
-      );
-    }
+    
+    nameComponents.push(type);
 
     let fileName = nameComponents.join('_') + '.csv';
 
@@ -87,6 +78,13 @@ class AnalyseControl extends PureComponent {
     if (this.props.home || !this.props.element || this.props.element.type !== ViewerUtility.treeElementType) {
       return null;
     }
+
+    let generalProps = {
+      user: this.props.user,
+      map: this.props.map,
+      element: this.props.element,
+      onDownloadData: this.onDownloadData
+    };
 
     return (
       <div>
@@ -103,36 +101,12 @@ class AnalyseControl extends PureComponent {
           </CardContent>
         </Card> */}
 
-        <SoilInfo
-          user={this.props.user}
-          map={this.props.map}
-          element={this.props.element}
-        />
-        <HistoricWeatherInfo
-          user={this.props.user}
-          map={this.props.map}
-          element={this.props.element}
-        />
-        <WeatherInfo
-          user={this.props.user}
-          map={this.props.map}
-          element={this.props.element}
-        />
-        <ClassesInfo
-          user={this.props.user}
-          map={this.props.map}
-          element={this.props.element}
-        />
-        <SpectralIndicesInfo
-          user={this.props.user}
-          map={this.props.map}
-          element={this.props.element}
-        />
-        <AltitudeInfo
-          user={this.props.user}
-          map={this.props.map}
-          element={this.props.element}
-        />
+        <SoilInfo {...generalProps} />
+        <HistoricWeatherInfo {...generalProps} />
+        <WeatherInfo {...generalProps} />
+        <ClassesInfo {...generalProps} />
+        <SpectralIndicesInfo {...generalProps} />
+        <AltitudeInfo {...generalProps} />
       </div>
     )
   }

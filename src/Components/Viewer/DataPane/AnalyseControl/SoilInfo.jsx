@@ -140,7 +140,7 @@ class SoilInfo extends PureComponent {
 
       actionElement = ( 
         <IconButton
-          onClick={() => this.onDownloadData(false)}
+          onClick={() => this.props.onDownloadData(this.state.data, 'soil')}
           aria-label='Download data'
         >
           <SaveAlt />

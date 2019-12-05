@@ -120,7 +120,7 @@ class WeatherInfo extends PureComponent {
 
       actionElement = ( 
         <IconButton
-          onClick={() => this.onDownloadData(false)}
+          onClick={() => this.props.onDownloadData(this.state.data, 'weather')}        
           aria-label='Download data'
         >
           <SaveAlt />
