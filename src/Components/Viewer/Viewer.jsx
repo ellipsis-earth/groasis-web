@@ -150,7 +150,6 @@ class Viewer extends PureComponent {
   }
 
   componentDidUpdate(prevProps) {
-    debugger;
     if (this.props.mode !== prevProps.mode) {
       let dataPaneAction = this.state.dataPaneAction;
 
