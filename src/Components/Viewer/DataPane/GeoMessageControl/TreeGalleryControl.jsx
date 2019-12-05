@@ -139,7 +139,7 @@ class TreeGalleryControl extends PureComponent {
     }
 
     let user = this.props.user;
-    let accessLevel = this.props.map.accessLevel;
+    let accessLevel = this.props.map.referenceMap.accessLevel;
     
     let rows = rawGeoMessages.map(x => {
       let canDelete = this.props.user && 
