@@ -71,6 +71,7 @@ class DataPane extends PureComponent {
 
     let home = this.state.home;
 
+    let user = this.props.user;
     let element = this.props.element;
     let action = this.props.action;
     let title = '';
@@ -79,43 +80,37 @@ class DataPane extends PureComponent {
     let actionControl = null;
 
     if (home) {
-      title = 'Map';
+      title = 'Overview';
       let map = this.props.map;
+      let legend = null;
 
       if (map) {
-        idText = map.name;
-
-        let hasGeoMessageAccess = map && map.accessLevel >= ApiManager.accessLevels.viewGeoMessages;
-
-        homeElement = (
-          <div>
-            <Button
-              className='geomessage-feed-button'
-              variant='contained'
-              color='primary'
-              disabled={!hasGeoMessageAccess}
-              onClick={() => this.props.onDataPaneAction(ViewerUtility.dataPaneAction.feed)}
-            >
-              {'GEOMESSAGE FEED'}
-            </Button>
-            <LegendControl
-              map={this.props.map}
-            />
-          </div>
-
+        title = 'Region'
+        idText = map.subatlas;
+        legend = (
+          <LegendControl
+            map={this.props.map}
+          />
         );
       }
-      else {
-        return (
-          <div className='viewer-pane data-pane' style={style}>
-            {'Please select a map first.'}
-          </div>
-        )
-      }
+
+      homeElement = (
+        <div>
+          <Button
+            className='geomessage-feed-button'
+            variant='contained'
+            color='primary'
+            onClick={() => this.props.onDataPaneAction(ViewerUtility.dataPaneAction.feed)}
+            disabled={user ? false : true}
+          >
+            Watchlist
+          </Button>
+          {legend}
+        </div>
+      );
     }
     else if (action === ViewerUtility.dataPaneAction.feed) {
-      title = 'GeoMessage Feed';
-      idText = this.props.map.name;
+      title = 'Watchlist';
     }
     else if (element) {
       if (element.type === ViewerUtility.standardTileLayerType) {
@@ -155,6 +150,7 @@ class DataPane extends PureComponent {
       actionControl = (
         <GeoMessageControl
           user={this.props.user}
+          groasisMaps={this.props.groasisMaps}
           map={this.props.map}
           timestampRange={this.props.timestampRange}
           geolocation={this.props.geolocation}
@@ -167,6 +163,7 @@ class DataPane extends PureComponent {
           onLayersChange={this.props.onLayersChange}
           onFeatureClick={this.props.onFeatureClick}
           onDeselect={this.props.onDeselect}
+          onWatchlistClick={this.props.onWatchlistClick}
         />
       );
     }
@@ -198,7 +195,6 @@ class DataPane extends PureComponent {
 
     return (
       <div className={dataPaneClassName} style={style}>
-
         <Card className='data-pane-title-card'>
           <CardActions className={actionsClassName}>
             {

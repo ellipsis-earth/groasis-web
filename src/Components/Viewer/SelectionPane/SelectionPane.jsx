@@ -480,7 +480,7 @@ class SelectionPane extends PureComponent {
           color='primary'
           size='small'
           className='selection-pane-button selection-pane-button-single'
-          onClick={this.props.onSelectMap}
+          onClick={() => this.props.onSelectMap()}
         >
           {'GO'}
         </Button>
@@ -691,7 +691,8 @@ class SelectionPane extends PureComponent {
 
       if (element.type === ViewerUtility.treeElementType) {
         if (property !== GroasisUtility.treeProperties.species && 
-          property !== GroasisUtility.treeProperties.plantingDate) {
+          property !== GroasisUtility.treeProperties.plantingDate
+          && property !== 'id') {
           continue;
         }
       }

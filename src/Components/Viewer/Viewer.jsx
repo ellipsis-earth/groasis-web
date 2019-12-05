@@ -224,7 +224,7 @@ class Viewer extends PureComponent {
     }
   }
 
-  onSelectMap = () => {
+  onSelectMap = (subatlas, cb) => {
     this.selectedElementLayer = null;
     this.drawnPolygonLayer = null;
     this.drawnPolygonGeoJson = null;
@@ -234,7 +234,9 @@ class Viewer extends PureComponent {
       dataPaneAction = null;
     }
 
-    let subatlas = this.state.selectedElement.feature.properties[GroasisUtility.subatlasProperty];
+    if (!subatlas) {
+      subatlas = this.state.selectedElement.feature.properties[GroasisUtility.subatlasProperty];
+    }
     let map = this.state.groasisMaps[subatlas];
     
     GroasisUtility.getMetadata(map, this.props.user)
@@ -248,7 +250,10 @@ class Viewer extends PureComponent {
           timestampRange: timestampRange,
           overrideLeafletLayers: null
         }, () => {
-          this.onFlyTo({ type: ViewerUtility.flyToType.map, delay: true });
+          this.onFlyTo({ type: ViewerUtility.flyToType.map, delay: false });
+          if (cb) {
+            cb();
+          }
         });
       }); 
   }
@@ -356,6 +361,22 @@ class Viewer extends PureComponent {
     this.setState(newState, cb);
   }
 
+  onWatchlistClick = (subatlas, entry) => {
+    let cb = () => {
+      let flyToInfo = {
+        type: ViewerUtility.flyToType.currentElement,
+        elementId: entry.elementId,
+
+        elementType: ViewerUtility.polygonLayerType,
+        overrideType: ViewerUtility.treeElementType
+      };
+
+      this.onFlyTo(flyToInfo);
+    };   
+
+    this.onSelectMap(subatlas, cb);
+  }
+
   selectFeature = (type, feature, hasAggregatedData, color, cb) => {
     let id = feature.properties.id;
     if (type === ViewerUtility.standardTileLayerType) {
@@ -386,6 +407,8 @@ class Viewer extends PureComponent {
     let map = this.state.map.referenceMap;
     let layerCollection = null;
 
+    debugger;
+
     if (!color) {
       if (type === ViewerUtility.polygonLayerType) {
         layerCollection = map.layers.polygon[map.layers.polygon.length - 1].layers;
@@ -400,6 +423,7 @@ class Viewer extends PureComponent {
     }
 
     color = !color ? '#3388ff' : color;
+
 
     let icon = ViewerUtility.returnMarker(color, ViewerUtility.markerSize, 'RoomTwoTone');
 
@@ -462,6 +486,8 @@ class Viewer extends PureComponent {
       this.selectedElementLayer,
       this.drawnPolygonLayer,
     ];
+
+    debugger;
 
     this.setState({ allLayers: allLayers });
   }
@@ -563,7 +589,26 @@ class Viewer extends PureComponent {
             this.attemptFlyTo();
           }
 
-          this.selectFeature(flyToInfo.type, feature, hasAggregatedData, null, cb);
+          let type = flyToInfo.overrideType ? flyToInfo.overrideType : flyToInfo.type;
+
+          if (type === ViewerUtility.treeElementType) {
+            let treeBounds = ViewerUtility.getBounds(feature.geometry.coordinates);
+
+            let center = [
+              treeBounds.xMin + (treeBounds.xMax - treeBounds.xMin) / 2,
+              treeBounds.yMin + (treeBounds.yMax - treeBounds.yMin) / 2
+            ];
+
+            let pointGeometry = {
+              type: 'Point',
+              coordinates: center
+            };
+
+            feature.originalGeometry = feature.geometry;
+            feature.geometry = pointGeometry;
+          }
+
+          this.selectFeature(type, feature, hasAggregatedData, null, cb);
         });
     }
 
@@ -577,7 +622,8 @@ class Viewer extends PureComponent {
 
   getElementGeoJson = () => {
     let map = this.state.map.referenceMap;
-    let type = this.flyToInfo.type;
+    let flyToInfo = this.flyToInfo;
+    let type = flyToInfo.elementType ? flyToInfo.elementType : flyToInfo.type;
     
     let body = {
       mapId: map.id,
@@ -736,6 +782,7 @@ class Viewer extends PureComponent {
             ref={this.dataPane}
             user={this.props.user}
             isOpen={this.state.panes.includes(DATA_PANE_NAME)}
+            groasisMaps={this.state.groasisMaps}
             map={this.state.map}
             timestampRange={this.state.timestampRange}
             geolocation={this.state.geolocation}
@@ -748,6 +795,7 @@ class Viewer extends PureComponent {
             onPolygonChange={this.onPolygonChange}
             onLayersChange={this.onLayersChange}
             onFeatureClick={this.selectFeature}
+            onWatchlistClick={this.onWatchlistClick}
           />
         </div>
 

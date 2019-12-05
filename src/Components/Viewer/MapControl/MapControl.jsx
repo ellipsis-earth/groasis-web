@@ -10,7 +10,7 @@ import {
 } from '@material-ui/core';
 import MyLocationIcon from '@material-ui/icons/MyLocation';
 import TimeLineIcon from '@material-ui/icons/Timeline';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {  
   faTimes,
   faGlobeAmericas,

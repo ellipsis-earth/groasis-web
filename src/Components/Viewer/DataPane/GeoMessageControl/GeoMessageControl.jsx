@@ -28,7 +28,7 @@ import './GeoMessageControl.css';
 import ApiManager from '../../../../ApiManager';
 
 import ElementGeoMessageControl from './ElementGeoMessageControl';
-import FeedGeoMessageControl from './FeedGeoMessageControl';
+import WatchlistControl from './WachtlistControl';
 import TreeGalleryControl from './TreeGalleryControl';
 
 class GeoMessageControl extends PureComponent {
@@ -45,18 +45,11 @@ class GeoMessageControl extends PureComponent {
   render() {
     if (this.props.isFeed) {
       return (
-        <FeedGeoMessageControl
+        <WatchlistControl
           user={this.props.user}
-          map={this.props.map}
-          timestampRange={this.props.timestampRange}
-          geolocation={this.props.geolocation}
-          element={this.props.element}
+          groasisMaps={this.props.groasisMaps}
           home={this.props.home}
-          onDataPaneAction={this.props.onDataPaneAction}
-          onFlyTo={this.props.onFlyTo}
-          onLayersChange={this.props.onLayersChange}
-          onFeatureClick={this.props.onFeatureClick}
-          onDeselect={this.props.onDeselect}
+          onWatchlistClick={this.props.onWatchlistClick}
         />
       );
     }

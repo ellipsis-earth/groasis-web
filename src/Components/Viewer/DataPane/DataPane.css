@@ -22,7 +22,7 @@ div.data-pane-card-content {
 }
 
 div.data-pane-title-card {
-  height: 77px;
+  height: auto;
 }
 
 div.data-pane-title-header {

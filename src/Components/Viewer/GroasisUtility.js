@@ -135,12 +135,12 @@ const GroasisUtility = {
         return groasisMaps;
       })
       .then(groasisMaps => {
-        if (!user) {
-          groasisMaps.watchlist = [];
-          return groasisMaps;
-        }
-
         let promises = groasisMaps.subatlases.map(x => {
+          if (!user) {
+            groasisMaps[x].watchlist = [];
+            return Promise.resolve();
+          }
+
           let body = {
             mapId: groasisMaps[x].referenceMap.id,
             type: ViewerUtility.polygonLayerType,
