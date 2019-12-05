@@ -407,8 +407,6 @@ class Viewer extends PureComponent {
     let map = this.state.map.referenceMap;
     let layerCollection = null;
 
-    debugger;
-
     if (!color) {
       if (type === ViewerUtility.polygonLayerType) {
         layerCollection = map.layers.polygon[map.layers.polygon.length - 1].layers;
@@ -486,8 +484,6 @@ class Viewer extends PureComponent {
       this.selectedElementLayer,
       this.drawnPolygonLayer,
     ];
-
-    debugger;
 
     this.setState({ allLayers: allLayers });
   }

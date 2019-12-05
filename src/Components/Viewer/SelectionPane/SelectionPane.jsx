@@ -667,6 +667,8 @@ class SelectionPane extends PureComponent {
     for (let property in elementProperties) {
       let propertyValue = elementProperties[property];
 
+      let isId = property === 'id';
+
       if (property[0] === ViewerUtility.selection.specialProperty.prefix) {
         continue;
       }
@@ -677,32 +679,39 @@ class SelectionPane extends PureComponent {
         element.type === ViewerUtility.plantingLineElementType ||
         element.type === ViewerUtility.ooiElementType;
 
-      if (drawnType && property === 'id') {
+      if (drawnType && isId) {
         continue;
       }
 
-      if (element.type === ViewerUtility.customPolygonTileLayerType
-        && property === ViewerUtility.isPrivateProperty) {
+      if (element.type === ViewerUtility.customPolygonTileLayerType && property === ViewerUtility.isPrivateProperty) {
         if (propertyValue === true) {
           selectionPaneClass += ' selection-pane-private';
         }
+
         continue;
       }
 
       if (element.type === ViewerUtility.treeElementType) {
         if (property !== GroasisUtility.treeProperties.species && 
           property !== GroasisUtility.treeProperties.plantingDate
-          && property !== 'id') {
+          && !isId) {
           continue;
         }
       }
 
       if (elementProperties.hasOwnProperty(property)) {
-        properties.push((
+        let e = (
           <div key={property}>
             {`${property}: ${propertyValue}`}
           </div>
-        ))
+        );
+
+        if (isId) {
+          properties = [e, ...properties];
+        }
+        else {
+          properties.push(e);
+        }        
       }
     }
 
