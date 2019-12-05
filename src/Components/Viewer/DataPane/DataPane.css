@@ -23,6 +23,7 @@ div.data-pane-card-content {
 
 div.data-pane-title-card {
   height: auto;
+  min-height: 55px;
 }
 
 div.data-pane-title-header {

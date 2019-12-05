@@ -149,6 +149,17 @@ class Viewer extends PureComponent {
       });
   }
 
+  componentDidUpdate(prevProps) {
+    debugger;
+    if (this.props.mode !== prevProps.mode) {
+      let dataPaneAction = this.state.dataPaneAction;
+
+      if (dataPaneAction === ViewerUtility.dataPaneAction.geoMessage || dataPaneAction === ViewerUtility.dataPaneAction.analyse) {
+        this.setState({ dataPaneAction: null });
+      }
+    }
+  }
+
   setLocation = (position) => {
     if (position) {
       if (!this.state.geolocation || this.state.geolocation.latitude !== position.coords.latitude ||
@@ -738,6 +749,7 @@ class Viewer extends PureComponent {
             <SelectionPane
               ref={this.selectionPane}
               user={this.props.user}
+              mode={this.props.mode}
               map={this.state.map}
               geolocation={this.state.geolocation}
               element={this.state.selectedElement}

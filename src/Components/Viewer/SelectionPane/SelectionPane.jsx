@@ -558,31 +558,35 @@ class SelectionPane extends PureComponent {
     else if (element.type === ViewerUtility.treeElementType) {
       title = 'Tree';
 
-      firstRowButtons.push(
-        <Button
-          key='gallery'
-          variant='contained'
-          color='primary'
-          size='small'
-          className='selection-pane-button'
-          onClick={() => this.onElementActionClick(ViewerUtility.dataPaneAction.geoMessage)}          
-        >
-          Gallery
-        </Button>
-      );
-
-      secondRowButtons.push(
-        <Button
-          key='delete'
-          variant='outlined'
-          size='small'
-          className='selection-pane-button'
-          onClick={() => this.onElementActionClick(DELETE_CUSTOM_POLYGON_ACTION)}
-          disabled={!user || mapAccessLevel < ApiManager.accessLevels.alterOrDeleteCustomPolygons}
-        >
-          {'DELETE'}
-        </Button>
-      );
+      if (this.props.mode === ViewerUtility.viewerMode) {
+        firstRowButtons.push(
+          <Button
+            key='gallery'
+            variant='contained'
+            color='primary'
+            size='small'
+            className='selection-pane-button'
+            onClick={() => this.onElementActionClick(ViewerUtility.dataPaneAction.geoMessage)}          
+          >
+            Gallery
+          </Button>
+        );
+      }
+      else {
+        firstRowButtons = [];
+        secondRowButtons.push(
+          <Button
+            key='delete'
+            variant='outlined'
+            size='small'
+            className='selection-pane-button'
+            onClick={() => this.onElementActionClick(DELETE_CUSTOM_POLYGON_ACTION)}
+            disabled={!user || mapAccessLevel < ApiManager.accessLevels.alterOrDeleteCustomPolygons}
+          >
+            {'DELETE'}
+          </Button>
+        );
+      } 
     }
     else if (element.type === ViewerUtility.drawnPolygonLayerType) {
       title = 'Drawn polygon';
