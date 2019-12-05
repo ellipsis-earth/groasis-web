@@ -30,8 +30,6 @@ import GroasisUtility from '../GroasisUtility';
 
 export class MapControl extends PureComponent {
 
-  drawControl = null
-
   constructor(props, context) {
     super(props, context)
 
@@ -53,6 +51,11 @@ export class MapControl extends PureComponent {
       this.props.leafletMap.current.leafletElement.on(
         L.Draw.Event.CREATED, this.onShapeDraw
       );
+    }
+
+    if (this.props.mode === ViewerUtility.viewerMode && this.state.drawControl) {
+      this.state.drawControl.disable();
+      this.state.drawControl = null;
     }
   }
 

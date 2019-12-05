@@ -154,7 +154,17 @@ class Viewer extends PureComponent {
       let dataPaneAction = this.state.dataPaneAction;
 
       if (dataPaneAction === ViewerUtility.dataPaneAction.geoMessage || dataPaneAction === ViewerUtility.dataPaneAction.analyse) {
-        this.setState({ dataPaneAction: null });
+        this.setState({ dataPaneAction: null });  
+      }
+
+      let type = this.state.selectedElement ? this.state.selectedElement.type : null;
+
+      let isDrawnStuff = 
+        type === ViewerUtility.newTreeElementType ||
+        type === ViewerUtility.drawnPolygonLayerType;
+
+      if (this.state.selectedElement && isDrawnStuff) {
+        this.deselectCurrentElement();
       }
     }
   }
