@@ -528,21 +528,31 @@ class SelectionPane extends PureComponent {
     else if (element.type === ViewerUtility.polygonLayerType) {
       title = 'Polygon';
 
+      let layer = element.feature.properties.layer;
+      if (layer === GroasisUtility.layers.polygon.objectOfInterest) {
+        title = 'Object';
+      }
+      else if (layer === GroasisUtility.layers.polygon.plantingLines) {
+        title = 'Planting line';
+      }
+
       let canEdit = user &&
         (mapAccessLevel > ApiManager.accessLevels.alterOrDeleteCustomPolygons ||
         element.feature.properties.user === user.username);
 
+      firstRowButtons = [];
+
       secondRowButtons.push(
-        <Button
-          key='edit'
-          variant='outlined'
-          size='small'
-          className='selection-pane-button'
-          onClick={() => this.onElementActionClick(ViewerUtility.dataPaneAction.editCustomPolygon)}
-          disabled={!canEdit}
-        >
-          {'EDIT'}
-        </Button>,
+        // <Button
+        //   key='edit'
+        //   variant='outlined'
+        //   size='small'
+        //   className='selection-pane-button'
+        //   onClick={() => this.onElementActionClick(ViewerUtility.dataPaneAction.editCustomPolygon)}
+        //   disabled={!canEdit}
+        // >
+        //   {'EDIT'}
+        // </Button>,
         <Button
           key='delete'
           variant='outlined'
