@@ -85,6 +85,18 @@ class WatchList extends PureComponent {
       return null;
     }
 
+    watchlist.sort((a, b) => {
+      if (a.elementId > b.elementId) {
+        return 1;
+      }
+      else if (a.elementId < b.elementId) {
+        return -1;
+      }
+      else {
+        return 0;
+      }
+    });
+
     let elements = watchlist.map(x => {
       return (
         <Button
@@ -93,7 +105,7 @@ class WatchList extends PureComponent {
           color='secondary'
           onClick={() => this.props.onWatchlistClick(map.subatlas, x)}
         >
-          <FontAwesomeIcon icon={faTree} />
+          <FontAwesomeIcon icon={faTree} style={{ color: 'green' }}/>
           <span className='watchlist-button-span'>{x.elementId}</span>
         </Button>
       );
@@ -104,7 +116,7 @@ class WatchList extends PureComponent {
         <Card className='data-pane-card'>
           <CardHeader
             title={
-              <Typography variant='h6' component='h2' className='no-text-transform'>
+              <Typography variant='h6' component='h2' className='watchlist-title'>
                 {map.subatlas}
               </Typography>
             }

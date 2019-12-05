@@ -1,8 +1,12 @@
 button.watchlist-button {
-  width: 22%;
+  width: 30%;
   margin: 4px;
 }
 
 .watchlist-button-span {
   margin-left: 6px;
+}
+
+.watchlist-title {
+  text-transform: capitalize;
 }

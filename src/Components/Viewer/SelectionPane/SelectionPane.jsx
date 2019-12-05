@@ -125,7 +125,7 @@ class SelectionPane extends PureComponent {
     let type = element.type;
     let feature = element.feature;
 
-    let nameComponents = [this.props.map.refenceMap.name];
+    let nameComponents = [this.props.map.subatlas];
 
     if (type === ViewerUtility.standardTileLayerType) {
       nameComponents.push(
@@ -135,7 +135,7 @@ class SelectionPane extends PureComponent {
         feature.properties.zoom
       );
     }
-    else if (type === ViewerUtility.polygonLayerType) {
+    else if (type === ViewerUtility.polygonLayerType || type === ViewerUtility.treeElementType) {
       nameComponents.push('polygon', feature.properties.id);
     }
     else if (type === ViewerUtility.drawnPolygonLayerType) {
@@ -369,16 +369,16 @@ class SelectionPane extends PureComponent {
     let checked = this.props.map.watchlist.find(x => x.elementId === this.props.element.id) ? true : false;
 
     return (
-      <div className='selection-input'>
+      <div>
         <Checkbox
           color='primary'
           name={`Watch Tree`}
           onChange={this.onWatchTree}
           checked={checked}
         />
-        Watch Tree
+        <span>Watch Tree</span>
       </div>
-    )
+    );
   }
 
   renderNewTreeInputs = () => {
@@ -777,7 +777,7 @@ class SelectionPane extends PureComponent {
             <div key='first_row_buttons'>
               {firstRowButtons}
             </div>
-            <div key='secont_row_buttons' style={ {marginLeft: '0px' }}>
+            <div key='second_row_buttons' style={ { marginLeft: '0px' }}>
               {secondRowButtons}
             </div>
           </CardActions>
