@@ -217,14 +217,6 @@ class SelectionPane extends PureComponent {
 
     ApiManager.post('/geometry/add', body, this.props.user)
       .then(() => {
-        let stringPart = null;
-        if (element.type === ViewerUtility.plantingLineElementType) {
-          stringPart = 'Planting line added.';
-        }
-        else if (element.type === ViewerUtility.ooiElementType) {
-          stringPart = 'Object of interest added.';
-        }
-        
         this.onCloseClick();
       })
       .catch(err => {
@@ -365,6 +357,10 @@ class SelectionPane extends PureComponent {
   }
 
   renderTreeInputs = () => {
+    if (!this.props.user) {
+      return null;
+    }
+
     let checked = this.props.map.watchlist.find(x => x.elementId === this.props.element.id) ? true : false;
 
     return (
