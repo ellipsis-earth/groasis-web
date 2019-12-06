@@ -861,7 +861,9 @@ function calculateTimestamps(map, selectedLayers) {
   let tileLayers = selectedLayers[ViewerUtility.tileLayerType];
   let timestampReferenceMap = map[GroasisUtility.types.lowRes];
 
-  if (tileLayers.includes(GroasisUtility.layers.tile.highRes) || tileLayers.includes(GroasisUtility.layers.tile.highResCir)) {
+  if (tileLayers.includes(GroasisUtility.layers.tile.highRes) || 
+    tileLayers.includes(GroasisUtility.layers.tile.highResCir) ||
+    tileLayers.includes(GroasisUtility.layers.tile.highResLabel)) {
     timestampReferenceMap = map[GroasisUtility.types.highRes];
   }
 

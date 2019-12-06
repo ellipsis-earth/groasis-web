@@ -53,6 +53,7 @@ const GroasisUtility = {
       base: 'base',
       highRes: 'rgb (high res)',
       highResCir: 'CIR (high res)',
+      highResLabel: 'label (high res)',
       lowRes: 'rgb (low res)',
       lowResCir: 'CIR (low res)',
       contour: 'contour'

@@ -48,6 +48,13 @@ const AVAILABLE_LAYERS = [
     urlName: 'CIR'
   },
   {
+    name: GroasisUtility.layers.tile.highResLabel,
+    type: LABELS_LAYER_TYPE,
+    mapType: GroasisUtility.types.highRes,
+    stacking: true,
+    urlName: 'label'
+  },
+  {
     name: GroasisUtility.layers.tile.lowRes,
     type: IMAGES_LAYER_TYPE,
     mapType: GroasisUtility.types.lowRes,
@@ -144,21 +151,24 @@ class TileLayersControl extends PureComponent {
       if (i === 1) {
         label = (<div>High res:</div>);
       }
-      else if (i === 3) {
+      else if (i === 4) {
         label = (<div>Low res:</div>);
       }
-      else if (i === 5) {
+      else if (i === 6) {
         label = (<div>Altitude:</div>);
       }
 
       let name = 'base';
-      if (i === 1 || i === 3) {
+      if (i === 1 || i === 4) {
         name = 'rgb';
       }
-      else if (i === 2 || i === 4) {
+      else if (i === 3) {
+        name = 'label';
+      }
+      else if (i === 2 || i === 5) {
         name = 'CIR';
       }
-      else if (i === 5) {
+      else if (i === 6) {
         name = 'contour';
       }
 
@@ -215,7 +225,7 @@ class TileLayersControl extends PureComponent {
       let timestampEnd = timestampRange.end;
 
       for (let y = timestampStart; y <= timestampEnd; y++) {
-        let timestampNumber = 0;        
+        let timestampNumber = 0;
 
         if (availableLayer.name !== GroasisUtility.layers.tile.contour) {
           timestampNumber = subMap.timestamps[y].timestampNumber;
@@ -262,11 +272,13 @@ class TileLayersControl extends PureComponent {
     if (!selectedLayers.includes(GroasisUtility.layers.tile.lowRes) &&
       !selectedLayers.includes(GroasisUtility.layers.tile.lowResCir) &&
       !selectedLayers.includes(GroasisUtility.layers.tile.highRes) &&
-      !selectedLayers.includes(GroasisUtility.layers.tile.highResCir)) {
+      !selectedLayers.includes(GroasisUtility.layers.tile.highResCir) &&
+      !selectedLayers.includes(GroasisUtility.layers.tile.highResLabel)) {
       resetTimestamps = true;
     }
 
-    if (layerName === GroasisUtility.layers.tile.highRes || layerName === GroasisUtility.layers.tile.highResCir) {
+    if (layerName === GroasisUtility.layers.tile.highRes || layerName === GroasisUtility.layers.tile.highResCir
+      || layerName === GroasisUtility.layers.tile.highResLabel) {
       if (selectedLayers.includes(GroasisUtility.layers.tile.lowRes)) {
         layerChanges.push({
           name: GroasisUtility.layers.tile.lowRes,
@@ -295,6 +307,14 @@ class TileLayersControl extends PureComponent {
       if (selectedLayers.includes(GroasisUtility.layers.tile.highResCir)) {
         layerChanges.push({
           name: GroasisUtility.layers.tile.highResCir,
+          add: false
+        });
+        resetTimestamps = true;
+      }
+
+      if (selectedLayers.includes(GroasisUtility.layers.tile.highResLabel)) {
+        layerChanges.push({
+          name: GroasisUtility.layers.tile.highResLabel,
           add: false
         });
         resetTimestamps = true;
