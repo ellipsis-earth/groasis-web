@@ -136,8 +136,6 @@ class CustomPolygonControl extends PureComponent {
 
     ApiManager.post('/geometry/add', body, this.props.user)
       .then(() => {
-        alert('Polygon received. It can take a few moments before it is visible.');
-
         this.props.onPolygonChange(true, false);        
         this.setState({
           loading: false,

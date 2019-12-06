@@ -186,7 +186,6 @@ class SelectionPane extends PureComponent {
           this.trackAddTree(trackingInfo.trackingId, this.uploadedImage);
         }
 
-        alert('Tree planted. It can take a few moments before it is visible.');
         this.onCloseClick();
       })
       .catch(err => {
@@ -225,7 +224,7 @@ class SelectionPane extends PureComponent {
         else if (element.type === ViewerUtility.ooiElementType) {
           stringPart = 'Object of interest added.';
         }
-        alert(`${stringPart} It can take a few moments before it is visible.`);
+        
         this.onCloseClick();
       })
       .catch(err => {
