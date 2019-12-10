@@ -16,7 +16,6 @@ import SaveAlt from '@material-ui/icons/SaveAlt';
 
 import ViewerUtility from '../../ViewerUtility';
 import GroasisUtility from '../../GroasisUtility';
-import DataPaneUtility from '../DataPaneUtility';
 
 import ApiManager from '../../../../ApiManager';
 import LineChart from './LineChart/LineChart';

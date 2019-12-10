@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
-import { renderToStaticMarkup } from 'react-dom/server';
 import { GeoJSON } from 'react-leaflet';
-import L, {divIcon} from 'leaflet';
+import L from 'leaflet';
 
 
 import {
@@ -16,14 +15,12 @@ import {
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import SaveAlt from '@material-ui/icons/SaveAlt';
 
-import Utility from '../../../../Utility';
 import GroasisUtility from '../../GroasisUtility';
 import ViewerUtility from '../../ViewerUtility';
 
 import './PolygonLayersControl.css';
 
 import ApiManager from '../../../../ApiManager';
-import Viewer from '../../Viewer';
 
 const MAX_POLYGONS = 500;
 

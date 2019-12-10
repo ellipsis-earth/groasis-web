@@ -1,13 +1,7 @@
 import React, { PureComponent } from 'react';
-import { renderToStaticMarkup } from 'react-dom/server';
-import {
-  Button
-} from '@material-ui/core';
 import { Map, Marker, GeoJSON } from 'react-leaflet';
 import 'leaflet-draw';
-import L, {divIcon} from 'leaflet';
-
-import RoomIcon from '@material-ui/icons/RoomTwoTone';
+import L from 'leaflet';
 
 import ApiManager from '../../ApiManager';
 
@@ -22,6 +16,7 @@ import MapControl from './MapControl/MapControl';
 import ControlsPane from './ControlsPane/ControlsPane';
 import DataPane from './DataPane/DataPane';
 import SelectionPane from './SelectionPane/SelectionPane';
+import TabMenu from './TabMenu/TabMenu';
 
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
@@ -82,7 +77,7 @@ class Viewer extends PureComponent {
       leafletMapViewport: DEFAULT_VIEWPORT,
       isSmallWindow: false,
 
-      panes: [CONTROL_PANE_NAME, MAP_PANE_NAME],
+      panes: [MAP_PANE_NAME, DATA_PANE_NAME],
 
       mapCollection: null,
       selectedLayers: {
@@ -99,7 +94,7 @@ class Viewer extends PureComponent {
 
       geolocation: null,
 
-      overrideLeafletLayers: null
+      overrideLeafletLayers: null,
     };
   }
 
@@ -221,6 +216,18 @@ class Viewer extends PureComponent {
       else if (paneName !== MAP_PANE_NAME && closePane) {
         currentPanes = Utility.arrayRemove(currentPanes, paneName);
         changed = true;
+      }
+      else if (paneName === MAP_PANE_NAME)
+      {
+        if (currentPanes === [MAP_PANE_NAME])
+        {
+          currentPanes = [CONTROL_PANE_NAME, MAP_PANE_NAME, DATA_PANE_NAME];
+        }
+        else
+        {
+          currentPanes = [MAP_PANE_NAME];
+        }
+        if (currentPanes !== this.state.panes) {changed = true}
       }
     }
     else {
@@ -395,6 +402,10 @@ class Viewer extends PureComponent {
     };   
 
     this.onSelectMap(subatlas, cb);
+  }
+
+  watchlistRefresh = (type, data) => {
+    this.dataPane.current.watchlist.current.updateWatchlist(data);
   }
 
   selectFeature = (type, feature, hasAggregatedData, color, cb) => {
@@ -663,8 +674,6 @@ class Viewer extends PureComponent {
     }
 
     if (updateSelection) {
-      let selectedElement = this.state.selectedElement;
-
       let properties = newProperties;
 
       this.state.selectedElement.feature.properties = properties;
@@ -688,7 +697,7 @@ class Viewer extends PureComponent {
       else {
         this.leafletMap.current.leafletElement.flyToBounds(
           this.flyToInfo.target, 
-          { maxZoom: this.state.map.referenceMap.zoom }
+          { maxZoom: this.state.map.referenceMap.zoom + 3}
         );
       }
 
@@ -768,6 +777,7 @@ class Viewer extends PureComponent {
               onDeselect={this.deselectCurrentElement}
               onDeletePolygon={this.updatePolygons}
               onSelectMap={this.onSelectMap}
+              watchlistRefresh={this.watchlistRefresh}
             />
             <Map
               center={DEFAULT_VIEWPORT.center}
@@ -783,6 +793,7 @@ class Viewer extends PureComponent {
             </Map>
             <MapHeader
               map={this.state.map}
+              flyTo={this.onFlyTo}
             />
             <MapControl
               leafletMap={this.leafletMap}
@@ -816,29 +827,7 @@ class Viewer extends PureComponent {
           />
         </div>
 
-        <div className='viewer-menu'>
-          <Button
-            variant='contained'
-            color='primary'
-            onClick={() => this.openPane(CONTROL_PANE_NAME, true)}
-          >
-            Control
-          </Button>
-          <Button
-            variant='contained'
-            color='primary'
-            onClick={() => this.openPane(MAP_PANE_NAME, true)}
-          >
-            Map
-          </Button>
-          <Button
-            variant='contained'
-            color='primary'
-            onClick={() => this.openPane(DATA_PANE_NAME, true)}
-          >
-            Data
-          </Button>
-        </div>
+        <TabMenu openPane={this.openPane} MAP_PANE_NAME={MAP_PANE_NAME} CONTROL_PANE_NAME={CONTROL_PANE_NAME} DATA_PANE_NAME={DATA_PANE_NAME} panes={this.state.panes} key={this.state.panes}/>
       </div>
     );
   }

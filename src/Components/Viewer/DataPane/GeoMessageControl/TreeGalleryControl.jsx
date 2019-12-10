@@ -144,7 +144,7 @@ class TreeGalleryControl extends PureComponent {
     let rows = rawGeoMessages.map(x => {
       let canDelete = this.props.user && 
         (x.user === user.username || accessLevel > ApiManager.accessLevels.deleteGeomessages);
-
+        console.log(x)
       return (
         <tr>
           <td>
@@ -152,7 +152,8 @@ class TreeGalleryControl extends PureComponent {
           </td>
           <td>
             <div className='timeline-span-container'>
-              <img 
+              <img
+                alt='Gallery thumbnail'
                 src={x.thumbnail}
                 onClick={() => {
                   if (!x.fullImage) {
@@ -219,7 +220,7 @@ class TreeGalleryControl extends PureComponent {
               <ClearIcon />
             </IconButton>
           </div>
-          <img className='geomessage-lightbox-image' src={this.state.fullImage}></img>
+          <img className='geomessage-lightbox-image' src={this.state.fullImage} alt="fullscreen"></img>
         </div> 
       );
     }

@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import { TileLayer } from 'react-leaflet';
-import L from 'leaflet';
 
 import {
   Card,
@@ -13,7 +12,6 @@ import {
 } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
-import Utility from '../../../../Utility';
 import ViewerUtility from '../../ViewerUtility';
 import GroasisUtility from '../../GroasisUtility';
 
@@ -149,13 +147,13 @@ class TileLayersControl extends PureComponent {
 
       let label = null;
       if (i === 1) {
-        label = (<div>High res:</div>);
+        label = (<h3>High res</h3>);
       }
       else if (i === 4) {
-        label = (<div>Low res:</div>);
+        label = (<h3>Low res</h3>);
       }
       else if (i === 6) {
-        label = (<div>Altitude:</div>);
+        label = (<h3>Altitude</h3>);
       }
 
       let name = 'base';

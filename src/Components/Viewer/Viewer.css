@@ -12,25 +12,6 @@ div.content {
   height: calc(100% - 48px);
 }
 
-.viewer-menu {
-  width: 100vw;
-  height: 48px;
-  border: 2px solid #b0b0b0
-}
-
-.viewer-menu button {
-  width: 33.33333%;
-  height: 100%;
-  padding: 0px;
-  border-radius: 0px;
-  box-shadow: none;
-}
-
-.viewer-menu button:nth-of-type(2) {
-  border-left: 1px solid #b0b0b0;
-  border-right: 1px solid #b0b0b0;
-}
-
 .viewer-pane {
   position: relative;
   float: left;

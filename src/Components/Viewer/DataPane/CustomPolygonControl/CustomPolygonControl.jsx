@@ -9,16 +9,8 @@ import {
   Button,
   Select,
   MenuItem,
-  Collapse,
-  IconButton,
   TextField,
-  Checkbox
 } from '@material-ui/core';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-
-import Utility from '../../../../Utility';
-import ViewerUtility from '../../ViewerUtility';
-import DataPaneUtility from '../DataPaneUtility';
 
 import './CustomPolygonControl.css';
 import ApiManager from '../../../../ApiManager';

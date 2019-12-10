@@ -1,31 +1,8 @@
 import React, { PureComponent } from 'react';
-import { GeoJSON } from 'react-leaflet';
-
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  Typography,
-  CircularProgress,
-  Button,
-  Select,
-  MenuItem,
-  Collapse,
-  IconButton,
-  Input,
-  Checkbox,
-  ListItemText,
-  InputLabel,
-  FormControl
-} from '@material-ui/core';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import SaveAlt from '@material-ui/icons/SaveAlt';
 
 import ViewerUtility from '../../ViewerUtility';
-import DataPaneUtility from '../DataPaneUtility';
 
 import './GeoMessageControl.css';
-import ApiManager from '../../../../ApiManager';
 
 import ElementGeoMessageControl from './ElementGeoMessageControl';
 import WatchlistControl from './WachtlistControl';
@@ -43,17 +20,7 @@ class GeoMessageControl extends PureComponent {
   }
 
   render() {
-    if (this.props.isFeed) {
-      return (
-        <WatchlistControl
-          user={this.props.user}
-          groasisMaps={this.props.groasisMaps}
-          home={this.props.home}
-          onWatchlistClick={this.props.onWatchlistClick}
-        />
-      );
-    }
-    else if (this.props.element.type === ViewerUtility.treeElementType) {
+  if (this.props.element.type === ViewerUtility.treeElementType) {
       return (
         <TreeGalleryControl
           user={this.props.user}

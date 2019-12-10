@@ -3,6 +3,8 @@ import {
   Chip
 } from '@material-ui/core';
 
+import ViewerUtility from './../ViewerUtility';
+
 import './MapHeader.css';
 
 export class MapHeader extends PureComponent {
@@ -11,6 +13,11 @@ export class MapHeader extends PureComponent {
 
     this.state = {
     };
+  }
+
+  handleClick = () =>
+  {
+    this.props.flyTo({type: ViewerUtility.flyToType.map})
   }
 
   render() {
@@ -26,6 +33,7 @@ export class MapHeader extends PureComponent {
         <Chip        
           color='primary'
           label={text}
+          onClick={this.props.map ? this.handleClick : null}
         />  
       </div>      
     );

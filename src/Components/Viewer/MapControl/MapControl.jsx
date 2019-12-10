@@ -1,13 +1,9 @@
 import React, { PureComponent} from 'react';
-import { Navbar, Nav, NavItem } from 'react-bootstrap';
-import L, { DrawC } from 'leaflet';
+import { Nav, NavItem } from 'react-bootstrap';
+import L from 'leaflet';
 import { GeoJSON } from 'react-leaflet';
 
-import {
-  Button,
-  IconButton,
-  CircularProgress
-} from '@material-ui/core';
+import { IconButton } from '@material-ui/core';
 import MyLocationIcon from '@material-ui/icons/MyLocation';
 import TimeLineIcon from '@material-ui/icons/Timeline';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -16,17 +12,12 @@ import {
   faGlobeAmericas,
   faPlus, 
   faMinus,
-  faTree,
-  faEraser, 
-  faDrawPolygon,
-  faSave,
-  faEyeSlash
+  faTree, 
+  faDrawPolygon
 } from '@fortawesome/free-solid-svg-icons';
 
 import './MapControl.css';
-import Viewer from '../Viewer';
 import ViewerUtility from '../ViewerUtility';
-import GroasisUtility from '../GroasisUtility';
 
 export class MapControl extends PureComponent {
 
@@ -155,7 +146,7 @@ export class MapControl extends PureComponent {
 
     if (this.props.mode === ViewerUtility.plannerMode) {
       plannerButtons.push(
-        <Nav className='flex-column map-control map-control-planner'>
+        <Nav className='flex-column map-control map-control-planner' key={this.props.mode}>
           <NavItem>
             <IconButton
               className='tool-button'

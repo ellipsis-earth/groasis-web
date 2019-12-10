@@ -319,8 +319,10 @@ export class LineChart extends PureComponent {
             onChange={this.onSeriesCheck}
             checked={this.state.checkedSeries.includes(seriesInfo.name)}
           />
-          {seriesInfo.name}
-          <span className='legend-label legend-label-graph' style={{ backgroundColor: `#${seriesInfo.color}`}}></span>
+          <div className='labelContainer'>
+            <div className='legend-color' style={{ backgroundColor: `#${seriesInfo.color}`}}></div>
+            <span className='legend-label legend-label-graph'>{seriesInfo.name}</span>
+          </div>
         </div>        
       );
     }

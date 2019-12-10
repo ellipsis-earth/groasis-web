@@ -120,7 +120,6 @@ const GroasisUtility = {
         }
 
         let icon = ViewerUtility.returnMarker(GROASIS_COLOR, { x: 17, y: 24 }, 'RoomTwoTone');          
-
         groasisMaps.geoJsonElement = (
           <GeoJSON
             data={groasisMaps.geoJson}
@@ -130,9 +129,10 @@ const GroasisUtility = {
               layer.on({ click: () => onFeatureClick(feature) })
             }}
             pointToLayer={(_, latlng) => L.marker(latlng, { icon: icon, pane: 'overlayPane' })}
+            key={groasisMaps.subatlases.join('_')}
           />
         );
-
+        
         return groasisMaps;
       })
       .then(groasisMaps => {

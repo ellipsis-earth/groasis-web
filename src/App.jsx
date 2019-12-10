@@ -9,7 +9,6 @@ import { createMuiTheme } from '@material-ui/core/styles';
 import { ThemeProvider } from '@material-ui/styles';
 
 import ApiManager from './ApiManager';
-import ErrorHandler from './ErrorHandler';
 
 import MainMenu from './Components/MainMenu/MainMenu';
 import Viewer from './Components/Viewer/Viewer';
@@ -173,7 +172,7 @@ class App extends Component {
                 }
               />
               <div className={this.state.accountOpen ? 'account' : 'hidden'}>
-                <iframe src={this.accountsUrl} id='account'/>
+                <iframe src={this.accountsUrl} id='account' title="account"/>
               </div>
               <div ref={this.bottomItemRef}></div>
             </div>

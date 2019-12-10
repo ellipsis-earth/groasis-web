@@ -1,9 +1,5 @@
 import React, { Component } from 'react';
-import {
-  Button,
-  FormControlLabel,
-  Switch
-} from '@material-ui/core';
+import { Switch } from '@material-ui/core';
 import { ToggleButton } from '@material-ui/lab';
 import { NavLink } from 'react-router-dom';
 
@@ -126,7 +122,7 @@ export class MainMenu extends Component {
                 size='small'
                 checked={this.props.mode === 1} 
                 onChange={this.onModeToggle} 
-
+                color='primary'
               />
               <span>{this.props.mode === 0 ? 'Viewer' : 'Planner'}</span>
             </NavItem>

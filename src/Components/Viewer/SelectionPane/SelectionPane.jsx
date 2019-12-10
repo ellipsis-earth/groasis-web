@@ -330,6 +330,11 @@ class SelectionPane extends PureComponent {
             id: result.id,
             elementId: this.props.element.id
           });
+          
+          this.props.watchlistRefresh('add', {
+            data: this.props.map.watchlist,
+            map: this.props.map
+          })
 
           this.forceUpdate();
         })
@@ -350,6 +355,10 @@ class SelectionPane extends PureComponent {
       ApiManager.post('/geomessage/delete', body, this.props.user)
         .then(() => {
           this.props.map.watchlist = this.props.map.watchlist.filter(x => x !== geoMessage);
+          this.props.watchlistRefresh('delete', {
+            data: this.props.map.watchlist.filter(x => x !== geoMessage),
+            map: this.props.map
+          })
           this.forceUpdate();
         })
     }

@@ -1,10 +1,6 @@
 import React, { Component } from 'react';
-import { Navbar, Nav, NavItem } from 'react-bootstrap';
-import {
-  Button,
-  IconButton,
-  CircularProgress
-} from '@material-ui/core';
+import { Nav, NavItem } from 'react-bootstrap';
+import { IconButton } from '@material-ui/core';
 import CircleIcon from '@material-ui/icons/FiberManualRecord';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {

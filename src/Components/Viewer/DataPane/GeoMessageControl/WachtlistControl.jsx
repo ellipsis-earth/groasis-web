@@ -1,34 +1,14 @@
 import React, { PureComponent } from 'react';
-import { GeoJSON } from 'react-leaflet';
 
 import {
   Card,
   CardHeader,
   CardContent,
   Typography,
-  CircularProgress,
   Button,
-  Select,
-  MenuItem,
-  Collapse,
-  IconButton,
-  Input,
-  Checkbox,
-  ListItemText,
-  InputLabel,
-  FormControl
 } from '@material-ui/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import SaveAlt from '@material-ui/icons/SaveAlt';
-import {  
-  faTree
-} from '@fortawesome/free-solid-svg-icons';
-
-import ViewerUtility from '../../ViewerUtility';
-import DataPaneUtility from '../DataPaneUtility';
-
-import ApiManager from '../../../../ApiManager';
+import { faTree } from '@fortawesome/free-solid-svg-icons';
 
 import './WatchlistControl.css';
 
@@ -37,34 +17,74 @@ class WatchListControl extends PureComponent {
     super(props, context);
 
     this.state = {
+      watchlists: [],
+      count: 0
     };
   }
 
   componentDidMount() {
+    let list = this.prepareWatchlist();
+    this.setState({watchlists: list.list, count: list.count});
   }
 
-  componentDidUpdate(prevProps) {
+  updateWatchlist = (data) =>
+  {
+    let list = this.prepareWatchlist('update', data);
+    this.setState({watchlists: list.list, count: list.count});
+  }
+
+  prepareWatchlist = (mode = 'normal', data) => {
+    let watchlists = [];
+    let count = 0;
+
+    if (this.props.groasisMaps)
+    {
+      for (var i = 0; i < this.props.groasisMaps.subatlases.length; i++)
+      {
+        let subatlas = this.props.groasisMaps.subatlases[i];
+        let map = this.props.groasisMaps[subatlas];
+
+        if (mode === 'update' && this.props.groasisMaps.subatlases[i] === data.map.subatlas)
+        {
+          subatlas = data.map.subatlas;
+          map = data.map;
+        }
+
+        if (map.watchlist.length > 0)
+        {
+           watchlists.push(<WatchList
+            key={'WatchList_' + subatlas}
+            user={this.props.user}
+            map={map}
+            onWatchlistClick={this.props.onWatchlistClick}
+          />)
+        }
+
+        count = count + map.watchlist.length;
+      }
+    }
+
+    return({list: watchlists, count: count})
   }
 
   render() {
-    if (this.props.home) {
+    if (this.props.home || !this.props.groasisMaps) {
       return null;
     }
 
-    let watchLists = this.props.groasisMaps.subatlases.map(x => {
-      return (
-        <WatchList
-          user={this.props.user}
-          map={this.props.groasisMaps[x]}
-          onWatchlistClick={this.props.onWatchlistClick}
-        />
-      );
-    })
-
     return (
-      <div>
-        {watchLists}
-      </div>
+      <Card className='data-pane-card watchList'>
+        <CardHeader
+          title={
+            <Typography variant='h6' component='h2' className='watchlist-title'>
+              Watchlist
+            </Typography>
+          }
+        />
+        <CardContent className='data-pane-card-content' key={this.state.count}>
+          {this.state.watchlists && this.state.watchlists.length > 0 ? this.state.watchlists : 'no trees to watch'}
+        </CardContent>
+      </Card>
     );
   }
 }
@@ -104,6 +124,7 @@ class WatchList extends PureComponent {
           variant='outlined'
           color='secondary'
           onClick={() => this.props.onWatchlistClick(map.subatlas, x)}
+          key={map.subatlas + '_' + x.elementId}
         >
           <FontAwesomeIcon icon={faTree} style={{ color: 'green' }}/>
           <span className='watchlist-button-span'>{x.elementId}</span>
@@ -112,19 +133,11 @@ class WatchList extends PureComponent {
     });
 
     return (
-      <div>
-        <Card className='data-pane-card'>
-          <CardHeader
-            title={
-              <Typography variant='h6' component='h2' className='watchlist-title'>
-                {map.subatlas}
-              </Typography>
-            }
-          />
-          <CardContent className='data-pane-card-content'>
-            {elements}
-          </CardContent>
-        </Card>
+      <div className="watchlistSubatlas">
+        <h3>{map.subatlas}</h3>
+        <div className="buttonContainer">
+          {elements}
+        </div>
       </div>
     )
   }

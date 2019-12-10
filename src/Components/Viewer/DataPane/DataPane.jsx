@@ -7,7 +7,6 @@ import {
   Typography,
   Button,
   IconButton,
-  CardContent
 } from '@material-ui/core';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
@@ -18,12 +17,13 @@ import 'leaflet-draw/dist/leaflet.draw.css';
 import './DataPane.css';
 import ViewerUtility from '../ViewerUtility';
 
-import LegendControl from './LegendControl/LegendControl';
+/*import LegendControl from './LegendControl/LegendControl';*/
 import AnalyseControl from './AnalyseControl/AnalyseControl';
 import GeoMessageControl from './GeoMessageControl/GeoMessageControl';
 import CustomPolygonControl from './CustomPolygonControl/CustomPolygonControl';
 
-import ApiManager from '../../../ApiManager';
+import WachtlistControl from './GeoMessageControl/WachtlistControl';
+
 
 class DataPane extends PureComponent {
   constructor(props, context) {
@@ -32,6 +32,8 @@ class DataPane extends PureComponent {
     this.state = {
       home: true
     };
+
+    this.watchlist = React.createRef();
   }
 
   componentDidMount() {
@@ -82,31 +84,22 @@ class DataPane extends PureComponent {
     if (home) {
       title = 'Overview';
       let map = this.props.map;
-      let legend = null;
 
       if (map) {
         title = 'Region'
         idText = map.subatlas;
-        legend = (
-          <LegendControl
-            map={this.props.map}
-          />
-        );
       }
 
       homeElement = (
-        <div>
-          <Button
-            className='geomessage-feed-button'
-            variant='contained'
-            color='primary'
-            onClick={() => this.props.onDataPaneAction(ViewerUtility.dataPaneAction.feed)}
-            disabled={user ? false : true}
-          >
-            Watchlist
-          </Button>
-          {legend}
-        </div>
+        <WachtlistControl
+          user={this.props.user}
+          groasisMaps={this.props.groasisMaps}
+          home={this.props.home}
+          onWatchlistClick={this.props.onWatchlistClick}
+          key={this.props.groasisMaps ? this.props.groasisMaps.subatlases.join('_') : 'default'}
+          watchlistRefresh={this.props.watchlistRefresh}
+          ref={this.watchlist}
+        />
       );
     }
     else if (action === ViewerUtility.dataPaneAction.feed) {

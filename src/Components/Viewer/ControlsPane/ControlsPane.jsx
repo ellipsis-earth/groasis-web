@@ -1,9 +1,6 @@
 import React, { PureComponent } from 'react';
 
-import MapSelector from './MapSelector/MapSelector';
-import FlyToControl from './FlyToControl/FlyToControl'
 import TileLayersControl from './TileLayersControl/TileLayersControl';
-import StandardTileLayersControl from './StandardTileLayersControl/StandardTileLayersControl';
 import PolygonLayersControl from './PolygonLayersControl/PolygonLayersControl';
 import ViewerUtility from '../ViewerUtility';
 

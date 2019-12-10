@@ -1,12 +1,40 @@
 button.watchlist-button {
-  width: 30%;
-  margin: 4px;
+	margin: 4px;
+	width: 100%;
 }
 
 .watchlist-button-span {
-  margin-left: 6px;
+	margin-left: 6px;
 }
 
 .watchlist-title {
-  text-transform: capitalize;
+	text-transform: capitalize;
+}
+
+div.watchList .data-pane-card-content
+{
+	text-align: center;
+}
+
+div.watchList .MuiCardHeader-root
+{
+	padding-bottom: 0.5rem;
+}
+
+div.watchList h3
+{
+	font-size: 1rem;
+	margin: 0.25rem;
+	font-weight: 500;
+	text-transform: capitalize;
+}
+
+.watchlistSubatlas
+{
+	text-align: left;
+}
+
+.watchlistSubatlas+.watchlistSubatlas
+{
+	margin-top: 1rem;
 }
