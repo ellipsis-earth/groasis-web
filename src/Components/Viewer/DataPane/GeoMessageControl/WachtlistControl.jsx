@@ -72,6 +72,8 @@ class WatchListControl extends PureComponent {
       return null;
     }
 
+    let message = this.props.user ? 'no trees to watch' : 'please login';
+
     return (
       <Card className='data-pane-card watchList'>
         <CardHeader
@@ -82,7 +84,7 @@ class WatchListControl extends PureComponent {
           }
         />
         <CardContent className='data-pane-card-content' key={this.state.count}>
-          {this.state.watchlists && this.state.watchlists.length > 0 ? this.state.watchlists : 'no trees to watch'}
+          {this.state.watchlists && this.state.watchlists.length > 0 ? this.state.watchlists : message}
         </CardContent>
       </Card>
     );

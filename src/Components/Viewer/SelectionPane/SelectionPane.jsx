@@ -3,32 +3,28 @@ import { readAndCompressImage } from 'browser-image-resizer';
 
 import DateFnsUtils from '@date-io/date-fns';
 import moment from 'moment';
-import {
-  Card,
-  Checkbox,
-  Button,
-  CardHeader,
-  CardContent,
-  CardActions,
-  IconButton,
-  Typography,
-  CircularProgress,
-  TextField
-} from '@material-ui/core';
+
+import Button from '@material-ui/core/Button';
+import Card from '@material-ui/core/Card';
+import CardActions from '@material-ui/core/CardActions';
+import CardContent from '@material-ui/core/CardContent';
+import CardHeader from '@material-ui/core/CardHeader';
+import Checkbox from '@material-ui/core/Checkbox';
+import CircularProgress  from '@material-ui/core/CircularProgress';
+import IconButton from '@material-ui/core/IconButton';
+import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
+
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import {
-  MuiPickersUtilsProvider,
-  KeyboardDatePicker,
-} from '@material-ui/pickers';
+import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/pickers';
+
 import ClearIcon from '@material-ui/icons/Clear';
 import SaveAlt from '@material-ui/icons/SaveAlt';
 
 import ViewerUtility from '../ViewerUtility';
 import GroasisUtility from '../GroasisUtility';
-
-import ApiManager from '../../../ApiManager';
-
 import AnnotatePane from '../AnnotatePane/AnnotatePane';
+import ApiManager from '../../../ApiManager';
 
 import './SelectionPane.css';
 
@@ -54,8 +50,11 @@ class SelectionPane extends PureComponent {
       newTreeProps: {
         species: null,
         plantingDate: moment().format('YYYY-MM-DD')
-      }
+      },
+
+      name: null,
     };
+
   }
 
   componentDidUpdate(prevProps) {
@@ -79,7 +78,7 @@ class SelectionPane extends PureComponent {
   deleteCustomPolygon = () => {
     this.setState({ loading: true }, () => {
       let body = {
-        mapId: this.props.map.referenceMap.id,
+        mapId: this.props.map.referenceMap ? this.props.map.referenceMap.id : this.props.map.id,
         polygonId: this.props.element.feature.properties.id
       };
 
@@ -440,10 +439,65 @@ class SelectionPane extends PureComponent {
     )
   }
 
+  onAddPlantingSite = () => {
+    if (this.props.user)
+    {
+      let feature = this.props.element.feature;
+
+      feature.properties = {name: this.state.name}
+
+      let body = {
+        mapId: this.props.groasisMaps.request.id,
+        timestamp: 0,
+        layer: GroasisUtility.request.layer,
+        feature: feature
+      };
+
+      ApiManager.post('/geometry/add', body, this.props.user)
+        .then(tracking => {
+          body = {
+            mapId: this.props.groasisMaps.request.id,
+            trackingId: tracking.trackingId
+          };
+
+          let trackFunc = () => {
+            ApiManager.post('/geometry/track', body, this.props.user)
+              .then(trackingInfo => {
+
+                if (!trackingInfo.added) {
+                  setTimeout(trackFunc, 1000);
+                  return;
+                }
+                else
+                {
+                  this.onCloseClick();
+                }
+
+              })
+              .catch(err => {
+                alert(JSON.stringify(err));        
+                console.log(err);        
+              })
+          }
+
+          trackFunc();
+        })
+        .catch(err => {
+          alert(JSON.stringify(err));        
+          console.log(err);        
+        });
+    }
+  }
+
+  handleNameInput = (e) => {
+    this.setState({name: e.target.value});
+  }
+
   render() {
     if (!this.state.isOpen) {
       return null;
     }
+
 
     let map = this.props.map ? this.props.map.referenceMap : null;
     let element = this.props.element;
@@ -484,9 +538,9 @@ class SelectionPane extends PureComponent {
           color='primary'
           size='small'
           className='selection-pane-button selection-pane-button-single'
-          onClick={() => this.props.onSelectMap()}
+          onClick={() => this.props.onSelectMap(element.feature.properties[GroasisUtility.subatlasProperty])}
         >
-          {'GO'}
+          GO
         </Button>
       ];
       title = element.feature.properties[GroasisUtility.subatlasProperty].toUpperCase();
@@ -501,7 +555,7 @@ class SelectionPane extends PureComponent {
           onClick={() => this.onElementActionClick(ViewerUtility.dataPaneAction.geoMessage)}
           disabled={mapAccessLevel < ApiManager.accessLevels.viewGeoMessages}
         >
-          {'GeoMessage'}
+          GeoMessage
         </Button>
       ));
     }
@@ -521,7 +575,7 @@ class SelectionPane extends PureComponent {
             onClick={() => this.onElementActionClick(ANNOTATE_ACTION)}
             disabled={mapAccessLevel < ApiManager.accessLevels.submitRasterData}
           >
-            {'ANNOTATE'}
+            ANNOTATE
           </Button>,
         );
       }
@@ -605,11 +659,17 @@ class SelectionPane extends PureComponent {
     else if (element.type === ViewerUtility.drawnPolygonLayerType) {
       title = 'Drawn polygon';
 
-      let nonRestrictedLayer = this.props.map.referenceMap.layers.polygon.find(x => !x.restricted);
+      let nonRestrictedLayer = true;
+      let canAdd = true;
 
-      let canAdd = user && 
-        mapAccessLevel >= ApiManager.accessLevels.addPolygons &&
-        (nonRestrictedLayer || mapAccessLevel >= ApiManager.accessLevels.addRestrictedPolygons);
+      if (this.props.mode !== ViewerUtility.plannerMode)
+      {
+        nonRestrictedLayer = this.props.map.referenceMap.layers.polygon.find(x => !x.restricted);
+
+        canAdd = user && 
+          mapAccessLevel >= ApiManager.accessLevels.addPolygons &&
+          (nonRestrictedLayer || mapAccessLevel >= ApiManager.accessLevels.addRestrictedPolygons);
+      }
 
       firstRowButtons.push(
         <Button
@@ -675,6 +735,24 @@ class SelectionPane extends PureComponent {
         </Button>
       ];
     }
+    else if (element.type === ViewerUtility.plantingSiteElementType)
+    {
+      title = 'New Planting Site';
+      firstRowButtons = [];
+      firstRowButtons.push(<TextField id="plantingSiteText" label="Planting Site Name" variant="outlined" className="plantingSite" key="plantingSiteButton" onChange={this.handleNameInput}/>)
+      firstRowButtons.push((
+        <Button
+          color='primary'
+          key='plantingSite'
+          variant='contained'
+          size='small'
+          className="selection-pane-button selection-pane-button-single plantingSite"
+          onClick={() => this.onAddPlantingSite()}
+        >
+          {'Add Planting Site'}
+        </Button>
+      ));
+    }
 
 
     let properties = [];
@@ -738,6 +816,9 @@ class SelectionPane extends PureComponent {
     }
     else if (element.type === ViewerUtility.newTreeElementType) {
       inputElements = this.renderNewTreeInputs();
+    }
+    else if (element.type === ViewerUtility.plantingSiteElementType) {
+      properties = null;
     }
        
     return (

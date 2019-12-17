@@ -46,7 +46,7 @@ class App extends Component {
       init: false,
       user: null,
       accountOpen: false,
-      mode: 0
+      mode: 2
     };
   }
 
@@ -124,8 +124,8 @@ class App extends Component {
     this.setState({ user: null });
   }
   
-  onModeChange = (mode) => {
-    this.setState({ mode: mode });
+  onModeChange = (mode, cb) => {
+    this.setState({ mode: mode }, cb);
   }
 
   openAccounts = (open = !this.state.accountOpen) => {
@@ -168,6 +168,8 @@ class App extends Component {
                     user={this.state.user}
                     mode={this.state.mode}
                     scrollToBottom={this.scrollToBottom}
+                    onModeChange={this.onModeChange}
+                    openAccounts={this.openAccounts}
                   />
                 }
               />

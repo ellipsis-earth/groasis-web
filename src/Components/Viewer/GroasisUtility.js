@@ -17,6 +17,9 @@ const LOWRES_TYPE = 'lowres';
 const SOIL_TYPE = 'soil';
 const WEATHER_TYPE = 'weather';
 
+const REQUEST_MAP_ID = '15d843ba-11e5-4995-aa6f-c3449a8f93e2';
+const plantingSitesLayer = 'Proposed planting sites';
+
 const MAP_TYPES = [
   ALTITUDE_TYPE,
   HIGHRES_TYPE,
@@ -63,6 +66,11 @@ const GroasisUtility = {
       objectOfInterest: 'Objects of interest',
       plantingLines: 'Planting lines'
     }
+  },
+
+  request: {
+    id: REQUEST_MAP_ID,
+    layer: plantingSitesLayer
   },
 
   allTypes: MAP_TYPES,
@@ -132,6 +140,8 @@ const GroasisUtility = {
             key={groasisMaps.subatlases.join('_')}
           />
         );
+
+        groasisMaps.request = maps.find(x => x.id === REQUEST_MAP_ID)
         
         return groasisMaps;
       })
@@ -164,6 +174,18 @@ const GroasisUtility = {
             return groasisMaps;
           })
       });
+  },
+
+  getPolygonLayers: async (groasisMap, user) => {
+    let returnData = await ApiManager.post('/metadata', { mapId: groasisMap.id, type: 'polygonLayers' }, user)
+    .then(results => {
+      return results;
+    })
+    .catch(err => {
+      console.log(err)
+    })
+
+    return returnData
   },
   
   getMetadata: async (groasisMap, user) => {
@@ -251,33 +273,36 @@ function groupMaps(maps) {
     let map = maps[i];
 
     let mapInfo = map.info;
-    let subatlas = mapInfo.subatlas;
+    if (mapInfo)
+    {
+      let subatlas = mapInfo.subatlas;
 
-    if (!groasisMaps[subatlas]) {
-      groasisMaps[subatlas] = {
-        subatlas: subatlas
-      };
-      groasisMaps.subatlases.push(subatlas);
-    }
+      if (!groasisMaps[subatlas]) {
+        groasisMaps[subatlas] = {
+          subatlas: subatlas
+        };
+        groasisMaps.subatlases.push(subatlas);
+      }
 
-    let groasisMap = groasisMaps[subatlas];
-    groasisMap[mapInfo.type] = map;
-    if (mapInfo.type === LOWRES_TYPE) {
-      groasisMap.referenceMap = map;
-    }
+      let groasisMap = groasisMaps[subatlas];
+      groasisMap[mapInfo.type] = map;
+      if (mapInfo.type === LOWRES_TYPE) {
+        groasisMap.referenceMap = map;
+      }
 
-    if (map.xMin < bounds.xMin) {
-      bounds.xMin = map.xMin;
-    }
-    if (map.xMax > bounds.xMax) {
-      bounds.xMax = map.xMax;
-    }
+      if (map.xMin < bounds.xMin) {
+        bounds.xMin = map.xMin;
+      }
+      if (map.xMax > bounds.xMax) {
+        bounds.xMax = map.xMax;
+      }
 
-    if (map.yMin < bounds.yMin) {
-      bounds.yMin = map.yMin;
-    }
-    if (map.yMax > bounds.yMax) {
-      bounds.yMax = map.yMax;
+      if (map.yMin < bounds.yMin) {
+        bounds.yMin = map.yMin;
+      }
+      if (map.yMax > bounds.yMax) {
+        bounds.yMax = map.yMax;
+      }
     }
   }
 

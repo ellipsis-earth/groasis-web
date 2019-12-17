@@ -25,7 +25,8 @@ export class MapControl extends PureComponent {
     super(props, context)
 
     this.state = {
-      drawMode: null
+      drawMode: null,
+      map: null,
     };
   }
 
@@ -48,6 +49,14 @@ export class MapControl extends PureComponent {
       this.state.drawControl.disable();
       this.state.drawControl = null;
     }
+
+    if (!prevProps.map || (this.props.map && prevProps.map.subatlas !== this.props.map.subatlas))
+    {
+      if (this.props.map)
+      {
+        this.setState({map: this.props.map.subatlas})
+      }
+    }
   }
 
   onZoom = (delta) => {
@@ -66,7 +75,7 @@ export class MapControl extends PureComponent {
     this.setState({ drawControl: d, drawMode: ViewerUtility.newTreeElementType });
   }
 
-  onDrawPolygon = () => {
+  onDrawPolygon = (drawMode = ViewerUtility.ooiElementType) => {
     if (this.state.drawControl) {
       this.state.drawControl.disable();
     }
@@ -79,7 +88,7 @@ export class MapControl extends PureComponent {
     });
     d.enable();
 
-    this.setState({ drawControl: d, drawMode: ViewerUtility.ooiElementType });
+    this.setState({ drawControl: d, drawMode: drawMode});
   }
 
   onDrawLine = () => {
@@ -112,7 +121,7 @@ export class MapControl extends PureComponent {
         data={geoJson}
         zIndex={ViewerUtility.drawnPolygonLayerZIndex}
         onEachFeature={(_, layer) => layer.on({ 
-          click: () => this.props.onSelectFeature(ViewerUtility.drawnPolygonLayerType, geoJson, false) 
+          click: () => this.props.onSelectFeature(this.state.drawMode ? this.state.drawMode : ViewerUtility.drawnPolygonLayerType, geoJson, false) 
         })}
         pointToLayer={(geoJsonPoint, latlng) => ViewerUtility.createMarker(latlng, icon)}
       />
@@ -141,10 +150,16 @@ export class MapControl extends PureComponent {
     this.setState({ drawControl: null });
   }
 
+  onMapRequest = () => {
+    this.onDrawPolygon(ViewerUtility.plantingSiteElementType);
+  }
+
   render() {
     let plannerButtons = [];
 
-    if (this.props.mode === ViewerUtility.plannerMode) {
+    let disabled = this.state.map ? false : true;
+
+    if (this.props.mode === ViewerUtility.plantMode) {
       plannerButtons.push(
         <Nav className='flex-column map-control map-control-planner' key={this.props.mode}>
           <NavItem>
@@ -152,6 +167,7 @@ export class MapControl extends PureComponent {
               className='tool-button'
               color='secondary'  
               onClick={this.onPlantTree}
+              disabled={disabled}
             >
               <FontAwesomeIcon icon={faTree} />              
             </IconButton>
@@ -160,7 +176,8 @@ export class MapControl extends PureComponent {
             <IconButton
               className='tool-button'
               color='secondary'  
-              onClick={this.onDrawPolygon}
+              onClick={() => this.onDrawPolygon()}
+              disabled={disabled}
             >
               <FontAwesomeIcon icon={faDrawPolygon} />              
             </IconButton>
@@ -170,17 +187,19 @@ export class MapControl extends PureComponent {
               className='tool-button'
               color='secondary'  
               onClick={this.onDrawLine}
+              disabled={disabled}
             >
               <TimeLineIcon/>  
             </IconButton>
           </NavItem>
           {
-            this.state.drawControl ? (
+            this.state.drawControl && !disabled ? (
               <NavItem>
                 <IconButton
                   className='tool-button'
                   color='secondary'  
                   onClick={this.onStopDraw}
+                  disabled={disabled}
                 >
                   <FontAwesomeIcon icon={faTimes} />                  
                 </IconButton>
@@ -189,6 +208,22 @@ export class MapControl extends PureComponent {
           }
         </Nav>        
       );
+    }
+    else if(this.props.mode === ViewerUtility.plannerMode)
+    {
+      disabled = this.props.user ? false : true
+      plannerButtons.push(<Nav className='flex-column map-control map-control-planner' key={this.props.mode + '_' + disabled}>
+        <NavItem>
+          <IconButton
+            className='tool-button'
+            color='secondary'  
+            onClick={this.onMapRequest}
+            disabled={disabled}
+          >
+            <FontAwesomeIcon icon={faDrawPolygon} />              
+          </IconButton>
+        </NavItem>
+      </Nav>)
     }
 
     return (

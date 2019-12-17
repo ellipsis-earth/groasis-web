@@ -48,6 +48,12 @@ button.selection-pane-button-single {
   margin-top: 9px;
 }
 
+div.plantingSite
+{
+  width: 100%;
+  margin-bottom: 1em;
+}
+
 /* .selection-input-text div.MuiOutlinedInput-root {
   padding: 0px 5px;
 } */

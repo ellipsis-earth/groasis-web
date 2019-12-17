@@ -1,6 +1,12 @@
 import React, { Component } from 'react';
-import { Switch } from '@material-ui/core';
+
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import Switch from '@material-ui/core/Switch';
+
 import { ToggleButton } from '@material-ui/lab';
+
 import { NavLink } from 'react-router-dom';
 
 import { Navbar, Nav, NavItem } from 'react-bootstrap';
@@ -80,11 +86,21 @@ export class MainMenu extends Component {
   }
 
   onModeToggle = (e) => {
-    let checked = e.target.checked;
-    let mode = checked ? 1 : 0;
+    let mode = parseInt(e.target.value);
 
     if (mode !== this.props.mode) {
-      this.props.onModeChange(mode);
+      this.setState({expanded: false}, () => this.props.onModeChange(mode))
+    }
+  }
+
+  onOpenAccounts = (input = 'default') => {
+    if(input === false)
+    {
+      this.props.openAccounts(false); this.onNavItemClick('home')
+    }
+    else
+    {
+      this.setState({expanded: false}, () => this.props.openAccounts(input))
     }
   }
 
@@ -106,32 +122,46 @@ export class MainMenu extends Component {
       <div id='main-menu' style={displayStyle}>
         <Navbar
           className={this.state.expanded ? 'main-menu' : 'main-menu main-menu-collapsed'}
-          variant='dark'
+          variant='light'
           expand='md'
           expanded={this.state.expanded}
           onToggle={this.onToggle}
         >
           <Navbar.Brand>
-            <NavLink exact to='/' className='main-menu-logo-item noselect' onClick={() => {this.props.openAccounts(false); this.onNavItemClick('home')}}>
-              <img className='main-menu-logo' src='/images/groasis-logo.png' alt='Groasis'/>
+            <NavLink exact to='/' className='main-menu-logo-item noselect' onClick={() => this.onOpenAccounts(false)}>
+              <img className='main-menu-logo' src='/images/logos/groasis-tree-atlas-logo.svg' alt='Groasis Tree Altas'/>
             </NavLink>
           </Navbar.Brand>
-          <Nav>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse>
             <NavItem>
-              <Switch 
-                size='small'
-                checked={this.props.mode === 1} 
-                onChange={this.onModeToggle} 
-                color='primary'
-              />
-              <span>{this.props.mode === 0 ? 'Viewer' : 'Planner'}</span>
+              <RadioGroup aria-label="mode" name="mode" value={this.props.mode} onChange={this.onModeToggle} row={!this.state.expanded} className="modeSwitch">
+                <FormControlLabel
+                  value={0}
+                  control={<Radio color="primary" />}
+                  label="Plan"
+                  labelPlacement="end"
+                />
+                <FormControlLabel
+                  value={1}
+                  control={<Radio color="primary" />}
+                  label="Plant"
+                  labelPlacement="end"
+                />
+                <FormControlLabel
+                  value={2}
+                  control={<Radio color="primary" />}
+                  label="View"
+                  labelPlacement="end"
+                />
+              </RadioGroup>
             </NavItem>
             <NavItem>
-              <ToggleButton selected={navItemClass(navKeys.login)} value={this.props.user ? this.props.user.username : 'Login'} onClick={() => this.props.openAccounts()}>
+              <ToggleButton selected={navItemClass(navKeys.login)} value={this.props.user ? this.props.user.username : 'Login'} onClick={this.onOpenAccounts} color='primary'>
                 {this.props.user ? this.props.user.username : 'Login'}
               </ToggleButton>
             </NavItem>
-          </Nav>
+          </Navbar.Collapse>
         </Navbar>
       </div>
     )

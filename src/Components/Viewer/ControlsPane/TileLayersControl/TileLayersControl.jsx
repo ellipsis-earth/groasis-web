@@ -138,6 +138,17 @@ class TileLayersControl extends PureComponent {
     let options = [];
 
     let availableLayers = AVAILABLE_LAYERS;
+    if (this.props.mode === ViewerUtility.plannerMode)
+    {
+      availableLayers = [{
+        name: GroasisUtility.layers.tile.base,
+        type: null,
+        mapType: null,
+        stacking: false,
+        urlName: null,
+      }]
+    }
+
     let selectedLayers = this.props.selectedLayers[ViewerUtility.tileLayerType];
 
     for (let i = 0; i < availableLayers.length; i++) {
@@ -203,7 +214,7 @@ class TileLayersControl extends PureComponent {
     let map = this.props.map;
     let timestampRange = this.props.timestampRange;
 
-    if (!map || !timestampRange) {
+    if (!map || !timestampRange || this.props.mode === ViewerUtility.plannerMode) {
       this.props.onLayersChange(layerElements);
       return;      
     }

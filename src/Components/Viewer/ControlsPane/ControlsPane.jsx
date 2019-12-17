@@ -76,6 +76,7 @@ class ControlsPane extends PureComponent {
           selectedLayers={this.props.selectedLayers}
           onSelectedLayersChange={this.props.onSelectedLayersChange}
           onLayersChange={(layers) => this.onLayersChange(ViewerUtility.tileLayerType, layers)}
+          mode={this.props.mode}
         />
 
         <PolygonLayersControl
@@ -89,6 +90,8 @@ class ControlsPane extends PureComponent {
           onLayersChange={(layers) => this.onLayersChange(ViewerUtility.polygonLayerType, layers)}
           onFeatureClick={this.props.onFeatureClick}
           markerSize={this.props.markerSize}
+          groasisMaps={this.props.groasisMaps}
+          mode={this.props.mode}
         />
 
         {/* <StandardTileLayersControl

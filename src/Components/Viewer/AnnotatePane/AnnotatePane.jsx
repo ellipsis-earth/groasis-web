@@ -1,20 +1,8 @@
 import React, { PureComponent } from 'react';
 
-import {
-  Card,
-  Button,
-  CardHeader,
-  CardContent,
-  CardActions,
-  IconButton,
-  Typography,
-  CircularProgress
-} from '@material-ui/core';
+import IconButton from '@material-ui/core/IconButton';
 import ClearIcon from '@material-ui/icons/ClearOutlined';
 
-import ViewerUtility from '../ViewerUtility';
-
-import ApiManager from '../../../ApiManager';
 import AnnotateTool from './AnnotateTool';
 
 import './AnnotatePane.css';

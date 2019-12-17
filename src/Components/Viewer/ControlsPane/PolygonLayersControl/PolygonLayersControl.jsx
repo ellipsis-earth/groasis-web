@@ -79,16 +79,23 @@ class PolygonLayersControl extends PureComponent {
       let availableLayers = this.state.availableLayers;
 
       if (differentMap) {
-        let referenceMap = this.props.map.referenceMap;
-        let polygonLayers = referenceMap.layers.polygon;
+        if (this.props.mode === ViewerUtility.plannerMode && !this.props.map.referenceMap)
+        {
+          availableLayers = this.props.map.layers;
+        }
+        else
+        {
+          let referenceMap = this.props.map.referenceMap;
+          let polygonLayers = referenceMap.layers.polygon;
 
-        let groasisPolygonLayers = GroasisUtility.layers.polygon;
+          let groasisPolygonLayers = GroasisUtility.layers.polygon;
 
-        availableLayers = [
-          polygonLayers.find(x => x.name === groasisPolygonLayers.trees),
-          polygonLayers.find(x => x.name === groasisPolygonLayers.objectOfInterest),
-          polygonLayers.find(x => x.name === groasisPolygonLayers.plantingLines)
-        ];
+          availableLayers = [
+            polygonLayers.find(x => x.name === groasisPolygonLayers.trees),
+            polygonLayers.find(x => x.name === groasisPolygonLayers.objectOfInterest),
+            polygonLayers.find(x => x.name === groasisPolygonLayers.plantingLines)
+          ];
+        }
 
         this.layerGeoJsons = {};
 
@@ -171,7 +178,7 @@ class PolygonLayersControl extends PureComponent {
   }
 
   prepareLayers = async (availableLayers) => {
-    let map = this.props.map.referenceMap;
+    let map = this.props.map.referenceMap ? this.props.map.referenceMap : this.props.map;
     let selectedLayers = this.props.selectedLayers[ViewerUtility.polygonLayerType];
     let promises = [];
 
@@ -290,6 +297,7 @@ class PolygonLayersControl extends PureComponent {
                 click: () => this.props.onFeatureClick(elementType, feature, polygonLayer.hasAggregatedData) 
               })}}
               pointToLayer={(geoJsonPoint, latlng) => this.markerReturn(latlng, icon)}
+              name={polygonLayer.name}
             />,
             <GeoJSON
               key={Math.random()}
@@ -299,6 +307,7 @@ class PolygonLayersControl extends PureComponent {
               onEachFeature={(feature, layer) => {layer.on({ 
                 click: () => this.props.onFeatureClick(elementType, feature, polygonLayer.hasAggregatedData) 
               })}}
+              name={polygonLayer.name}
             />
             ]
           );
@@ -366,7 +375,6 @@ class PolygonLayersControl extends PureComponent {
   }
 
   render() {
-
     if (!this.props.map || this.state.availableLayers.length === 0) {
       return null;
     }

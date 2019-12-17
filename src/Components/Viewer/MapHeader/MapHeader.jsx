@@ -15,17 +15,37 @@ export class MapHeader extends PureComponent {
     };
   }
 
-  handleClick = () =>
+  handleClick = (type) =>
   {
-    this.props.flyTo({type: ViewerUtility.flyToType.map})
+    if(type === 'flyTo')
+    {
+      this.props.flyTo({type: ViewerUtility.flyToType.map})
+    }
+    else if (type === 'login')
+    {
+      this.props.openAccounts(true);
+    }
   }
 
   render() {
     let groasisMap = this.props.map;
+    let type = groasisMap ? 'flyTo' : null;
 
     let text = 'Select an area of interest';
-    if (this.props.map) {
+    if (groasisMap && groasisMap.subatlas) {
       text = groasisMap.subatlas.toUpperCase();
+    }
+    else if (this.props.mode === ViewerUtility.plannerMode)
+    {
+      if (!this.props.user)
+      {
+        text = 'Please login';
+        type = 'login';
+      }
+      else
+      {
+        text = 'Draw a polygon';
+      }
     }
 
     return (
@@ -33,7 +53,7 @@ export class MapHeader extends PureComponent {
         <Chip        
           color='primary'
           label={text}
-          onClick={this.props.map ? this.handleClick : null}
+          onClick={type ? () => this.handleClick(type) : null}
         />  
       </div>      
     );

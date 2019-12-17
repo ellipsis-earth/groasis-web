@@ -98,7 +98,7 @@ class Viewer extends PureComponent {
     };
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     navigator.geolocation.getCurrentPosition(
       this.setLocation,
       (err) => {
@@ -131,8 +131,9 @@ class Viewer extends PureComponent {
     }
 
     GroasisUtility.getGroasisMaps(this.props.user, onSubatlasClick)
-      .then(groasisMaps => {
+      .then(async groasisMaps => {
         this.subatlasesLayer = groasisMaps.geoJsonElement;
+        groasisMaps.request.layers = await GroasisUtility.getPolygonLayers(groasisMaps['request'], this.props.user);
         this.rebuildAllLayers();
         this.setState({ groasisMaps: groasisMaps });
 
@@ -140,11 +141,12 @@ class Viewer extends PureComponent {
           [groasisMaps.bounds.yMin, groasisMaps.bounds.xMin],
           [groasisMaps.bounds.yMax, groasisMaps.bounds.xMax],
         ];
-        this.leafletMap.current.leafletElement.fitBounds(latLngBounds);
+        if(this.leafletMap.current){this.leafletMap.current.leafletElement.fitBounds(latLngBounds)};
       });
+
   }
 
-  componentDidUpdate(prevProps) {
+   componentDidUpdate(prevProps) {
     if (this.props.mode !== prevProps.mode) {
       let dataPaneAction = this.state.dataPaneAction;
 
@@ -161,7 +163,50 @@ class Viewer extends PureComponent {
       if (this.state.selectedElement && isDrawnStuff) {
         this.deselectCurrentElement();
       }
+
+      if (this.props.mode === ViewerUtility.plannerMode)
+      {
+        this.onSelectMap();
+      }
+      else
+      {
+        if (this.state.map && this.state.map.id && this.state.map.id === GroasisUtility.request.id)
+        {
+          this.setState({
+            map: null,
+            selectedLayers: {
+              [ViewerUtility.tileLayerType]: [GroasisUtility.layers.tile.base, GroasisUtility.layers.tile.highRes],
+              [ViewerUtility.polygonLayerType]: [GroasisUtility.layers.polygon.trees],
+              [ViewerUtility.standardTileLayerType]: []
+            },
+            selectedElement: null,
+          }, this.filterPlannerLayers);
+        }
+      }
     }
+  }
+
+  filterPlannerLayers = () => {
+    let newLayers = [];
+    for (let i = 0; i < this.leafletLayers.length; i++)
+    {
+      let layerType = this.leafletLayers[i];
+      if (layerType)
+      {
+        for (let j = layerType.length - 1; j >= 0; j--)
+        {
+          if (layerType[j].props.name === GroasisUtility.request.layer)
+          {
+            delete layerType[j];
+          }
+        }
+      }
+
+      newLayers.push(layerType);
+    }
+
+    this.deselectCurrentElement();
+    this.onLayersChange(newLayers, true);
   }
 
   setLocation = (position) => {
@@ -261,21 +306,42 @@ class Viewer extends PureComponent {
       dataPaneAction = null;
     }
 
-    if (!subatlas) {
-      subatlas = this.state.selectedElement.feature.properties[GroasisUtility.subatlasProperty];
+    let map = null;
+    if (this.props.mode === ViewerUtility.plannerMode && !subatlas)
+    {
+      let selectedLayers = {
+        [ViewerUtility.tileLayerType]: [GroasisUtility.layers.tile.base],
+        [ViewerUtility.polygonLayerType]: [GroasisUtility.request.layer],
+        [ViewerUtility.standardTileLayerType]: []
+      };
+
+      this.setState({
+        map: this.state.groasisMaps.request,
+        dataPaneAction: dataPaneAction,
+        selectedElement: null,
+        timestampRange: {start: 0, end: 0},
+        selectedLayers: selectedLayers,
+        overrideLeafletLayers: null
+      })
     }
-    let map = this.state.groasisMaps[subatlas];
-    
-    GroasisUtility.getMetadata(map, this.props.user)
+    else
+    {
+      if (!subatlas) {
+        subatlas = this.state.selectedElement.feature.properties[GroasisUtility.subatlasProperty];
+      }
+      
+      map = this.state.groasisMaps[subatlas];
+      
+      let totalCb = () => GroasisUtility.getMetadata(map, this.props.user)
       .then(() => {
         let timestampRange = calculateTimestamps(map, this.state.selectedLayers);
-
         this.setState({
           map: map,
           dataPaneAction: dataPaneAction,
           selectedElement: null,
           timestampRange: timestampRange,
-          overrideLeafletLayers: null
+          overrideLeafletLayers: null,
+          selectedLayers: this.state.selectedLayers,
         }, () => {
           this.onFlyTo({ type: ViewerUtility.flyToType.map, delay: false });
           if (cb) {
@@ -283,6 +349,16 @@ class Viewer extends PureComponent {
           }
         });
       }); 
+
+      if (this.props.mode === ViewerUtility.plannerMode)
+      {
+        this.props.onModeChange(ViewerUtility.viewerMode, totalCb)
+      }
+      else
+      {
+        totalCb();
+      }
+    }
   }
 
   onSelectedLayersChange = (type, layerChanges, resetTimestamps) => {
@@ -401,7 +477,7 @@ class Viewer extends PureComponent {
       this.onFlyTo(flyToInfo);
     };   
 
-    this.onSelectMap(subatlas, cb);
+    this.props.onModeChange(ViewerUtility.viewerMode, this.onSelectMap(subatlas, cb));
   }
 
   watchlistRefresh = (type, data) => {
@@ -409,72 +485,75 @@ class Viewer extends PureComponent {
   }
 
   selectFeature = (type, feature, hasAggregatedData, color, cb) => {
-    let id = feature.properties.id;
-    if (type === ViewerUtility.standardTileLayerType) {
-      id = {
-        tileX: feature.properties.tileX,
-        tileY: feature.properties.tileY,
-        zoom: feature.properties.zoom
+    if (this.state.map || this.props.mode === ViewerUtility.plannerMode)
+    {
+      let id = feature.properties.id;
+      if (type === ViewerUtility.standardTileLayerType) {
+        id = {
+          tileX: feature.properties.tileX,
+          tileY: feature.properties.tileY,
+          zoom: feature.properties.zoom
+        };
+      }
+
+      let element = {
+        type: type,
+        hasAggregatedData: hasAggregatedData,
+        feature: feature,
+        id: id
       };
+
+      let geoJson = {
+        type: 'FeatureCollection',
+        count: 1,
+        features: [
+          element.feature
+        ]
+      };
+
+      let markerPane = this.leafletMap.current.leafletElement.getPane('markerPane');
+
+      let map = this.props.mode === ViewerUtility.plannerMode ? this.state.groasisMaps.request : this.state.map.referenceMap;
+      let layerCollection = null;
+
+      if (!color) {
+        if (type === ViewerUtility.polygonLayerType) {
+          layerCollection = map.layers.polygon ? map.layers.polygon[map.layers.polygon.length - 1].layers : map.layers;
+        }
+
+        if (layerCollection) {
+          let layerName = feature.properties.layer;
+          let layer = layerCollection.find(x => x.name === layerName);
+
+          color = `#${layer.color}`;
+        }
+      }
+
+      color = !color ? '#3388ff' : color;
+
+
+      let icon = ViewerUtility.returnMarker(color, ViewerUtility.markerSize, 'RoomTwoTone');
+
+      let selectedElementLayer = (
+        <GeoJSON
+          key={Math.random()}
+          data={geoJson}
+          style={ViewerUtility.createGeoJsonLayerStyle(color, 2, 0.3)}
+          pane={markerPane}
+          onEachFeature={(_, layer) => layer.on({ click: () => this.selectionPane.current.open() })}
+          pointToLayer={(geoJsonPoint, latlng) => ViewerUtility.createMarker(latlng, icon)}
+        />
+      );
+
+      this.selectedElementLayer = selectedElementLayer;
+
+      this.setState({ selectedElement: element }, () => {
+        this.rebuildAllLayers();
+        if (cb) {
+          cb();
+        }
+      });
     }
-
-    let element = {
-      type: type,
-      hasAggregatedData: hasAggregatedData,
-      feature: feature,
-      id: id
-    };
-
-    let geoJson = {
-      type: 'FeatureCollection',
-      count: 1,
-      features: [
-        element.feature
-      ]
-    };
-
-    let markerPane = this.leafletMap.current.leafletElement.getPane('markerPane');
-
-    let map = this.state.map.referenceMap;
-    let layerCollection = null;
-
-    if (!color) {
-      if (type === ViewerUtility.polygonLayerType) {
-        layerCollection = map.layers.polygon[map.layers.polygon.length - 1].layers;
-      }
-
-      if (layerCollection) {
-        let layerName = feature.properties.layer;
-        let layer = layerCollection.find(x => x.name === layerName);
-
-        color = `#${layer.color}`;
-      }
-    }
-
-    color = !color ? '#3388ff' : color;
-
-
-    let icon = ViewerUtility.returnMarker(color, ViewerUtility.markerSize, 'RoomTwoTone');
-
-    let selectedElementLayer = (
-      <GeoJSON
-        key={Math.random()}
-        data={geoJson}
-        style={ViewerUtility.createGeoJsonLayerStyle(color, 2, 0.3)}
-        pane={markerPane}
-        onEachFeature={(_, layer) => layer.on({ click: () => this.selectionPane.current.open() })}
-        pointToLayer={(geoJsonPoint, latlng) => ViewerUtility.createMarker(latlng, icon)}
-      />
-    );
-
-    this.selectedElementLayer = selectedElementLayer;
-
-    this.setState({ selectedElement: element }, () => {
-      this.rebuildAllLayers();
-      if (cb) {
-        cb();
-      }
-    });
   }
 
   deselectCurrentElement = () => {
@@ -545,7 +624,7 @@ class Viewer extends PureComponent {
     let type = flyToInfo.type;
 
     if (type === ViewerUtility.flyToType.map) {
-      let map = this.state.map.referenceMap;
+      let map = this.state.map.referenceMap ? this.state.map.referenceMap : this.state.map;
       flyToInfo.target = L.latLngBounds(L.latLng(map.yMin, map.xMin), L.latLng(map.yMax, map.xMax));
     }
     else if (type === ViewerUtility.flyToType.currentLocation) {
@@ -697,7 +776,7 @@ class Viewer extends PureComponent {
       else {
         this.leafletMap.current.leafletElement.flyToBounds(
           this.flyToInfo.target, 
-          { maxZoom: this.state.map.referenceMap.zoom + 3}
+          { maxZoom: this.state.map.referenceMap ? this.state.map.referenceMap.zoom + 3 : this.state.map + 3}
         );
       }
 
@@ -730,7 +809,7 @@ class Viewer extends PureComponent {
     }
 
     let maxZoom = 22;
-    if (this.state.map && this.leafletMap.current) {
+    if (this.state.map && this.state.map.referenceMap && this.leafletMap.current) {
       maxZoom = Math.max(22, this.state.map.referenceMap.zoom + 3);
       this.leafletMap.current.leafletElement.setMaxZoom(maxZoom);
     }
@@ -756,6 +835,8 @@ class Viewer extends PureComponent {
             onFlyTo={this.onFlyTo}
             onDeselect={this.deselectCurrentElement}
             markerSize={ViewerUtility.markerSize}
+            groasisMaps={this.state.groasisMaps}
+            mode={this.props.mode}
           />
 
           <div className='viewer-pane map-pane' style={mapPaneStyle}>
@@ -763,12 +844,14 @@ class Viewer extends PureComponent {
               map={this.state.map}
               selectedLayers={this.state.selectedLayers}
               onSelectTimestamp={this.onSelectTimestamp}
+              mode={this.props.mode}
             />  
             <SelectionPane
               ref={this.selectionPane}
               user={this.props.user}
               mode={this.props.mode}
               map={this.state.map}
+              groasisMaps={this.state.groasisMaps}
               geolocation={this.state.geolocation}
               element={this.state.selectedElement}
               timestampRange={this.state.timestampRange}
@@ -794,6 +877,9 @@ class Viewer extends PureComponent {
             <MapHeader
               map={this.state.map}
               flyTo={this.onFlyTo}
+              mode={this.props.mode}
+              user={this.props.user}
+              openAccounts={this.props.openAccounts}
             />
             <MapControl
               leafletMap={this.leafletMap}
@@ -803,6 +889,8 @@ class Viewer extends PureComponent {
               onSelectFeature={this.selectFeature}
               onDrawGeometry={this.onDrawGeometry}
               onFlyTo={this.onFlyTo}
+              map={this.state.map}
+              user={this.props.user}
             />       
           </div>
 

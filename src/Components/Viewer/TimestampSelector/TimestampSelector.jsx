@@ -23,7 +23,7 @@ export class TimestampSelector extends PureComponent {
     let diffMap = this.props.map !== prevProps.map && this.props.map;
     let diffLayers = this.props.selectedLayers !== prevProps.selectedLayers;
 
-    if (diffMap || diffLayers) {
+    if ((diffMap || diffLayers) && this.props.map) {
       let tileLayers = this.props.selectedLayers[ViewerUtility.tileLayerType];
       let timestampReferenceMap = this.props.map[GroasisUtility.types.highRes];
 
@@ -31,7 +31,7 @@ export class TimestampSelector extends PureComponent {
         timestampReferenceMap = this.props.map[GroasisUtility.types.lowRes];
       }
 
-      if (this.state.timestampReferenceMap !== timestampReferenceMap) {
+      if (this.state.timestampReferenceMap !== timestampReferenceMap && timestampReferenceMap) {
         let timestamps = timestampReferenceMap.timestamps;
         let lastTimestamp = timestamps.length - 1;
         
@@ -90,7 +90,7 @@ export class TimestampSelector extends PureComponent {
   }
 
   render() {
-    if (!this.props.map) {
+    if (!this.props.map || this.props.mode === ViewerUtility.plannerMode) {
       return null;
     }
 

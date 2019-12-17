@@ -41,6 +41,7 @@ const ViewerUtility = {
   newTreeElementType: 'new_tree',
   ooiElementType: 'ooi',
   plantingLineElementType: 'planting_line',
+  plantingSiteElementType: 'new_planting_site',
 
   tileLayerZIndex: 200,
   standardTileLayerZIndex: 1000,
@@ -88,8 +89,9 @@ const ViewerUtility = {
     customPolygon: CUSTOM_POLYGON
   },
 
-  viewerMode: 0,
-  plannerMode: 1,
+  viewerMode: 2,
+  plantMode: 1,
+  plannerMode: 0,
 
   markerSize: { x: 17, y: 24 },
 
