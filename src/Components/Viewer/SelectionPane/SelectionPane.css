@@ -54,6 +54,11 @@ div.plantingSite
   margin-bottom: 1em;
 }
 
+#species-select
+{
+  width: auto;
+}
+
 /* .selection-input-text div.MuiOutlinedInput-root {
   padding: 0px 5px;
 } */

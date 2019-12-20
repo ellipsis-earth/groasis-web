@@ -52,6 +52,11 @@ class SelectionPane extends PureComponent {
         plantingDate: moment().format('YYYY-MM-DD')
       },
 
+      error: {
+       species: false,
+       date: false,
+      },
+
       name: null,
     };
 
@@ -99,7 +104,7 @@ class SelectionPane extends PureComponent {
   onCloseClick = () => {
     this.props.onDeselect();
 
-    this.setState({ isOpen: false });
+    this.setState({ isOpen: false, error: {species: false, date: false} });
   }
 
   onElementActionClick = (action) => {
@@ -159,8 +164,18 @@ class SelectionPane extends PureComponent {
   onPlantTree = () => {
     let newTreeProps = this.state.newTreeProps;
 
-    if (!newTreeProps.species || !newTreeProps.plantingDate) {
-      alert('Not all fields are filled.');
+    if (!newTreeProps.species || !newTreeProps.plantingDate)
+    {
+      let error = this.state.error;
+      if (!newTreeProps.plantingDate)
+      {
+        error.date = true;
+      }
+      if (!newTreeProps.species)
+      {
+        error.species = true;
+      }
+      this.setState({error: error})
       return;
     }
 
@@ -184,7 +199,7 @@ class SelectionPane extends PureComponent {
         if (this.uploadedImage) {
           this.trackAddTree(trackingInfo.trackingId, this.uploadedImage);
         }
-
+        this.setState({error: {species: false, date: false}})
         this.onCloseClick();
       })
       .catch(err => {
@@ -386,15 +401,15 @@ class SelectionPane extends PureComponent {
 
   renderNewTreeInputs = () => {
     return (
-      <div className='selection-input'>
+      <div className='selection-input' key={this.state.error}>
         <Autocomplete
-          id='species-select'   
+          id='species-select'
+          key={this.state.error.species}
           className='selection-input-text'       
-          freeSolo
           options={GroasisUtility.species}
           style={{ width: '100%' }}
           renderInput={params => (
-            <TextField {...params} label='Species' variant='outlined' fullWidth/>
+            <TextField {...params} label='Species' variant='outlined' required error={this.state.error.species}/>
           )}
           value={this.state.newTreeProps.species}
           onChange={(e, newValue) => {
