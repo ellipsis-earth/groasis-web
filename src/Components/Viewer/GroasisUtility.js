@@ -93,6 +93,9 @@ const GroasisUtility = {
   getGroasisMaps: async (user, onFeatureClick) => {
     return ApiManager.get('/account/myMaps', null, user)
       .then(maps => {
+
+        debugger;
+
         maps = maps.filter(x => x.atlases.includes(GROASIS_ATLAS));
 
         let groasisMaps = groupMaps(maps);
@@ -140,6 +143,8 @@ const GroasisUtility = {
             key={groasisMaps.subatlases.join('_')}
           />
         );
+
+        debugger;
 
         groasisMaps.request = maps.find(x => x.id === REQUEST_MAP_ID)
         
@@ -262,6 +267,7 @@ function groupMaps(maps) {
   let groasisMaps = {
     subatlases: []
   };
+
   let bounds = {
     xMin: Number.MAX_VALUE,
     xMax: -Number.MAX_VALUE,
@@ -273,40 +279,44 @@ function groupMaps(maps) {
     let map = maps[i];
 
     let mapInfo = map.info;
-    if (mapInfo)
-    {
-      let subatlas = mapInfo.subatlas;
 
-      if (!groasisMaps[subatlas]) {
-        groasisMaps[subatlas] = {
-          subatlas: subatlas
-        };
-        groasisMaps.subatlases.push(subatlas);
-      }
+    if (!mapInfo) {
+      continue;
+    }
+    
+    let subatlas = mapInfo.subatlas;
 
-      let groasisMap = groasisMaps[subatlas];
-      groasisMap[mapInfo.type] = map;
-      if (mapInfo.type === LOWRES_TYPE) {
-        groasisMap.referenceMap = map;
-      }
+    if (!groasisMaps[subatlas]) {
+      groasisMaps[subatlas] = {
+        subatlas: subatlas
+      };
+      groasisMaps.subatlases.push(subatlas);
+    }
 
-      if (map.xMin < bounds.xMin) {
-        bounds.xMin = map.xMin;
-      }
-      if (map.xMax > bounds.xMax) {
-        bounds.xMax = map.xMax;
-      }
+    let groasisMap = groasisMaps[subatlas];
+    groasisMap[mapInfo.type] = map;
+    if (mapInfo.type === LOWRES_TYPE) {
+      groasisMap.referenceMap = map;
+    }
 
-      if (map.yMin < bounds.yMin) {
-        bounds.yMin = map.yMin;
-      }
-      if (map.yMax > bounds.yMax) {
-        bounds.yMax = map.yMax;
-      }
+    if (map.xMin < bounds.xMin) {
+      bounds.xMin = map.xMin;
+    }
+    if (map.xMax > bounds.xMax) {
+      bounds.xMax = map.xMax;
+    }
+
+    if (map.yMin < bounds.yMin) {
+      bounds.yMin = map.yMin;
+    }
+    if (map.yMax > bounds.yMax) {
+      bounds.yMax = map.yMax;
     }
   }
 
   groasisMaps.bounds = bounds;
+
+  debugger;
 
   return groasisMaps;
 }
