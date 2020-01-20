@@ -94,8 +94,6 @@ const GroasisUtility = {
     return ApiManager.get('/account/myMaps', null, user)
       .then(maps => {
 
-        debugger;
-
         maps = maps.filter(x => x.atlases.includes(GROASIS_ATLAS));
 
         let groasisMaps = groupMaps(maps);
@@ -143,8 +141,6 @@ const GroasisUtility = {
             key={groasisMaps.subatlases.join('_')}
           />
         );
-
-        debugger;
 
         groasisMaps.request = maps.find(x => x.id === REQUEST_MAP_ID)
         
