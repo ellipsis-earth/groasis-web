@@ -312,8 +312,6 @@ function groupMaps(maps) {
 
   groasisMaps.bounds = bounds;
 
-  debugger;
-
   return groasisMaps;
 }
 

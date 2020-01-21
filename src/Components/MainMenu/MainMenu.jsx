@@ -3,13 +3,12 @@ import React, { Component } from 'react';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
-import Switch from '@material-ui/core/Switch';
 
 import { ToggleButton } from '@material-ui/lab';
 
 import { NavLink } from 'react-router-dom';
 
-import { Navbar, Nav, NavItem } from 'react-bootstrap';
+import { Navbar, NavItem } from 'react-bootstrap';
 
 import './MainMenu.css';
 
@@ -23,16 +22,30 @@ export class MainMenu extends Component {
     this.state = {
       expanded: false,
       hidden: false,
-      navKey: 'home'
+      navKey: 'home',
+      width: -1,
     };
   }
 
   componentDidMount = () => {
     this.checkUrl();
+    this.handleResize();
+    window.addEventListener('resize', this.handleResize);
   }
 
   componentDidUpdate = () => {
     this.checkUrl();
+  }
+
+  componentWillUnmount(){
+    window.removeEventListener('resize', this.handleResize);
+  }
+
+  handleResize = () => {
+    if (window.innerWidth !== this.state.width)
+    {
+      this.setState({width: window.innerWidth});
+    }
   }
 
   checkUrl = () => {
@@ -77,7 +90,7 @@ export class MainMenu extends Component {
   }
 
   onToggle = (expanded) => {
-    this.setState({ expanded: expanded })
+    this.setState({ expanded: expanded})
   }
 
   onNavItemClick = (key) => {
@@ -124,8 +137,9 @@ export class MainMenu extends Component {
           className={this.state.expanded ? 'main-menu' : 'main-menu main-menu-collapsed'}
           variant='light'
           expand='md'
-          expanded={this.state.expanded}
+          expanded={this.state.width <= 767 ? this.state.expanded : false}
           onToggle={this.onToggle}
+          key={this.state.width}
         >
           <Navbar.Brand>
             <NavLink exact to='/' className='main-menu-logo-item noselect' onClick={() => this.onOpenAccounts(false)}>
@@ -135,7 +149,15 @@ export class MainMenu extends Component {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse>
             <NavItem>
-              <RadioGroup aria-label="mode" name="mode" value={this.props.mode} onChange={this.onModeToggle} row={!this.state.expanded} className="modeSwitch">
+              <RadioGroup
+                aria-label="mode"
+                name="mode"
+                value={this.props.mode}
+                onChange={this.onModeToggle}
+                row={this.state.width <= 767 ? false : true}
+                className="modeSwitch"
+                key={this.state.expanded}
+              >
                 <FormControlLabel
                   value={0}
                   control={<Radio color="primary" />}

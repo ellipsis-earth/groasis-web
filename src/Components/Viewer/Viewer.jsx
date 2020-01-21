@@ -72,6 +72,7 @@ class Viewer extends PureComponent {
     this.controlsPane = React.createRef();
     this.dataPane = React.createRef();
     this.selectionPane = React.createRef();
+    this.mapControl = React.createRef();
 
     this.state = {
       leafletMapViewport: DEFAULT_VIEWPORT,
@@ -891,6 +892,7 @@ class Viewer extends PureComponent {
               onFlyTo={this.onFlyTo}
               map={this.state.map}
               user={this.props.user}
+              ref={this.mapControl}
             />       
           </div>
 

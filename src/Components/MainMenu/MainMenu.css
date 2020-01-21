@@ -74,6 +74,7 @@
 nav .modeSwitch
 {
   height: 100%;
+  flex-wrap: nowrap;
 }
 
 nav .modeSwitch label
@@ -89,6 +90,7 @@ nav .modeSwitch label
 .navbar-collapse.collapse
 {
   justify-content: space-between;
+  margin: 25px;
 }
 
 .navbar-collapse.collapse.show div+div

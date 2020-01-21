@@ -38,6 +38,8 @@ class App extends Component {
 
     this.topItemRef = React.createRef();
     this.bottomItemRef = React.createRef();
+    this.viewer = React.createRef();
+
 
     this.accountsUrl = 'https://account.ellipsis-earth.com/';
     // this.accountsUrl = 'http://localhost:3001/';
@@ -125,6 +127,7 @@ class App extends Component {
   }
   
   onModeChange = (mode, cb) => {
+    this.viewer.current.mapControl.current.onStopDraw();
     this.setState({ mode: mode }, cb);
   }
 
@@ -170,6 +173,7 @@ class App extends Component {
                     scrollToBottom={this.scrollToBottom}
                     onModeChange={this.onModeChange}
                     openAccounts={this.openAccounts}
+                    ref={this.viewer}
                   />
                 }
               />

@@ -157,7 +157,10 @@ export class MapControl extends PureComponent {
   render() {
     let plannerButtons = [];
 
-    let disabled = this.state.map ? false : true;
+    let map = this.state.map ? true : false;
+    let user = this.props.user ? true : false;
+
+    let disabled = !map || !user;
 
     if (this.props.mode === ViewerUtility.plantMode) {
       plannerButtons.push(
