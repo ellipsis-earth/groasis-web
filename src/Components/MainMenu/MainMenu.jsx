@@ -1,9 +1,6 @@
 import React, { Component } from 'react';
 
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Radio from '@material-ui/core/Radio';
-import RadioGroup from '@material-ui/core/RadioGroup';
-
+import Button from '@material-ui/core/Button';
 import { ToggleButton } from '@material-ui/lab';
 
 import { NavLink } from 'react-router-dom';
@@ -131,6 +128,11 @@ export class MainMenu extends Component {
       return navKey === this.state.navKey;
     }
 
+    let modeText = 'select mode';
+    if(this.props.mode === 0) {modeText = 'plan'}
+    if(this.props.mode === 1) {modeText = 'plant'}
+    if(this.props.mode === 2) {modeText = 'view'}
+
     return (
       <div id='main-menu' style={displayStyle}>
         <Navbar
@@ -146,10 +148,8 @@ export class MainMenu extends Component {
               <img className='main-menu-logo' src='/images/logos/groasis-tree-atlas-logo.svg' alt='Groasis Tree Altas'/>
             </NavLink>
           </Navbar.Brand>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse>
             <NavItem>
-              <RadioGroup
+{/*              <RadioGroup
                 aria-label="mode"
                 name="mode"
                 value={this.props.mode}
@@ -176,14 +176,14 @@ export class MainMenu extends Component {
                   label="View"
                   labelPlacement="end"
                 />
-              </RadioGroup>
+              </RadioGroup>*/}
+              <Button color='primary' variant='outlined' onClick={() => {this.props.onModeChange(-1)}}>{modeText}</Button>
             </NavItem>
             <NavItem>
-              <ToggleButton selected={navItemClass(navKeys.login)} value={this.props.user ? this.props.user.username : 'Login'} onClick={this.onOpenAccounts} color='primary'>
+              <Button variant='outlined' onClick={this.onOpenAccounts} color='primary'>
                 {this.props.user ? this.props.user.username : 'Login'}
-              </ToggleButton>
+              </Button>
             </NavItem>
-          </Navbar.Collapse>
         </Navbar>
       </div>
     )

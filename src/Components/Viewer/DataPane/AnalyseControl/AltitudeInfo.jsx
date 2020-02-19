@@ -63,7 +63,7 @@ class AltitudeInfo extends PureComponent {
     let treefeature = {
       type: 'Feature',
       properties: {},
-      geometry: element.feature.originalGeometry
+      geometry: element.feature.originalGeometry ? element.feature.originalGeometry : element.feature.geometry
     };
 
     let body = {
@@ -131,14 +131,14 @@ class AltitudeInfo extends PureComponent {
     }
     else if (this.state.data) {
       dataElement = (
-        <DataTable 
+        <DataTable
           data={this.state.data.formatted}
         />
       );
 
-      actionElement = ( 
+      actionElement = (
         <IconButton
-          onClick={() => this.props.onDownloadData(this.state.data, 'altitude')}        
+          onClick={() => this.props.onDownloadData(this.state.data, 'altitude')}
           aria-label='Download data'
         >
           <SaveAlt />

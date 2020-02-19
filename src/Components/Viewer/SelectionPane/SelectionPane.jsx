@@ -23,7 +23,7 @@ import SaveAlt from '@material-ui/icons/SaveAlt';
 
 import ViewerUtility from '../ViewerUtility';
 import GroasisUtility from '../GroasisUtility';
-import AnnotatePane from '../AnnotatePane/AnnotatePane';
+//import AnnotatePane from '../AnnotatePane/AnnotatePane';
 import ApiManager from '../../../ApiManager';
 
 import './SelectionPane.css';
@@ -203,8 +203,8 @@ class SelectionPane extends PureComponent {
         this.onCloseClick();
       })
       .catch(err => {
-        alert(JSON.stringify(err));        
-        console.log(err);        
+        alert(JSON.stringify(err));
+        console.log(err);
       });
   }
 
@@ -216,7 +216,7 @@ class SelectionPane extends PureComponent {
       layer = GroasisUtility.layers.polygon.plantingLines;
     }
     else if (element.type === ViewerUtility.ooiElementType) {
-      layer = GroasisUtility.layers.polygon.objectOfInterest;      
+      layer = GroasisUtility.layers.polygon.objectOfInterest;
     }
 
     let body = {
@@ -234,8 +234,8 @@ class SelectionPane extends PureComponent {
         this.onCloseClick();
       })
       .catch(err => {
-        alert(JSON.stringify(err));        
-        console.log(err);        
+        alert(JSON.stringify(err));
+        console.log(err);
       });
   }
 
@@ -270,7 +270,7 @@ class SelectionPane extends PureComponent {
             location: { x: geolocation[1], y: geolocation[0] }
           }
 
-          ApiManager.post('/geomessage/add', body, user);          
+          ApiManager.post('/geomessage/add', body, user);
         });
     }
 
@@ -338,13 +338,13 @@ class SelectionPane extends PureComponent {
         }
       };
 
-      ApiManager.post('/geomessage/add', body, this.props.user) 
+      ApiManager.post('/geomessage/add', body, this.props.user)
         .then((result) => {
           this.props.map.watchlist.push({
             id: result.id,
             elementId: this.props.element.id
           });
-          
+
           this.props.watchlistRefresh('add', {
             data: this.props.map.watchlist,
             map: this.props.map
@@ -405,7 +405,7 @@ class SelectionPane extends PureComponent {
         <Autocomplete
           id='species-select'
           key={this.state.error.species}
-          className='selection-input-text'       
+          className='selection-input-text'
           options={GroasisUtility.species}
           style={{ width: '100%' }}
           renderInput={params => (
@@ -490,16 +490,16 @@ class SelectionPane extends PureComponent {
 
               })
               .catch(err => {
-                alert(JSON.stringify(err));        
-                console.log(err);        
+                alert(JSON.stringify(err));
+                console.log(err);
               })
           }
 
           trackFunc();
         })
         .catch(err => {
-          alert(JSON.stringify(err));        
-          console.log(err);        
+          alert(JSON.stringify(err));
+          console.log(err);
         });
     }
   }
@@ -513,8 +513,17 @@ class SelectionPane extends PureComponent {
       return null;
     }
 
+    let map = null;
 
-    let map = this.props.map ? this.props.map.referenceMap : null;
+    if(this.props.map && this.props.map.referenceMap)
+    {
+      map = this.props.map.referenceMap;
+    }
+    else if (this.props.map && this.props.map.id === '15d843ba-11e5-4995-aa6f-c3449a8f93e2')
+    {
+      map = this.props.map;
+    }
+
     let element = this.props.element;
 
     if (!element) {
@@ -613,7 +622,7 @@ class SelectionPane extends PureComponent {
         (mapAccessLevel > ApiManager.accessLevels.alterOrDeleteCustomPolygons ||
         element.feature.properties.user === user.username);
 
-      firstRowButtons = [];
+        firstRowButtons = [];
 
       secondRowButtons.push(
         // <Button
@@ -649,7 +658,7 @@ class SelectionPane extends PureComponent {
             color='primary'
             size='small'
             className='selection-pane-button'
-            onClick={() => this.onElementActionClick(ViewerUtility.dataPaneAction.geoMessage)}          
+            onClick={() => this.onElementActionClick(ViewerUtility.dataPaneAction.geoMessage)}
           >
             Gallery
           </Button>
@@ -669,7 +678,7 @@ class SelectionPane extends PureComponent {
             {'DELETE'}
           </Button>
         );
-      } 
+      }
     }
     else if (element.type === ViewerUtility.drawnPolygonLayerType) {
       title = 'Drawn polygon';
@@ -681,7 +690,7 @@ class SelectionPane extends PureComponent {
       {
         nonRestrictedLayer = this.props.map.referenceMap.layers.polygon.find(x => !x.restricted);
 
-        canAdd = user && 
+        canAdd = user &&
           mapAccessLevel >= ApiManager.accessLevels.addPolygons &&
           (nonRestrictedLayer || mapAccessLevel >= ApiManager.accessLevels.addRestrictedPolygons);
       }
@@ -784,8 +793,8 @@ class SelectionPane extends PureComponent {
         continue;
       }
 
-      let drawnType = 
-        element.type === ViewerUtility.drawnPolygonLayerType || 
+      let drawnType =
+        element.type === ViewerUtility.drawnPolygonLayerType ||
         element.type === ViewerUtility.newTreeElementType ||
         element.type === ViewerUtility.plantingLineElementType ||
         element.type === ViewerUtility.ooiElementType;
@@ -803,7 +812,7 @@ class SelectionPane extends PureComponent {
       }
 
       if (element.type === ViewerUtility.treeElementType) {
-        if (property !== GroasisUtility.treeProperties.species && 
+        if (property !== GroasisUtility.treeProperties.species &&
           property !== GroasisUtility.treeProperties.plantingDate
           && !isId) {
           continue;
@@ -822,7 +831,7 @@ class SelectionPane extends PureComponent {
         }
         else {
           properties.push(e);
-        }        
+        }
       }
     }
 
@@ -835,17 +844,17 @@ class SelectionPane extends PureComponent {
     else if (element.type === ViewerUtility.plantingSiteElementType) {
       properties = null;
     }
-       
+
     return (
       <div>
-        {this.state.annotate ? 
-          <AnnotatePane 
+        {this.state.annotate ?
+          /*<AnnotatePane
             map={this.props.map.referenceMap}
             user={this.props.user}
             tileId={this.props.element.id}
             timestamp={this.props.timestampRange.end}
             onClose={this.onAnnotatePaneClose}
-          /> : null
+          />*/null : null
         }
         <Card className={selectionPaneClass}>
           <CardHeader
@@ -864,7 +873,7 @@ class SelectionPane extends PureComponent {
             action={
               <div>
                 {
-                  element.type !== ViewerUtility.subatlasElementType ? 
+                  element.type !== ViewerUtility.subatlasElementType ?
                     <IconButton
                       onClick={this.onDownload}
                       aria-label='Download'
@@ -872,7 +881,7 @@ class SelectionPane extends PureComponent {
                       <SaveAlt />
                     </IconButton> : null
                 }
-                
+
                 <IconButton
                   onClick={this.onCloseClick}
                   aria-label='Close'
@@ -896,7 +905,7 @@ class SelectionPane extends PureComponent {
             </div>
           </CardActions>
         </Card>
-      </div>     
+      </div>
     );
   }
 }

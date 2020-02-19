@@ -57,7 +57,7 @@
   color: #ffffff;
 }
 
-.main-block-accented h1, .main-block-accented h2, .main-block-accented h3, 
+.main-block-accented h1, .main-block-accented h2, .main-block-accented h3,
 .main-block-accented h4 {
   color: #ffffff;
 }
@@ -250,7 +250,7 @@ button.button-double {
 }
 
 .display-none {
-  display: none; 
+  display: none;
 }
 
 .clickable {
@@ -274,7 +274,7 @@ button.MuiTab-root {
   min-width: 0px;
 }
 
-.account
+.account, .modeSelector
 {
   display: block;
   height: 100%;
@@ -282,7 +282,7 @@ button.MuiTab-root {
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 1000;
+  z-index: 1001;
 }
 
 .account iframe {
@@ -296,6 +296,30 @@ button.MuiTab-root {
   display: none;
 }
 
+.modeSelector
+{
+  z-index: 1000;
+  background: white;
+}
+
+.modeSelector .buttonContainer
+{
+  width: 100%;
+  height: 100%;
+  padding: 15vh 30vw;
+  display: flex;
+  justify-content: center;
+  align-items: space-between;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.modeSelector .buttonContainer button
+{
+  flex: 1 1 calc(50% - 2em);
+  margin: 1em;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
@@ -306,7 +330,7 @@ button.MuiTab-root {
 }
 
 @media only screen and (max-width : 640px) {
-  .main-block-header {    
+  .main-block-header {
       font-size: 22pt;
   }
 

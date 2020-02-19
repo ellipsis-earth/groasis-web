@@ -63,7 +63,7 @@ class SoilInfo extends PureComponent {
     let treefeature = {
       type: 'Feature',
       properties: {},
-      geometry: element.feature.originalGeometry
+      geometry: element.feature.originalGeometry ? element.feature.originalGeometry : element.feature.geometry
     };
 
     let body = {
@@ -131,13 +131,13 @@ class SoilInfo extends PureComponent {
     }
     else if (this.state.data) {
       dataElement = (
-        <DataTable 
+        <DataTable
           data={this.state.data.formatted}
           maxMask={this.props.maxMask}
         />
       );
 
-      actionElement = ( 
+      actionElement = (
         <IconButton
           onClick={() => this.props.onDownloadData(this.state.data, 'soil')}
           aria-label='Download data'

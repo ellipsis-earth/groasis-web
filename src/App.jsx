@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
-import {
-    Route
-} from 'react-router-dom';
+import { Route } from 'react-router-dom';
 import Modal from 'react-modal';
 import { withRouter } from 'react-router';
 
+import Button from '@material-ui/core/Button';
 import { createMuiTheme } from '@material-ui/core/styles';
 import { ThemeProvider } from '@material-ui/styles';
 
 import ApiManager from './ApiManager';
+import ViewerUtility from './Components/Viewer/ViewerUtility';
 
 import MainMenu from './Components/MainMenu/MainMenu';
 import Viewer from './Components/Viewer/Viewer';
@@ -48,7 +48,7 @@ class App extends Component {
       init: false,
       user: null,
       accountOpen: false,
-      mode: 2
+      mode: -1,
     };
   }
 
@@ -60,7 +60,7 @@ class App extends Component {
   }
 
   receiveMessage = (event) => {
-    if (event.origin === 'http://localhost:3000' || 'https://account.ellipsis-earth.com') 
+    if (event.origin === 'http://localhost:3000' || 'https://account.ellipsis-earth.com')
     {
       if (event.data.type && event.data.type === 'login')
       {
@@ -125,15 +125,19 @@ class App extends Component {
     localStorage.removeItem(localStorageUserItem);
     this.setState({ user: null });
   }
-  
+
   onModeChange = (mode, cb) => {
-    this.viewer.current.mapControl.current.onStopDraw();
+    if (this.viewer.current)
+    {
+      this.viewer.current.mapControl.current.onStopDraw();
+    }
+
     this.setState({ mode: mode }, cb);
   }
 
   openAccounts = (open = !this.state.accountOpen) => {
     this.setState({accountOpen: open})
-  } 
+  }
 
   render() {
     if (!this.state.init) {
@@ -179,6 +183,13 @@ class App extends Component {
               />
               <div className={this.state.accountOpen ? 'account' : 'hidden'}>
                 <iframe src={this.accountsUrl} id='account' title="account"/>
+              </div>
+              <div className={this.state.mode === -1 ? 'modeSelector' : 'hidden'}>
+                <div className='buttonContainer'>
+                  <Button variant="contained" color="primary" onClick={() => {this.onModeChange(ViewerUtility.plannerMode)}}>Plan</Button>
+                  <Button variant="contained" color="primary" onClick={() => {this.onModeChange(ViewerUtility.plantMode)}}>Plant</Button>
+                  <Button variant="contained" color="primary" onClick={() => {this.onModeChange(ViewerUtility.viewerMode)}}>View</Button>
+                </div>
               </div>
               <div ref={this.bottomItemRef}></div>
             </div>

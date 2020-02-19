@@ -18,7 +18,7 @@ import GroasisUtility from '../GroasisUtility';
 
 import ApiManager from '../../../ApiManager';
 
-import AnnotatePane from '../AnnotatePane/AnnotatePane';
+//import AnnotatePane from '../AnnotatePane/AnnotatePane';
 
 import './SelectionPane.css';
 
@@ -257,7 +257,7 @@ class PopupPane extends PureComponent {
 
       let nonRestrictedLayer = this.props.map.referenceMap.layers.polygon.find(x => !x.restricted);
 
-      let canAdd = user && 
+      let canAdd = user &&
         mapAccessLevel >= ApiManager.accessLevels.addPolygons &&
         (nonRestrictedLayer || mapAccessLevel >= ApiManager.accessLevels.addRestrictedPolygons);
 
@@ -305,17 +305,17 @@ class PopupPane extends PureComponent {
         ))
       }
     }
-       
+
     return (
       <div>
-        {this.state.annotate ? 
-          <AnnotatePane 
+        {this.state.annotate ?
+          /*<AnnotatePane
             map={this.props.map.referenceMap}
             user={this.props.user}
             tileId={this.props.element.id}
             timestamp={this.props.timestampRange.end}
             onClose={this.onAnnotatePaneClose}
-          /> : null
+          />*/ null : null
         }
         <Card className={selectionPaneClass}>
           <CardHeader
@@ -334,7 +334,7 @@ class PopupPane extends PureComponent {
             action={
               <div>
                 {
-                  element.type !== ViewerUtility.subatlasElementType ? 
+                  element.type !== ViewerUtility.subatlasElementType ?
                     <IconButton
                       onClick={this.onDownload}
                       aria-label='Download'
@@ -342,7 +342,7 @@ class PopupPane extends PureComponent {
                       <SaveAlt />
                     </IconButton> : null
                 }
-                
+
                 <IconButton
                   onClick={this.onCloseClick}
                   aria-label='Close'
@@ -365,7 +365,7 @@ class PopupPane extends PureComponent {
             </div>
           </CardActions>
         </Card>
-      </div>     
+      </div>
     );
   }
 }

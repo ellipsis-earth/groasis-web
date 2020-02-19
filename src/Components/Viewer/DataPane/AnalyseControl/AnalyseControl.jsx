@@ -22,7 +22,7 @@ class AnalyseControl extends PureComponent {
     super(props, context);
 
     this.state = {
-      maxMask: 1
+      maxMask: 0
     };
   }
 
@@ -71,7 +71,7 @@ class AnalyseControl extends PureComponent {
         'drawnPolygon'
       );
     }
-    
+
     nameComponents.push(type);
 
     let fileName = nameComponents.join('_') + '.csv';
@@ -80,7 +80,7 @@ class AnalyseControl extends PureComponent {
   }
 
   render() {
-    if (this.props.home || !this.props.element || this.props.element.type !== ViewerUtility.treeElementType) {
+    if (this.props.home || !this.props.element || (this.props.element.type !== ViewerUtility.treeElementType && this.props.element.type !== ViewerUtility.standardTileLayerType)) {
       return null;
     }
 
@@ -94,9 +94,9 @@ class AnalyseControl extends PureComponent {
 
     return (
       <div>
-        <Card className='data-pane-card'>
+       {/* <Card className='data-pane-card'>
           <CardContent>
-            <div>{'Max cloud cover'}: {Math.round(this.state.maxMask * 100)}%</div>
+            <div>Max cloud cover: {Math.round(this.state.maxMask * 100)}%</div>
             <Slider
               step={0.01}
               value={this.state.maxMask}
@@ -105,12 +105,12 @@ class AnalyseControl extends PureComponent {
               onChange={ (_, v) => { this.setState({ maxMask: v }); }}
             />
           </CardContent>
-        </Card>
+        </Card>*/}
 
         <SoilInfo {...generalProps} />
         <HistoricWeatherInfo {...generalProps} />
         <WeatherInfo {...generalProps} />
-        <ClassesInfo {...generalProps} />
+        {this.props.element.type === ViewerUtility.standardTileLayerType ? null : <ClassesInfo {...generalProps} />}
         <SpectralIndicesInfo {...generalProps} />
         <AltitudeInfo {...generalProps} />
       </div>

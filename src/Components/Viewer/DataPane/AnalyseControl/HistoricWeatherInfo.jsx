@@ -67,7 +67,7 @@ class HistoricWeatherInfo extends PureComponent {
     let treefeature = {
       type: 'Feature',
       properties: {},
-      geometry: element.feature.originalGeometry
+      geometry: element.feature.originalGeometry ? element.feature.originalGeometry : element.feature.geometry
     };
 
     let body = {
@@ -135,14 +135,14 @@ class HistoricWeatherInfo extends PureComponent {
     }
     else if (this.state.data) {
       dataElement = (
-        <DataTable 
+        <DataTable
           data={this.state.data.formatted}
         />
       );
 
-      actionElement = ( 
+      actionElement = (
         <IconButton
-          onClick={() => this.props.onDownloadData(this.state.data, 'historic_weather')}        
+          onClick={() => this.props.onDownloadData(this.state.data, 'historic_weather')}
           aria-label='Download data'
         >
           <SaveAlt />

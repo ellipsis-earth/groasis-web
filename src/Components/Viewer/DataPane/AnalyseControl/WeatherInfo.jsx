@@ -52,7 +52,7 @@ class WeatherInfo extends PureComponent {
     let treefeature = {
       type: 'Feature',
       properties: {},
-      geometry: element.feature.originalGeometry
+      geometry: element.feature.originalGeometry ? element.feature.originalGeometry : element.feature.geometry
     };
 
     let body = {
@@ -118,9 +118,9 @@ class WeatherInfo extends PureComponent {
         />
       );
 
-      actionElement = ( 
+      actionElement = (
         <IconButton
-          onClick={() => this.props.onDownloadData(this.state.data, 'weather')}        
+          onClick={() => this.props.onDownloadData(this.state.data, 'weather')}
           aria-label='Download data'
         >
           <SaveAlt />

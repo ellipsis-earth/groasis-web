@@ -83,8 +83,8 @@ class TileLayersControl extends PureComponent {
   baseLayer = (
     <TileLayer
       key='base-layer'
-      url='https://www.google.com/maps/vt?lyrs=y@189&x={x}&y={y}&z={z}'
-      attribution='Base satellite: <a href="https://maps.google.com">Google Maps</a>'
+      url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+      //attribution='Base satellite: <a href="https://maps.google.com">Google Maps</a>'
       zIndex={1}
       noWrap={true}
       maxZoom={40}
@@ -125,7 +125,7 @@ class TileLayersControl extends PureComponent {
         if (prevSelectedLayers[i] !== curSelectedLayers[i]) {
           differentSelectedLayers = true;
           break;
-        }        
+        }
       }
     }
 
@@ -216,7 +216,7 @@ class TileLayersControl extends PureComponent {
 
     if (!map || !timestampRange || this.props.mode === ViewerUtility.plannerMode) {
       this.props.onLayersChange(layerElements);
-      return;      
+      return;
     }
 
     let zIndex = ViewerUtility.tileLayerZIndex + 2;
@@ -242,7 +242,7 @@ class TileLayersControl extends PureComponent {
 
         let key = `${subMap.id}_${timestampNumber}_${availableLayer.name}`;
         let url = `${ApiManager.apiUrl}/tileService/${subMap.id}/${timestampNumber}/${availableLayer.urlName}/{z}/{x}/{y}`;
-       
+
         if (this.props.user) {
           url += `?token=${this.props.user.token}`;
         }
@@ -260,10 +260,10 @@ class TileLayersControl extends PureComponent {
         );
 
         layerElements.push(layerElement);
-      }      
+      }
     }
 
-    this.props.onLayersChange(layerElements);    
+    this.props.onLayersChange(layerElements);
   }
 
   onLayerChange = (e) => {

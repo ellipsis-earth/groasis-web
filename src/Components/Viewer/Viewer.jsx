@@ -127,7 +127,7 @@ class Viewer extends PureComponent {
         hasAggregatedData: false,
         feature: feature,
       };
-      
+
       this.setState({ selectedElement: element });
     }
 
@@ -152,12 +152,12 @@ class Viewer extends PureComponent {
       let dataPaneAction = this.state.dataPaneAction;
 
       if (dataPaneAction === ViewerUtility.dataPaneAction.geoMessage || dataPaneAction === ViewerUtility.dataPaneAction.analyse) {
-        this.setState({ dataPaneAction: null });  
+        this.setState({ dataPaneAction: null });
       }
 
       let type = this.state.selectedElement ? this.state.selectedElement.type : null;
 
-      let isDrawnStuff = 
+      let isDrawnStuff =
         type === ViewerUtility.newTreeElementType ||
         type === ViewerUtility.drawnPolygonLayerType;
 
@@ -330,9 +330,9 @@ class Viewer extends PureComponent {
       if (!subatlas) {
         subatlas = this.state.selectedElement.feature.properties[GroasisUtility.subatlasProperty];
       }
-      
+
       map = this.state.groasisMaps[subatlas];
-      
+
       let totalCb = () => GroasisUtility.getMetadata(map, this.props.user)
       .then(() => {
         let timestampRange = calculateTimestamps(map, this.state.selectedLayers);
@@ -349,7 +349,7 @@ class Viewer extends PureComponent {
             cb();
           }
         });
-      }); 
+      });
 
       if (this.props.mode === ViewerUtility.plannerMode)
       {
@@ -388,7 +388,7 @@ class Viewer extends PureComponent {
       timestampRange = calculateTimestamps(this.state.map, newSelectedLayers);
     }
 
-    this.setState({ 
+    this.setState({
       selectedLayers: newSelectedLayers,
       timestampRange: timestampRange
     });
@@ -476,7 +476,7 @@ class Viewer extends PureComponent {
       };
 
       this.onFlyTo(flyToInfo);
-    };   
+    };
 
     this.props.onModeChange(ViewerUtility.viewerMode, this.onSelectMap(subatlas, cb));
   }
@@ -731,7 +731,7 @@ class Viewer extends PureComponent {
     let map = this.state.map.referenceMap;
     let flyToInfo = this.flyToInfo;
     let type = flyToInfo.elementType ? flyToInfo.elementType : flyToInfo.type;
-    
+
     let body = {
       mapId: map.id,
       type: type,
@@ -776,7 +776,7 @@ class Viewer extends PureComponent {
       }
       else {
         this.leafletMap.current.leafletElement.flyToBounds(
-          this.flyToInfo.target, 
+          this.flyToInfo.target,
           { maxZoom: this.state.map.referenceMap ? this.state.map.referenceMap.zoom + 3 : this.state.map + 3}
         );
       }
@@ -846,7 +846,7 @@ class Viewer extends PureComponent {
               selectedLayers={this.state.selectedLayers}
               onSelectTimestamp={this.onSelectTimestamp}
               mode={this.props.mode}
-            />  
+            />
             <SelectionPane
               ref={this.selectionPane}
               user={this.props.user}
@@ -893,7 +893,7 @@ class Viewer extends PureComponent {
               map={this.state.map}
               user={this.props.user}
               ref={this.mapControl}
-            />       
+            />
           </div>
 
           <DataPane
@@ -940,7 +940,7 @@ function calculateTimestamps(map, selectedLayers) {
   let tileLayers = selectedLayers[ViewerUtility.tileLayerType];
   let timestampReferenceMap = map[GroasisUtility.types.lowRes];
 
-  if (tileLayers.includes(GroasisUtility.layers.tile.highRes) || 
+  if (tileLayers.includes(GroasisUtility.layers.tile.highRes) ||
     tileLayers.includes(GroasisUtility.layers.tile.highResCir) ||
     tileLayers.includes(GroasisUtility.layers.tile.highResLabel)) {
     timestampReferenceMap = map[GroasisUtility.types.highRes];

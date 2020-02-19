@@ -1,6 +1,6 @@
 import React, { PureComponent} from 'react';
 import moment from 'moment';
-import { Slider } from '@material-ui/core';
+import Slider from '@material-ui/core/Slider';
 
 import ViewerUtility from '../ViewerUtility';
 import GroasisUtility from '../GroasisUtility';
@@ -34,11 +34,11 @@ export class TimestampSelector extends PureComponent {
       if (this.state.timestampReferenceMap !== timestampReferenceMap && timestampReferenceMap) {
         let timestamps = timestampReferenceMap.timestamps;
         let lastTimestamp = timestamps.length - 1;
-        
+
         let dateFormat = 'YYYY-MM-DD';
-  
+
         let dates = timestamps.map(x => moment(x.dateTo).format(dateFormat));
-  
+
         this.setState({
           timestampReferenceMap: timestampReferenceMap,
           start: lastTimestamp,

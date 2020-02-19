@@ -52,7 +52,7 @@ class ClassesInfo extends PureComponent {
     let treefeature = {
       type: 'Feature',
       properties: {},
-      geometry: element.feature.originalGeometry
+      geometry: element.feature.originalGeometry ? element.feature.originalGeometry : element.feature.geometry
     };
 
     let body = {
@@ -118,9 +118,9 @@ class ClassesInfo extends PureComponent {
         />
       );
 
-      actionElement = ( 
+      actionElement = (
         <IconButton
-          onClick={() => this.props.onDownloadData(this.state.data, 'classes')}        
+          onClick={() => this.props.onDownloadData(this.state.data, 'classes')}
           aria-label='Download data'
         >
           <SaveAlt />
