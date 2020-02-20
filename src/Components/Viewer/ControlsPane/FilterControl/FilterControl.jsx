@@ -8,8 +8,10 @@ import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import CardHeader from '@material-ui/core/CardHeader';
 import Checkbox from '@material-ui/core/Checkbox';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import Collapse from '@material-ui/core/Collapse';
 import FormControl from '@material-ui/core/FormControl';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 import IconButton from '@material-ui/core/IconButton';
 import Slider from '@material-ui/core/Slider';
 import Typography from '@material-ui/core/Typography';
@@ -45,7 +47,9 @@ class FilterControl extends PureComponent {
 			expanded: true,
 			filterForm: [],
 			filterData: {},
-			count: null
+			count: null,
+
+			loading: false,
 		};
 	}
 
@@ -89,6 +93,10 @@ class FilterControl extends PureComponent {
 
 			this.prepareLayers(this.props.map, this.props.timestampRange, selectedLayers);
 		}
+	}
+
+	handleChange = (e) => {
+		this.setState({ loading: true }, this.onLayerChange({target: {value: 'standard tiles', checked: e.target.checked}}));
 	}
 
 	makeMarks = (min, max, unit) => {
@@ -221,7 +229,9 @@ class FilterControl extends PureComponent {
 
 	filterSubmit = (e) => {
 		e.preventDefault();
-		this.onLayerChange({target: {value: 'standard tiles', checked: true}}, true);
+		this.setState({loading: true}, () => {
+			this.onLayerChange({target: {value: 'standard tiles', checked: true}}, true);
+		})
 	}
 
 	prepareLayers = (map, timestampRange, selectedLayers) => {
@@ -239,10 +249,25 @@ class FilterControl extends PureComponent {
 				let leafletElements = results.map(x => x.geoJsonElement);
 				this.props.onLayersChange(leafletElements);
 
-				let count = [];
-				let temp = results && results[0] ? [<span className='red' key='count'>{results[0].count}</span>, <span key='message'>/{MAX_TILES}. Zoom in further.</span>] : null;
+				let countMessage = null;
 
-				this.setState({ geoJsonInfo: results, count: results && results[0] && results[0].count > MAX_TILES ? temp : null});
+				if (typeof results === 'object' && results.length === 0)
+				{
+					countMessage = null;
+				}
+				else if (results[0] && results[0].count)
+				{
+					if (results[0].count > MAX_TILES)
+					{
+						countMessage = [<div key={'countDiv' + results[0].count}><span className='red' key='count'>{results[0].count}</span><span>/{MAX_TILES}</span></div>, <span key='message'>Zoom in further or change filters.</span>];
+					}
+					else
+					{
+						countMessage = [<span key='count'>{results[0].count}</span>, <span key='message'>/{MAX_TILES}</span>];
+					}
+				}
+
+				this.setState({ geoJsonInfo: results, loading: false, count: countMessage});
 			});
 	}
 
@@ -287,15 +312,15 @@ class FilterControl extends PureComponent {
 					for (let i = 0; i < filterDataKeys.length; i++)
 					{
 						let requestBody = {
-				      type: ViewerUtility.standardTileLayerType,
-				      dataType: ViewerUtility.dataType.meanMeasurement,
-				    	elementIds: standardTileIds.ids,
-				    };
+							type: ViewerUtility.standardTileLayerType,
+							dataType: ViewerUtility.dataType.meanMeasurement,
+							elementIds: standardTileIds.ids,
+						};
 
 						if (filterDataKeys[i] === 'indices')
 						{
 							requestBody.mapId = this.props.map[GroasisUtility.types.lowRes].id;
-				      requestBody.timestamp = map.referenceMap.timestamps[timestampRange.end].timestampNumber;
+							requestBody.timestamp = map.referenceMap.timestamps[timestampRange.end].timestampNumber;
 						}
 						else if (filterDataKeys[i] === 'soil')
 						{
@@ -331,7 +356,7 @@ class FilterControl extends PureComponent {
 								}
 								else if (key === 'organic')
 								{
-									if (filterData[j]['organic content g/kg 0m'] < this.state.filterData[category][key][0] || filterData[j]['organic content g/kg 0m'] > this.state.filterData[category][key][1])
+									if (filterData[j] && filterData[j]['organic content g/kg 0m'] < this.state.filterData[category][key][0] || filterData[j] && filterData[j]['organic content g/kg 0m'] > this.state.filterData[category][key][1])
 									{
 										filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
 										delete filterData[j];
@@ -339,7 +364,7 @@ class FilterControl extends PureComponent {
 								}
 								else if (key === 'clay')
 								{
-									if (filterData[j]['clay content mass percentage 0m'] < this.state.filterData[category][key][0] || filterData[j]['clay content mass percentage 0m'] > this.state.filterData[category][key][1])
+									if (filterData[j] && filterData[j]['clay content mass percentage 0m'] < this.state.filterData[category][key][0] || filterData[j] && filterData[j]['clay content mass percentage 0m'] > this.state.filterData[category][key][1])
 									{
 										filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
 										delete filterData[j];
@@ -347,7 +372,7 @@ class FilterControl extends PureComponent {
 								}
 								else if (key === 'moisture')
 								{
-									if (filterData[j]['ndvi'] < this.state.filterData[category][key][0] || filterData[j]['ndvi'] > this.state.filterData[category][key][1])
+									if (filterData[j] && filterData[j]['ndvi'] < this.state.filterData[category][key][0] || filterData[j] && filterData[j]['ndvi'] > this.state.filterData[category][key][1])
 									{
 										filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
 										delete filterData[j];
@@ -435,8 +460,8 @@ class FilterControl extends PureComponent {
 
 		if (changed || override)
 		{
-			this.setState({ selectedLayers: newSelectedLayers ? newSelectedLayers : [STANDARD_TILES_LAYER] });
-			this.prepareLayers(this.props.map, this.props.timestampRange, newSelectedLayers ? newSelectedLayers : this.state.selectedLayers);
+			this.setState({ selectedLayers: newSelectedLayers ? newSelectedLayers : [STANDARD_TILES_LAYER] },
+				() => {this.prepareLayers(this.props.map, this.props.timestampRange, this.state.selectedLayers)});
 		}
 	}
 
@@ -502,10 +527,32 @@ class FilterControl extends PureComponent {
 					<CardContent
 						className={'card-content'}
 					>
+						<FormControlLabel
+							control={
+								<Checkbox
+									disabled={this.state.loading}
+									checked={this.state.selectedLayers.includes(STANDARD_TILES_LAYER)}
+									onChange={this.handleChange}
+									value="filter"
+									color="primary"
+								/>
+							}
+							label={this.state.selectedLayers.includes(STANDARD_TILES_LAYER) ? "Hide Tiles" : "Show Tiles"}
+						/>
+						{this.state.loading ? <CircularProgress size={20} /> : null}
 						{this.state.filterForm}
 						<div className='button_count'>
-							<Button key='submit' variant='contained' color='primary' onClick={this.filterSubmit}>Filter</Button>
-							<span key={this.state.count}>{this.state.count}</span>
+							<Button
+								key={'submit' + this.state.loading}
+								disabled={this.state.loading}
+								variant='contained'
+								color='primary'
+								onClick={this.filterSubmit}
+								startIcon={this.state.loading ? <CircularProgress size={20} /> : null}
+							>
+								Filter
+							</Button>
+							<span className='countMessage' key={this.state.count}>{this.state.count}</span>
 						</div>
 					</CardContent>
 				</Collapse>
@@ -513,101 +560,5 @@ class FilterControl extends PureComponent {
 		);
 	}
 }
-
-/*function calculateTileBounds(bounds, zoom) {
-	let pi = Math.PI;
-	let zoomComp = Math.pow(2, zoom);
-
-	let comp1 = zoomComp / 360;
-	let comp2 = 2 * pi;
-	let comp3 = pi / 4;
-
-	let tileXMin = Math.floor((bounds.xMin + 180) * comp1);
-	let tileYMin = Math.floor(zoomComp / comp2 * (pi - Math.log(Math.tan(comp3 + bounds.yMax / 360 * pi))));
-
-	let tileXMax = Math.floor((bounds.xMax + 180 ) * comp1 + 1);
-	let tileYMax = Math.floor(zoomComp / comp2 * (pi - Math.log(Math.tan(comp3 + bounds.yMin / 360 * pi))) + 1);
-
-	return {
-		tileXMin: tileXMin,
-		tileYMin: tileYMin,
-
-		tileXMax: tileXMax,
-		tileYMax: tileYMax,
-		count: (tileXMax - tileXMin) * (tileYMax - tileYMin)
-	};
-}
-
-function tileBoundsToGeoJson(tileBounds, zoom) {
-	let result = {
-		type: 'FeatureCollection',
-		count: tileBounds.count,
-		features: []
-	};
-
-	for (let tileY = tileBounds.tileYMin; tileY < tileBounds.tileYMax; tileY++) {
-		for (let tileX = tileBounds.tileXMin; tileX < tileBounds.tileXMax; tileX++) {
-			let tile = {
-				tileX: tileX,
-				tileY: tileY,
-				zoom: zoom
-			};
-
-			let tileCoord = calculateTileCoords(tile, zoom);
-
-			let coords = [[
-				[tileCoord.xMin, tileCoord.yMin],
-				[tileCoord.xMax, tileCoord.yMin],
-				[tileCoord.xMax, tileCoord.yMax],
-				[tileCoord.xMin, tileCoord.yMax],
-				[tileCoord.xMin, tileCoord.yMin]
-			]];
-
-			let feature = {
-				id: result.features.length,
-				type: "Feature",
-				properties: {
-					type: ViewerUtility.wmsTileLayerType,
-					tileX: tile.tileX,
-					tileY: tile.tileY,
-					zoom: tile.zoom
-				},
-				geometry: {
-					type: 'Polygon',
-					coordinates: coords
-				}
-			};
-
-			result.features.push(feature);
-		}
-	}
-
-	return result;
-}
-
-const comp1 = (360 / (2 * Math.PI));
-const comp3 = Math.PI / 2;
-
-function calculateTileCoords(tile) {
-	let pi = Math.PI;
-
-	let tileX = tile.tileX;
-	let tileY = tile.tileY;
-	let zoom = tile.zoom;
-
-	let comp2 = Math.pow(2, zoom);
-
-	let xMin = ((tileX * 360) / comp2) - 180;
-	let xMax = ((tileX + 1) * 360 / comp2) - 180;
-	let yMin = comp1 * (2 * (Math.atan(Math.exp(-2 * (pi * (tileY + 1)) / comp2 + pi))) - comp3);
-	let yMax = comp1 * (2 * (Math.atan(Math.exp(-2 * (pi * tileY) / comp2 + pi))) - comp3);
-
-	return {
-		xMin: xMin,
-		xMax: xMax,
-		yMin: yMin,
-		yMax: yMax
-	};
-}*/
 
 export default FilterControl;
