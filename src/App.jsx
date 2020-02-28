@@ -3,7 +3,12 @@ import { Route } from 'react-router-dom';
 import Modal from 'react-modal';
 import { withRouter } from 'react-router';
 
+import ButtonBase from '@material-ui/core/ButtonBase';
 import Button from '@material-ui/core/Button';
+import Card from '@material-ui/core/Card';
+import CardContent from '@material-ui/core/CardContent';
+import CardMedia from '@material-ui/core/CardMedia';
+
 import { createMuiTheme } from '@material-ui/core/styles';
 import { ThemeProvider } from '@material-ui/styles';
 
@@ -186,9 +191,33 @@ class App extends Component {
               </div>
               <div className={this.state.mode === -1 ? 'modeSelector' : 'hidden'}>
                 <div className='buttonContainer'>
-                  <Button variant="contained" color="primary" onClick={() => {this.onModeChange(ViewerUtility.plannerMode)}}>Plan</Button>
-                  <Button variant="contained" color="primary" onClick={() => {this.onModeChange(ViewerUtility.plantMode)}}>Plant</Button>
-                  <Button variant="contained" color="primary" onClick={() => {this.onModeChange(ViewerUtility.viewerMode)}}>View</Button>
+                  <Card id='identification' onClick={() => {this.onModeChange(ViewerUtility.plannerMode)}}>
+                    <h1>Identification</h1>
+                    <p>
+                      Identify high potential location for your reforestation projects using satellite imagery and other maps.
+                    </p>
+                  </Card>
+
+                  <Card id='planning' onClick={() => {this.onModeChange(ViewerUtility.plantMode)}}>
+                    <h1>Planning</h1>
+                    <p>
+                      Draw up detailed plans, using planting lines or even designating locations for specific trees.
+                    </p>
+                  </Card>
+
+                  <Card id='planting' onClick={() => {this.onModeChange(ViewerUtility.plantMode)}}>
+                      <h1>Planting</h1>
+                      <p>
+                        Directly feed your plant location into the system and provide additional information such as images.
+                      </p>
+                  </Card>
+
+                  <Card id='monitoring' onClick={() => {this.onModeChange(ViewerUtility.viewerMode)}}>
+                    <h1>Monitoring &amp; Learning</h1>
+                    <p>
+                      Keep track of individual trees. Get the latests weather and imagery from our continuously updating timeseries.
+                    </p>
+                  </Card>
                 </div>
               </div>
               <div ref={this.bottomItemRef}></div>

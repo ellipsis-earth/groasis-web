@@ -300,24 +300,150 @@ button.MuiTab-root {
 {
   z-index: 1000;
   background: white;
+  padding: 1em;
 }
 
 .modeSelector .buttonContainer
 {
   width: 100%;
   height: 100%;
-  padding: 15vh 30vw;
-  display: flex;
-  justify-content: center;
-  align-items: space-between;
-  flex-direction: row;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 1em;
 }
 
-.modeSelector .buttonContainer button
+.modeSelector .buttonContainer .MuiPaper-root
 {
-  flex: 1 1 calc(50% - 2em);
-  margin: 1em;
+  border-radius: 10px;
+  padding: 0.5em;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-position: center;
+  background-size: cover;
+}
+
+.modeSelector .buttonContainer .MuiPaper-root:hover
+{
+  cursor: pointer;
+}
+
+.modeSelector .buttonContainer .MuiPaper-root.disabled
+{
+  background: lightgrey;
+}
+
+.modeSelector .buttonContainer .MuiPaper-root.disabled h1, .modeSelector .buttonContainer .MuiPaper-root.disabled p
+{
+  color: darkgrey;
+}
+
+.modeSelector .buttonContainer .MuiPaper-root.disabled:hover
+{
+  cursor: unset;
+}
+
+.modeSelector .buttonContainer #identification
+{
+  background:linear-gradient(
+  rgba(0, 0, 0, 0.66) 0%,
+  rgba(0, 0, 0, 0.66) 100%),
+  url("/images/identification.jpg")
+  no-repeat center;
+}
+
+.modeSelector .buttonContainer #identification:hover
+{
+  background:linear-gradient(
+  rgba(0, 0, 0, 0.80) 0%,
+  rgba(0, 0, 0, 0.80) 100%),
+  url("/images/identification.jpg")
+  no-repeat center;
+}
+
+.modeSelector .buttonContainer #planning
+{
+  background:linear-gradient(
+  rgba(0, 0, 0, 0.66) 0%,
+  rgba(0, 0, 0, 0.66) 100%),
+  url("/images/planning.jpg")
+  no-repeat center;
+}
+
+.modeSelector .buttonContainer #planning:hover
+{
+  background:linear-gradient(
+  rgba(0, 0, 0, 0.80) 0%,
+  rgba(0, 0, 0, 0.80) 100%),
+  url("/images/planning.jpg")
+  no-repeat center;
+}
+
+.modeSelector .buttonContainer #planting
+{
+  background:linear-gradient(
+  rgba(0, 0, 0, 0.66) 0%,
+  rgba(0, 0, 0, 0.66) 100%),
+  url("/images/planting.jpg")
+  no-repeat center;
+}
+
+.modeSelector .buttonContainer #planting:hover
+{
+  background:linear-gradient(
+  rgba(0, 0, 0, 0.80) 0%,
+  rgba(0, 0, 0, 0.80) 100%),
+  url("/images/planting.jpg")
+  no-repeat center;
+}
+
+.modeSelector .buttonContainer #monitoring
+{
+  background:linear-gradient(
+  rgba(0, 0, 0, 0.66) 0%,
+  rgba(0, 0, 0, 0.66) 100%),
+  url("/images/monitoring.jpg")
+  no-repeat center;
+}
+
+.modeSelector .buttonContainer #monitoring:hover
+{
+  background:linear-gradient(
+  rgba(0, 0, 0, 0.80) 0%,
+  rgba(0, 0, 0, 0.80) 100%),
+  url("/images/monitoring.jpg")
+  no-repeat center;
+}
+
+.buttonContainer h1
+{
+  font-size: 125%;
+  margin: 0;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.modeSelector .buttonContainer .Mui-disabled h1
+{
+  color: darkgrey;
+}
+
+.buttonContainer p
+{
+  margin: 0;
+}
+
+.buttonContainer div.MuiCardMedia-root
+{
+  height: 50%;
+}
+
+.buttonContainer div.MuiCardContent-root
+{
+  height: 50%;
+  overflow: auto;
 }
 
 @keyframes App-logo-spin {
@@ -330,8 +456,18 @@ button.MuiTab-root {
 }
 
 @media only screen and (max-width : 640px) {
+  .buttonContainer h1
+  {
+    font-size: 100%;
+  }
+
+  .buttonContainer p
+  {
+    font-size: 87.5%;
+  }
+
   .main-block-header {
-      font-size: 22pt;
+    font-size: 22pt;
   }
 
   .main-block-single-button {
@@ -345,5 +481,17 @@ button.MuiTab-root {
 
   .hide-on-small-screens {
     display: none;
+  }
+}
+
+@media only screen and (min-width : 960px) {
+  .modeSelector
+  {
+    padding: 2em 10vw;
+  }
+
+  .modeSelector .buttonContainer .MuiPaper-root
+  {
+    padding: 1em;
   }
 }

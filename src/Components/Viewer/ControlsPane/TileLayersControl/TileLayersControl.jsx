@@ -1,15 +1,15 @@
 import React, { PureComponent } from 'react';
-import { TileLayer } from 'react-leaflet';
+import { TileLayer , withLeaflet} from 'react-leaflet';
 
-import {
-  Card,
-  Checkbox,
-  CardHeader,
-  CardContent,
-  Collapse,
-  IconButton,
-  Typography
-} from '@material-ui/core';
+import Card from '@material-ui/core/Card';
+import Checkbox from '@material-ui/core/Checkbox';
+import CardHeader from '@material-ui/core/CardHeader';
+import CardContent from '@material-ui/core/CardContent';
+import Collapse from '@material-ui/core/Collapse';
+import IconButton from '@material-ui/core/IconButton';
+import Radio from '@material-ui/core/Radio';
+import Typography from '@material-ui/core/Typography';
+
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 import ViewerUtility from '../../ViewerUtility';
@@ -26,71 +26,103 @@ const IMAGES2_LAYER_TYPE = 'images2';
 const AVAILABLE_LAYERS = [
   {
     name: GroasisUtility.layers.tile.base,
-    type: null,
+    type: 'radio',
     mapType: null,
     stacking: false,
     urlName: null,
+    displayName: 'satellite layer'
+  },
+  {
+    name: GroasisUtility.layers.tile.road,
+    type: 'radio',
+    mapType: null,
+    stacking: false,
+    urlName: null,
+    displayName: 'road layer'
+  },
+  {
+    name: GroasisUtility.layers.tile.terrain,
+    type: 'radio',
+    mapType: null,
+    stacking: false,
+    urlName: null,
+    displayName: 'terrain layer'
   },
   {
     name: GroasisUtility.layers.tile.highRes,
     type: IMAGES_LAYER_TYPE,
     mapType: GroasisUtility.types.highRes,
     stacking: true,
-    urlName: 'rgb'
+    urlName: 'rgb',
+    displayName: 'natural color'
   },
   {
     name: GroasisUtility.layers.tile.highResCir,
     type: IMAGES_LAYER_TYPE,
     mapType: GroasisUtility.types.highRes,
     stacking: true,
-    urlName: 'CIR'
-  },
-  {
-    name: GroasisUtility.layers.tile.highResLabel,
-    type: LABELS_LAYER_TYPE,
-    mapType: GroasisUtility.types.highRes,
-    stacking: true,
-    urlName: 'label'
+    urlName: 'CIR',
+    displayName: 'infrared'
   },
   {
     name: GroasisUtility.layers.tile.lowRes,
     type: IMAGES_LAYER_TYPE,
     mapType: GroasisUtility.types.lowRes,
     stacking: true,
-    urlName: 'rgb'
+    urlName: 'rgb',
+    displayName: 'natural color'
   },
   {
     name: GroasisUtility.layers.tile.lowResCir,
     type: IMAGES_LAYER_TYPE,
     mapType: GroasisUtility.types.lowRes,
     stacking: true,
-    urlName: 'CIR'
+    urlName: 'CIR',
+    displayName: 'infrared'
   },
-
   {
-    name: GroasisUtility.layers.tile.contour,
-    type: IMAGES2_LAYER_TYPE,
-    mapType: GroasisUtility.types.altitude,
-    stacking: false,
-    urlName: 'contour'
-  }
+    name: GroasisUtility.layers.tile.highResLabel,
+    type: LABELS_LAYER_TYPE,
+    mapType: GroasisUtility.types.highRes,
+    stacking: true,
+    urlName: 'label',
+    displayName: 'tree crown'
+  },
 ];
 
 class TileLayersControl extends PureComponent {
 
   classes = null;
 
-  baseLayer = (
-    <TileLayer
-      key='base-layer'
-      url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-      //attribution='Base satellite: <a href="https://maps.google.com">Google Maps</a>'
-      zIndex={1}
-      noWrap={true}
-      maxZoom={40}
-      maxNativeZoom={21}
-    />
-  );
+  baseLayer = (<TileLayer
+    key='base-layer'
+    url='https://www.google.com/maps/vt?lyrs=s@189&x={x}&y={y}&z={z}'
+    //attribution='Base satellite: <a href="https://maps.google.com">Google Maps</a>'
+    zIndex={1}
+    noWrap={true}
+    maxZoom={26}
+    maxNativeZoom={21}
+  />)
+
+  roadLayer = (<TileLayer
+    key='road-layer'
+    url='https://www.google.com/maps/vt?lyrs=r@189&x={x}&y={y}&z={z}'
+    //attribution='Base satellite: <a href="https://maps.google.com">Google Maps</a>'
+    zIndex={2}
+    noWrap={true}
+    maxZoom={26}
+    maxNativeZoom={21}
+  />)
+
+  terrainLayer = (<TileLayer
+    key='terrain-layer'
+    url='https://tile.thunderforest.com/landscape/{z}/{x}/{y}.png?apikey=8971b4cfb888481fbc413a3c93ac582f'
+    //attribution='Base satellite: <a href="https://maps.google.com">Google Maps</a>'
+    zIndex={3}
+    noWrap={true}
+    maxZoom={26}
+    maxNativeZoom={22}
+  />)
 
   constructor(props, context) {
     super(props, context);
@@ -142,10 +174,27 @@ class TileLayersControl extends PureComponent {
     {
       availableLayers = [{
         name: GroasisUtility.layers.tile.base,
-        type: null,
+        type: 'radio',
         mapType: null,
         stacking: false,
         urlName: null,
+        displayName: 'satellite layer'
+      },
+      {
+        name: GroasisUtility.layers.tile.road,
+        type: 'radio',
+        mapType: null,
+        stacking: false,
+        urlName: null,
+        displayName: 'road layer'
+      },
+      {
+        name: GroasisUtility.layers.tile.terrain,
+        type: 'radio',
+        mapType: null,
+        stacking: false,
+        urlName: null,
+        displayName: 'terrain layer'
       }]
     }
 
@@ -157,17 +206,21 @@ class TileLayersControl extends PureComponent {
       let checked = selectedLayers.find(x => x === availableLayer.name) ? true : false;
 
       let label = null;
-      if (i === 1) {
-        label = (<h3>High res</h3>);
+      if (i === 0) {
+        label = (<h3 className='baseLayerHeader'>Base layers</h3>);
       }
-      else if (i === 4) {
-        label = (<h3>Low res</h3>);
+      else if (i === 3) {
+        label = (<h3>High resolution layers</h3>);
       }
-      else if (i === 6) {
-        label = (<h3>Altitude</h3>);
+      else if (i === 5) {
+        label = (<h3>Low resolution layers</h3>);
+      }
+      else if (i === 7)
+      {
+        label = (<h3>Classification</h3>);
       }
 
-      let name = 'base';
+      /*let name = 'base';
       if (i === 1 || i === 4) {
         name = 'rgb';
       }
@@ -176,26 +229,46 @@ class TileLayersControl extends PureComponent {
       }
       else if (i === 2 || i === 5) {
         name = 'CIR';
-      }
-      else if (i === 6) {
-        name = 'contour';
-      }
+      }*/
 
-      let option = (
-        <div key={availableLayer.name}>
-          {label}
-          <Checkbox
-            key={availableLayer.name}
-            classes={{ root: 'layers-control-checkbox' }}
-            color='primary'
-            value={availableLayer.name}
-            name={availableLayer.name}
-            onChange={this.onLayerChange}
-            checked={checked}
-          />
-          {name}
-        </div>
-      )
+      let option = null;
+
+      if (availableLayer.type === 'radio')
+      {
+        option = (
+          <div key={availableLayer.name}>
+            {label}
+            <Radio
+              key={availableLayer.name}
+              classes={{ root: 'layers-control-checkbox' }}
+              color="primary"
+              value={availableLayer.name}
+              name={availableLayer.name}
+              onChange={this.onRadioChange}
+              checked={checked}
+            />
+            {availableLayer.displayName}
+          </div>
+        )
+      }
+      else
+      {
+        option = (
+          <div key={availableLayer.name}>
+            {label}
+            <Checkbox
+              key={availableLayer.name}
+              classes={{ root: 'layers-control-checkbox' }}
+              color='primary'
+              value={availableLayer.name}
+              name={availableLayer.name}
+              onChange={this.onLayerChange}
+              checked={checked}
+            />
+            {availableLayer.displayName}
+          </div>
+        )
+      }
 
       options.push(option);
     }
@@ -210,6 +283,12 @@ class TileLayersControl extends PureComponent {
     if (selectedLayers.includes(GroasisUtility.layers.tile.base)) {
       layerElements.push(this.baseLayer);
     }
+    if (selectedLayers.includes(GroasisUtility.layers.tile.road)) {
+      layerElements.push(this.roadLayer);
+    }
+    if (selectedLayers.includes(GroasisUtility.layers.tile.terrain)) {
+      layerElements.push(this.terrainLayer);
+    }
 
     let map = this.props.map;
     let timestampRange = this.props.timestampRange;
@@ -221,7 +300,7 @@ class TileLayersControl extends PureComponent {
 
     let zIndex = ViewerUtility.tileLayerZIndex + 2;
 
-    for (let i = 1; i < AVAILABLE_LAYERS.length; i++) {
+    for (let i = 3; i < AVAILABLE_LAYERS.length; i++) {
       let availableLayer = AVAILABLE_LAYERS[i];
 
       if (!selectedLayers.includes(availableLayer.name)) {
@@ -264,6 +343,36 @@ class TileLayersControl extends PureComponent {
     }
 
     this.props.onLayersChange(layerElements);
+  }
+
+  onRadioChange = (e) => {
+    let layerName = e.target.value;
+
+    let layerChanges = [];
+
+    let selectedLayers = this.props.selectedLayers[ViewerUtility.tileLayerType];
+
+    for (let i = 0; i < 3; i++)
+    {
+      let pushObj = {}
+
+      if(selectedLayers.includes(AVAILABLE_LAYERS[i].name))
+      {
+        pushObj.name = AVAILABLE_LAYERS[i].name;
+        pushObj.add = false;
+        layerChanges.push(pushObj);
+      }
+
+      if(layerName === AVAILABLE_LAYERS[i].name)
+      {
+        pushObj.name = AVAILABLE_LAYERS[i].name;
+        pushObj.add = true;
+        layerChanges.push(pushObj);
+      }
+
+    }
+
+    this.props.onSelectedLayersChange(ViewerUtility.tileLayerType, layerChanges, false);
   }
 
   onLayerChange = (e) => {

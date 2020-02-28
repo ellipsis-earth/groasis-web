@@ -129,9 +129,10 @@ export class MainMenu extends Component {
     }
 
     let modeText = 'select mode';
-    if(this.props.mode === 0) {modeText = 'plan'}
-    if(this.props.mode === 1) {modeText = 'plant'}
-    if(this.props.mode === 2) {modeText = 'view'}
+    if(this.props.mode === 0) {modeText = 'Indentification'}
+    if(this.props.mode === 1) {modeText = 'Planning'}
+    if(this.props.mode === 2) {modeText = 'Monitoring'}
+    if(this.props.mode === 3) {modeText = 'Learning'}
 
     return (
       <div id='main-menu' style={displayStyle}>
@@ -144,7 +145,7 @@ export class MainMenu extends Component {
           key={this.state.width}
         >
           <Navbar.Brand>
-            <NavLink exact to='/' className='main-menu-logo-item noselect' onClick={() => this.onOpenAccounts(false)}>
+            <NavLink exact to='/' className='main-menu-logo-item noselect' onClick={() => {this.props.onModeChange(-1); this.onOpenAccounts(false)}}>
               <img className='main-menu-logo' src='/images/logos/groasis-tree-atlas-logo.svg' alt='Groasis Tree Altas'/>
             </NavLink>
           </Navbar.Brand>
@@ -177,7 +178,7 @@ export class MainMenu extends Component {
                   labelPlacement="end"
                 />
               </RadioGroup>*/}
-              <Button color='primary' variant='outlined' onClick={() => {this.props.onModeChange(-1)}}>{modeText}</Button>
+              {this.props.mode !== -1 ? <Button color='primary' variant='outlined' onClick={() => {this.props.onModeChange(-1)}}>{modeText}</Button> : null}
             </NavItem>
             <NavItem>
               <Button variant='outlined' onClick={this.onOpenAccounts} color='primary'>

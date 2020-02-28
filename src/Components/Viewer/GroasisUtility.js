@@ -54,6 +54,8 @@ const GroasisUtility = {
   layers: {
     tile: {
       base: 'base',
+      road: 'road',
+      terrain: 'terrain',
       highRes: 'rgb (high res)',
       highResCir: 'CIR (high res)',
       highResLabel: 'label (high res)',
@@ -76,7 +78,7 @@ const GroasisUtility = {
   allTypes: MAP_TYPES,
 
   subatlasProperty: SUBATLAS_PROPERTY,
-  
+
   treeProperties: {
     species: 'Species',
     plantingDate: 'Planting date'
@@ -98,7 +100,7 @@ const GroasisUtility = {
 
         let groasisMaps = groupMaps(maps);
 
-        deleteIncompleteMaps(groasisMaps);        
+        deleteIncompleteMaps(groasisMaps);
 
         groasisMaps.geoJson = {
           type: 'FeatureCollection',
@@ -128,7 +130,7 @@ const GroasisUtility = {
           groasisMaps.geoJson.features.push(groasisMap.geoJson);
         }
 
-        let icon = ViewerUtility.returnMarker(GROASIS_COLOR, { x: 17, y: 24 }, 'RoomTwoTone');          
+        let icon = ViewerUtility.returnMarker(GROASIS_COLOR, { x: 17, y: 24 }, 'RoomTwoTone');
         groasisMaps.geoJsonElement = (
           <GeoJSON
             data={groasisMaps.geoJson}
@@ -143,7 +145,7 @@ const GroasisUtility = {
         );
 
         groasisMaps.request = maps.find(x => x.id === REQUEST_MAP_ID)
-        
+
         return groasisMaps;
       })
       .then(groasisMaps => {
@@ -188,7 +190,7 @@ const GroasisUtility = {
 
     return returnData
   },
-  
+
   getMetadata: async (groasisMap, user) => {
     if (groasisMap.metadataLoaded) {
       return Promise.resolve();
@@ -203,7 +205,7 @@ const GroasisUtility = {
 
       for (let i = 0; i < METADATA_TYPES.length; i++) {
         let metadataType = METADATA_TYPES[i];
-  
+
         subPromises.push(
           ApiManager.post('/metadata', { mapId: subMap.id, type: metadataType.key }, user)
         );
@@ -270,7 +272,7 @@ function groupMaps(maps) {
     yMin: Number.MAX_VALUE,
     yMax: -Number.MAX_VALUE
   };
-  
+
   for (let i = 0; i < maps.length; i++) {
     let map = maps[i];
 
@@ -279,7 +281,7 @@ function groupMaps(maps) {
     if (!mapInfo) {
       continue;
     }
-    
+
     let subatlas = mapInfo.subatlas;
 
     if (!groasisMaps[subatlas]) {
@@ -330,7 +332,7 @@ function deleteIncompleteMaps(groasisMaps) {
         Utility.arrayRemove(groasisMaps.subatlases, subatlas);
         i--
         break;
-      } 
+      }
     }
   }
 }

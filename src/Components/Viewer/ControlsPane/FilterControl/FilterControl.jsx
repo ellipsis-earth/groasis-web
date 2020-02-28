@@ -33,7 +33,7 @@ const STANDARD_TILES_LAYER = {
 	name: STANDARD_TILE_LAYER_DISPLAY_NAME
 };
 
-const MAX_TILES = 500;
+const MAX_TILES = 3000;
 
 class FilterControl extends PureComponent {
 	constructor(props, context) {
