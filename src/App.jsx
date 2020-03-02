@@ -192,30 +192,33 @@ class App extends Component {
               <div className={this.state.mode === -1 ? 'modeSelector' : 'hidden'}>
                 <div className='buttonContainer'>
                   <Card id='identification' onClick={() => {this.onModeChange(ViewerUtility.plannerMode)}}>
-                    <h1>Identification</h1>
+                    <h1>Identification &amp; Planning</h1>
                     <p>
-                      Identify high potential location for your reforestation projects using satellite imagery and other maps.
-                    </p>
-                  </Card>
-
-                  <Card id='planning' onClick={() => {this.onModeChange(ViewerUtility.plantMode)}}>
-                    <h1>Planning</h1>
-                    <p>
-                      Draw up detailed plans, using planting lines or even designating locations for specific trees.
+                      Identify high potential locations and plan your reforestation projects using satellite imagery and other maps.
                     </p>
                   </Card>
 
                   <Card id='planting' onClick={() => {this.onModeChange(ViewerUtility.plantMode)}}>
-                      <h1>Planting</h1>
+                    <h1>Organization &amp; Implementation</h1>
+                    <p>
+                      Implement drawn up plans, using already planned planting lines and trees locations.
+                    </p>
+                  </Card>
+
+                  <Card id='monitoring' onClick={() => {this.onModeChange(ViewerUtility.plantMode)}}>
+                      <h1>Growth &amp; Monitoring</h1>
                       <p>
-                        Directly feed your plant location into the system and provide additional information such as images.
+                        Keep track of growth, and growing conditions of individual trees in projects.
                       </p>
                   </Card>
 
-                  <Card id='monitoring' onClick={() => {this.onModeChange(ViewerUtility.viewerMode)}}>
-                    <h1>Monitoring &amp; Learning</h1>
+                  <Card id='learning' className='disabled' onClick={() => {this.onModeChange(ViewerUtility.viewerMode)}}>
+                    <h1>
+                      Coming soon
+                    </h1>
+                    <h1>Learning &amp; Improvements</h1>
                     <p>
-                      Keep track of individual trees. Get the latests weather and imagery from our continuously updating timeseries.
+                      Gain insight in your success rate and learn from your old projects.
                     </p>
                   </Card>
                 </div>

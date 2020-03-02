@@ -333,11 +333,14 @@ button.MuiTab-root {
 .modeSelector .buttonContainer .MuiPaper-root.disabled
 {
   background: lightgrey;
+  box-shadow: none;
+  pointer-events: none;
 }
 
 .modeSelector .buttonContainer .MuiPaper-root.disabled h1, .modeSelector .buttonContainer .MuiPaper-root.disabled p
 {
-  color: darkgrey;
+  /*color: darkgrey;*/
+  color: rgba(0,0,0,0.5);
 }
 
 .modeSelector .buttonContainer .MuiPaper-root.disabled:hover
@@ -417,6 +420,24 @@ button.MuiTab-root {
   no-repeat center;
 }
 
+.modeSelector .buttonContainer #learning
+{
+  background:linear-gradient(
+  rgba(211, 211, 211, 0.90) 0%,
+  rgba(211, 211, 211, 0.90) 100%),
+  url("/images/learning.jpg")
+  no-repeat center;
+}
+
+/*.modeSelector .buttonContainer #learning:hover
+{
+  background:linear-gradient(
+  rgba(0, 0, 0, 0.80) 0%,
+  rgba(0, 0, 0, 0.80) 100%),
+  url("/images/learning.jpg")
+  no-repeat center;
+}*/
+
 .buttonContainer h1
 {
   font-size: 125%;
@@ -433,6 +454,11 @@ button.MuiTab-root {
 .buttonContainer p
 {
   margin: 0;
+}
+
+.buttonContainer h1+h1
+{
+  margin-top: 10px;
 }
 
 .buttonContainer div.MuiCardMedia-root
