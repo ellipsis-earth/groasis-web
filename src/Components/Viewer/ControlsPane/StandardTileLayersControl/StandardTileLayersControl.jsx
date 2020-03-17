@@ -124,7 +124,7 @@ class StandardTileLayersControl extends PureComponent {
           <span>
             <span className={className}>{layerGeoJsonInfo.count}</span>
             <span>/{MAX_TILES}</span>
-          </span>          
+          </span>
         );
 
         if (availableLayer === WMS_TILE_LAYER && layerGeoJsonInfo.count > MAX_TILES) {
@@ -185,9 +185,9 @@ class StandardTileLayersControl extends PureComponent {
   prepareStandardTilesLayer = async (map, timestampRange) => {
     let bounds = this.props.leafletMapViewport.bounds;
 
-    let timestampNumber = timestampRange ? 
-      map.timestamps[timestampRange.end].timestampNumber :
-      map.timestamps[map.timestamps.length - 1].timestampNumber
+    let timestampNumber = timestampRange ?
+      map.timestamps[timestampRange.end].timestamp :
+      map.timestamps[map.timestamps.length - 1].timestamp
 
     let body = {
       mapId: map.id,
@@ -219,7 +219,7 @@ class StandardTileLayersControl extends PureComponent {
         body = {
           mapId: map.id,
           type: ViewerUtility.standardTileLayerType,
-          timestamp: map.timestamps[timestampRange.end].timestampNumber,
+          timestamp: map.timestamps[timestampRange.end].timestamp,
           elementIds: standardTileIds.ids
         };
 
@@ -234,7 +234,7 @@ class StandardTileLayersControl extends PureComponent {
           />
         );
 
-        return result;        
+        return result;
       });
   }
 
@@ -383,10 +383,10 @@ function calculateTileBounds(bounds, zoom) {
   let comp3 = pi / 4;
 
   let tileXMin = Math.floor((bounds.xMin + 180) * comp1);
-  let tileYMin = Math.floor(zoomComp / comp2 * (pi - Math.log(Math.tan(comp3 + bounds.yMax / 360 * pi)))); 
+  let tileYMin = Math.floor(zoomComp / comp2 * (pi - Math.log(Math.tan(comp3 + bounds.yMax / 360 * pi))));
 
   let tileXMax = Math.floor((bounds.xMax + 180 ) * comp1 + 1);
-  let tileYMax = Math.floor(zoomComp / comp2 * (pi - Math.log(Math.tan(comp3 + bounds.yMin / 360 * pi))) + 1); 
+  let tileYMax = Math.floor(zoomComp / comp2 * (pi - Math.log(Math.tan(comp3 + bounds.yMin / 360 * pi))) + 1);
 
   return {
     tileXMin: tileXMin,
@@ -407,7 +407,7 @@ function tileBoundsToGeoJson(tileBounds, zoom) {
 
   for (let tileY = tileBounds.tileYMin; tileY < tileBounds.tileYMax; tileY++) {
     for (let tileX = tileBounds.tileXMin; tileX < tileBounds.tileXMax; tileX++) {
-      let tile = { 
+      let tile = {
         tileX: tileX,
         tileY: tileY,
         zoom: zoom
@@ -421,7 +421,7 @@ function tileBoundsToGeoJson(tileBounds, zoom) {
         [tileCoord.xMax, tileCoord.yMax],
         [tileCoord.xMin, tileCoord.yMax],
         [tileCoord.xMin, tileCoord.yMin]
-      ]]; 
+      ]];
 
       let feature = {
         id: result.features.length,
@@ -437,8 +437,8 @@ function tileBoundsToGeoJson(tileBounds, zoom) {
           coordinates: coords
         }
       };
-  
-      result.features.push(feature);     
+
+      result.features.push(feature);
     }
   }
 
@@ -448,7 +448,7 @@ function tileBoundsToGeoJson(tileBounds, zoom) {
 const comp1 = (360 / (2 * Math.PI));
 const comp3 = Math.PI / 2;
 
-function calculateTileCoords(tile) {  
+function calculateTileCoords(tile) {
   let pi = Math.PI;
 
   let tileX = tile.tileX;
@@ -467,7 +467,7 @@ function calculateTileCoords(tile) {
     xMax: xMax,
     yMin: yMin,
     yMax: yMax
-  };  
+  };
 }
 
 export default StandardTileLayersControl;

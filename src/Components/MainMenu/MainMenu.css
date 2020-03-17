@@ -82,8 +82,7 @@ nav.main-menu {
 
 nav .modeSwitch
 {
-  height: 100%;
-  flex-wrap: nowrap;
+  flex-grow: 1;
 }
 
 nav .modeSwitch label

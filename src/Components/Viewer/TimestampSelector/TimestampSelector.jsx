@@ -90,7 +90,7 @@ export class TimestampSelector extends PureComponent {
   }
 
   render() {
-    if (!this.props.map || this.props.mode === ViewerUtility.plannerMode) {
+    if (!this.props.map || this.props.mode === ViewerUtility.identificationMode) {
       return null;
     }
 

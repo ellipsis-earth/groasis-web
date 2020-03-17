@@ -96,7 +96,7 @@ class DataPane extends PureComponent {
           groasisMaps={this.props.groasisMaps}
           home={this.props.home}
           onWatchlistClick={this.props.onWatchlistClick}
-          key={this.props.groasisMaps ? this.props.groasisMaps.subatlases.join('_') : 'default'}
+          key={this.props.groasisMaps ? this.props.groasisMaps.areas.join('_') : 'default'}
           watchlistRefresh={this.props.watchlistRefresh}
           ref={this.watchlist}
         />

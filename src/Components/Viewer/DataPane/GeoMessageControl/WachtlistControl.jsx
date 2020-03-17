@@ -1,14 +1,18 @@
 import React, { PureComponent } from 'react';
 
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  Typography,
-  Button,
-} from '@material-ui/core';
+import Card from '@material-ui/core/Card';
+import CardContent from '@material-ui/core/CardContent';
+import CardHeader from '@material-ui/core/CardHeader';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import Typography from '@material-ui/core/Typography';
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTree } from '@fortawesome/free-solid-svg-icons';
+
+import GroasisUtility from '../../GroasisUtility';
 
 import './WatchlistControl.css';
 
@@ -39,32 +43,15 @@ class WatchListControl extends PureComponent {
 
     if (this.props.groasisMaps)
     {
-      for (var i = 0; i < this.props.groasisMaps.subatlases.length; i++)
-      {
-        let subatlas = this.props.groasisMaps.subatlases[i];
-        let map = this.props.groasisMaps[subatlas];
-
-        if (mode === 'update' && this.props.groasisMaps.subatlases[i] === data.map.subatlas)
-        {
-          subatlas = data.map.subatlas;
-          map = data.map;
-        }
-
-        if (map.watchlist.length > 0)
-        {
-           watchlists.push(<WatchList
-            key={'WatchList_' + subatlas}
-            user={this.props.user}
-            map={map}
-            onWatchlistClick={this.props.onWatchlistClick}
-          />)
-        }
-
-        count = count + map.watchlist.length;
-      }
+      watchlists.push(<WatchList
+        key={'WatchList'}
+        user={this.props.user}
+        map={this.props.groasisMaps}
+        onWatchlistClick={this.props.onWatchlistClick}
+      />)
     }
 
-    return({list: watchlists, count: count})
+    return({list: watchlists})
   }
 
   render() {
@@ -72,18 +59,18 @@ class WatchListControl extends PureComponent {
       return null;
     }
 
-    let message = this.props.user ? 'no trees to watch' : 'please login';
+    let message = this.props.user ? 'no areas' : 'please login';
 
     return (
       <Card className='data-pane-card watchList'>
         <CardHeader
           title={
             <Typography variant='h6' component='h2' className='watchlist-title'>
-              Watchlist
+              {GroasisUtility.request.layer}
             </Typography>
           }
         />
-        <CardContent className='data-pane-card-content' key={this.state.count}>
+        <CardContent className='data-pane-card-content' key={this.props.groasisMaps.areas.length}>
           {this.state.watchlists && this.state.watchlists.length > 0 ? this.state.watchlists : message}
         </CardContent>
       </Card>
@@ -101,13 +88,13 @@ class WatchList extends PureComponent {
 
   render() {
     let map = this.props.map;
-    let watchlist = map.watchlist;
+    let areas = map.areas;
 
-    if (watchlist.length === 0) {
+    if (areas.length === 0) {
       return null;
     }
 
-    watchlist.sort((a, b) => {
+    /*areas.sort((a, b) => {
       if (a.elementId > b.elementId) {
         return 1;
       }
@@ -117,30 +104,23 @@ class WatchList extends PureComponent {
       else {
         return 0;
       }
-    });
+    });*/
 
-    let elements = watchlist.map(x => {
+    let elements = areas.map(x => {
       return (
-        <Button
-          className='watchlist-button'
-          variant='outlined'
-          color='secondary'
-          onClick={() => this.props.onWatchlistClick(map.subatlas, x)}
-          key={map.subatlas + '_' + x.elementId}
-        >
-          <FontAwesomeIcon icon={faTree} style={{ color: 'green' }}/>
-          <span className='watchlist-button-span'>{x.elementId}</span>
-        </Button>
+        <ListItem button key={x.name} onClick={() => this.props.onWatchlistClick(x.id)}>
+          <ListItemIcon>
+            <FontAwesomeIcon icon={faTree} style={{ color: 'green' }}/>
+          </ListItemIcon>
+          <ListItemText primary={x.name} />
+        </ListItem>
       );
     });
 
     return (
-      <div className="watchlistSubatlas">
-        <h3>{map.subatlas}</h3>
-        <div className="buttonContainer">
-          {elements}
-        </div>
-      </div>
+      <List>
+        {elements}
+      </List>
     )
   }
 

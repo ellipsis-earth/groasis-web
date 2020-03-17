@@ -2,16 +2,15 @@ import React, { PureComponent } from 'react';
 import { GeoJSON } from 'react-leaflet';
 import L from 'leaflet';
 
+import Card from '@material-ui/core/Card';
+import Checkbox from '@material-ui/core/Checkbox';
+import CardHeader from '@material-ui/core/CardHeader';
+import CardContent from '@material-ui/core/CardContent';
+import Collapse from '@material-ui/core/Collapse';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import IconButton from '@material-ui/core/IconButton';
+import Typography from '@material-ui/core/Typography';
 
-import {
-  Card,
-  Checkbox,
-  CardHeader,
-  CardContent,
-  Collapse,
-  IconButton,
-  Typography
-} from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import SaveAlt from '@material-ui/icons/SaveAlt';
 
@@ -23,6 +22,8 @@ import './PolygonLayersControl.css';
 import ApiManager from '../../../../ApiManager';
 
 const MAX_POLYGONS = 500;
+
+const IDENTIFICATION_LAYERS = [{name: GroasisUtility.request.layer}];
 
 class PolygonLayersControl extends PureComponent {
 
@@ -71,32 +72,22 @@ class PolygonLayersControl extends PureComponent {
         if (prevSelectedLayers[i] !== curSelectedLayers[i]) {
           differentSelectedLayers = true;
           break;
-        }        
+        }
       }
     }
 
     if (differentMap || differentTimestamp || differentBounds || differentSelectedLayers) {
-      let availableLayers = this.state.availableLayers;
+      let availableLayers = this.props.map.layers ? this.props.map.layers.polygon : [];
+      if(this.props.mode === ViewerUtility.identificationMode && this.props.map.type !== 'area')
+      {
+        availableLayers = IDENTIFICATION_LAYERS;
+      }
+      else if(this.props.mode === ViewerUtility.identificationMode)
+      {
+        availableLayers = [...IDENTIFICATION_LAYERS, ...[{name: GroasisUtility.layers.polygon.plantingSites}]];
+      }
 
       if (differentMap) {
-        if (this.props.mode === ViewerUtility.plannerMode && !this.props.map.referenceMap)
-        {
-          availableLayers = this.props.map.layers;
-        }
-        else
-        {
-          let referenceMap = this.props.map.referenceMap;
-          let polygonLayers = referenceMap.layers.polygon;
-
-          let groasisPolygonLayers = GroasisUtility.layers.polygon;
-
-          availableLayers = [
-            polygonLayers.find(x => x.name === groasisPolygonLayers.trees),
-            polygonLayers.find(x => x.name === groasisPolygonLayers.objectOfInterest),
-            polygonLayers.find(x => x.name === groasisPolygonLayers.plantingLines)
-          ];
-        }
-
         this.layerGeoJsons = {};
 
         this.setState({
@@ -155,18 +146,21 @@ class PolygonLayersControl extends PureComponent {
 
       let option = (
         <div key={availableLayer.name} className='layer-checkboxes'>
-          <Checkbox
-            key={availableLayer.name}
-            classes={{ root: 'layers-control-checkbox' }}
-            color='primary'
-            value={availableLayer.name}
-            name={availableLayer.name}
-            onChange={this.onLayerChange}
-            checked={checked}
+          <FormControlLabel
+            margin='dense'
+            control={
+              <Checkbox
+                key={availableLayer.name}
+                classes={{ root: 'layers-control-checkbox' }}
+                color='primary'
+                value={availableLayer.name}
+                name={availableLayer.name}
+                onChange={this.onLayerChange}
+                checked={checked}
+              />
+            }
+            label={availableLayer.name}
           />
-          <span>
-            {availableLayer.name}
-          </span>
           {counter}
         </div>
       )
@@ -178,6 +172,7 @@ class PolygonLayersControl extends PureComponent {
   }
 
   prepareLayers = async (availableLayers) => {
+    //availableLayers = availableLayers[ViewerUtility.polygonLayerType] ? availableLayers[ViewerUtility.polygonLayerType] : availableLayers;
     let map = this.props.map.referenceMap ? this.props.map.referenceMap : this.props.map;
     let selectedLayers = this.props.selectedLayers[ViewerUtility.polygonLayerType];
     let promises = [];
@@ -190,133 +185,161 @@ class PolygonLayersControl extends PureComponent {
         continue;
       }
 
-      let bounds = this.props.leafletMapViewport.bounds;
+      if(this.props.mode !== ViewerUtility.identificationMode)
+      {
+        let bounds = this.props.leafletMapViewport.bounds;
 
-      let body = {
-        mapId: map.id,
-        type: ViewerUtility.polygonLayerType,
-        layer: polygonLayer.name,
-        xMin: bounds.xMin,
-        xMax: bounds.xMax,
-        yMin: bounds.yMin,
-        yMax: bounds.yMax,
-        limit: MAX_POLYGONS
-      };
+        let body = {
+          mapId: map.id,
+          type: ViewerUtility.polygonLayerType,
+          layer: polygonLayer.name,
+          xMin: bounds.xMin,
+          xMax: bounds.xMax,
+          yMin: bounds.yMin,
+          yMax: bounds.yMax,
+          limit: MAX_POLYGONS
+        };
 
-      let leafletGeojsonLayerPromise = ApiManager.post('/geometry/ids', body, this.props.user)
-        .then(polygonIds => {
-          let count = {
-            ...this.state.count,
-          };
-          count[polygonLayer.name] = polygonIds.count;
+        let leafletGeojsonLayerPromise = await ApiManager.post('/geometry/ids', body, this.props.user)
+          .then(polygonIds => {
+            let count = {
+              ...this.state.count,
+            };
+            count[polygonLayer.name] = polygonIds.count;
 
-          this.setState({ count: count });
+            this.setState({ count: count });
 
-          if (!polygonIds || polygonIds.count === 0 || polygonIds.count > MAX_POLYGONS) {
-            this.layerGeoJsons[polygonLayer.name] = null;
-            return null;
-          }
-
-          body = {
-            mapId: map.id,
-            type: ViewerUtility.polygonLayerType,
-            elementIds: polygonIds.ids
-          };
-
-          return ApiManager.post('/geometry/get', body, this.props.user);
-        })
-        .then(polygonsGeoJson => {
-          if (!polygonsGeoJson) {
-            this.layerGeoJsons[polygonLayer.name] = null;
-            return null;
-          }
-
-          this.layerGeoJsons[polygonLayer.name] = {
-            geoJson: polygonsGeoJson,
-            bounds: bounds
-          };
-
-          let icon = ViewerUtility.returnMarker(`#${polygonLayer.color}`, this.props.markerSize, 'RoomTwoTone');          
-
-          let geometryCollection = {
-            type: 'FeatureCollection',
-            features: []
-          };
-
-          let linesCollection = {
-            type: 'FeatureCollection',
-            features: []
-          };
-
-          for (let i = 0; i < polygonsGeoJson.features.length; i++) {
-            let feature = polygonsGeoJson.features[i];
-            let geometry = feature.geometry;
-
-            if (geometry.type === 'LineString') {
-              linesCollection.features.push(feature);
+            if (!polygonIds || polygonIds.count === 0 || polygonIds.count > MAX_POLYGONS) {
+              this.layerGeoJsons[polygonLayer.name] = null;
+              return null;
             }
-            else {
-              if (polygonLayer.name === GroasisUtility.layers.polygon.trees && geometry.type === 'Polygon') {
-                let treeBounds = ViewerUtility.getBounds(geometry.coordinates);
 
-                if (treeBounds === null) {
-                  continue;
+            body = {
+              mapId: map.id,
+              type: ViewerUtility.polygonLayerType,
+              elementIds: polygonIds.ids
+            };
+
+            return ApiManager.post('/geometry/get', body, this.props.user);
+          })
+          .then(polygonsGeoJson => {
+            if (!polygonsGeoJson) {
+              this.layerGeoJsons[polygonLayer.name] = null;
+              return null;
+            }
+
+            this.layerGeoJsons[polygonLayer.name] = {
+              geoJson: polygonsGeoJson,
+              bounds: bounds
+            };
+
+            let icon = ViewerUtility.returnMarker(`#${polygonLayer.color}`, this.props.markerSize, 'RoomTwoTone');
+
+            let geometryCollection = {
+              type: 'FeatureCollection',
+              features: []
+            };
+
+            let linesCollection = {
+              type: 'FeatureCollection',
+              features: []
+            };
+
+            for (let i = 0; i < polygonsGeoJson.features.length; i++) {
+              let feature = polygonsGeoJson.features[i];
+              let geometry = feature.geometry;
+
+              if (geometry.type === 'LineString') {
+                linesCollection.features.push(feature);
+              }
+              else {
+                if (polygonLayer.name === GroasisUtility.layers.polygon.trees && geometry.type === 'Polygon') {
+                  let treeBounds = ViewerUtility.getBounds(geometry.coordinates);
+
+                  if (treeBounds === null) {
+                    continue;
+                  }
+
+                  let center = [
+                    treeBounds.xMin + (treeBounds.xMax - treeBounds.xMin) / 2,
+                    treeBounds.yMin + (treeBounds.yMax - treeBounds.yMin) / 2
+                  ];
+
+                  let pointGeometry = {
+                    type: 'Point',
+                    coordinates: center
+                  };
+
+                  feature.originalGeometry = feature.geometry;
+                  feature.geometry = pointGeometry;
                 }
 
-                let center = [
-                  treeBounds.xMin + (treeBounds.xMax - treeBounds.xMin) / 2,
-                  treeBounds.yMin + (treeBounds.yMax - treeBounds.yMin) / 2
-                ];
-
-                let pointGeometry = {
-                  type: 'Point',
-                  coordinates: center
-                };
-
-                feature.originalGeometry = feature.geometry;
-                feature.geometry = pointGeometry;
-              } 
-
-              geometryCollection.features.push(feature);
+                geometryCollection.features.push(feature);
+              }
             }
-          }
 
-          geometryCollection.count = geometryCollection.features.length;
-          linesCollection.count = linesCollection.features.length;
+            geometryCollection.count = geometryCollection.features.length;
+            linesCollection.count = linesCollection.features.length;
 
-          let elementType = polygonLayer.name === GroasisUtility.layers.polygon.trees ?
-            ViewerUtility.treeElementType : ViewerUtility.polygonLayerType;
+            let elementType = polygonLayer.name === GroasisUtility.layers.polygon.trees ?
+              ViewerUtility.treeElementType : ViewerUtility.polygonLayerType;
 
-          return (
-            [<GeoJSON
-              key={Math.random()}
-              data={polygonsGeoJson}
-              style={ViewerUtility.createGeoJsonLayerStyle(`#${polygonLayer.color}`)}
-              zIndex={ViewerUtility.polygonLayerZIndex + i}
-              onEachFeature={(feature, layer) => {layer.on({ 
-                click: () => this.props.onFeatureClick(elementType, feature, polygonLayer.hasAggregatedData) 
-              })}}
-              pointToLayer={(geoJsonPoint, latlng) => this.markerReturn(latlng, icon)}
-              name={polygonLayer.name}
-            />,
-            <GeoJSON
-              key={Math.random()}
-              data={linesCollection}
-              style={ViewerUtility.createGeoJsonLayerStyle(`#${polygonLayer.color}`, 3)}
-              zIndex={ViewerUtility.polygonLayerZIndex + i}
-              onEachFeature={(feature, layer) => {layer.on({ 
-                click: () => this.props.onFeatureClick(elementType, feature, polygonLayer.hasAggregatedData) 
-              })}}
-              name={polygonLayer.name}
-            />
-            ]
-          );
-        });
+            return (
+              [<GeoJSON
+                key={Math.random()}
+                data={polygonsGeoJson}
+                style={ViewerUtility.createGeoJsonLayerStyle(`#${polygonLayer.color}`)}
+                zIndex={ViewerUtility.polygonLayerZIndex + i}
+                onEachFeature={(feature, layer) => {layer.on({
+                  click: () => this.props.onFeatureClick(elementType, feature, polygonLayer.hasAggregatedData)
+                })}}
+                pointToLayer={(geoJsonPoint, latlng) => this.markerReturn(latlng, icon)}
+                name={polygonLayer.name}
+              />,
+              <GeoJSON
+                key={Math.random()}
+                data={linesCollection}
+                style={ViewerUtility.createGeoJsonLayerStyle(`#${polygonLayer.color}`, 3)}
+                zIndex={ViewerUtility.polygonLayerZIndex + i}
+                onEachFeature={(feature, layer) => {layer.on({
+                  click: () => this.props.onFeatureClick(elementType, feature, polygonLayer.hasAggregatedData)
+                })}}
+                name={polygonLayer.name}
+              />
+              ]
+            );
+          });
 
-      promises.push(leafletGeojsonLayerPromise);
+        promises.push(leafletGeojsonLayerPromise);
+      }
     }
 
-    let leafletGeoJsonLayers = await Promise.all(promises);
+    let JSONlayers = await Promise.all(promises);
+    let leafletGeoJsonLayers = [...JSONlayers];
+
+    if(this.props.mode === ViewerUtility.identificationMode)
+    {
+      if(selectedLayers.includes(GroasisUtility.request.layer))
+      {
+        let data = this.props.map.type === 'area' ? {type: 'FeatureCollection', features: [this.props.map.geoJson]} : this.props.map.geoJson;
+        console.log(JSON.stringify(data))
+        leafletGeoJsonLayers.push(<GeoJSON
+          key={Math.random()}
+          data={data}
+          style={ViewerUtility.createGeoJsonLayerStyle('#87cef3', 3)}
+          zIndex={ViewerUtility.polygonLayerZIndex + leafletGeoJsonLayers.length}
+          onEachFeature={(feature, layer) => {layer.on({
+            click: () => {this.props.onWatchlistClick(feature.properties.id)}
+          })}}
+          name={GroasisUtility.request.layer}
+        />)
+      }
+
+      if(selectedLayers.includes(GroasisUtility.layers.polygon.plantingSites))
+      {
+        leafletGeoJsonLayers.push(this.props.map.plantingSites);
+      }
+    }
 
     this.props.onLayersChange(leafletGeoJsonLayers);
   }

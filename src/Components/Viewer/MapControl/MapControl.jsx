@@ -7,12 +7,12 @@ import { IconButton } from '@material-ui/core';
 import MyLocationIcon from '@material-ui/icons/MyLocation';
 import TimeLineIcon from '@material-ui/icons/Timeline';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {  
+import {
   faTimes,
   faGlobeAmericas,
-  faPlus, 
+  faPlus,
   faMinus,
-  faTree, 
+  faTree,
   faDrawPolygon
 } from '@fortawesome/free-solid-svg-icons';
 
@@ -102,7 +102,7 @@ export class MapControl extends PureComponent {
       showLength: true
     });
     d.enable();
-    
+
     this.setState({ drawControl: d, drawMode: ViewerUtility.plantingLineElementType });
   }
 
@@ -120,8 +120,8 @@ export class MapControl extends PureComponent {
         key={Math.random()}
         data={geoJson}
         zIndex={ViewerUtility.drawnPolygonLayerZIndex}
-        onEachFeature={(_, layer) => layer.on({ 
-          click: () => this.props.onSelectFeature(this.state.drawMode ? this.state.drawMode : ViewerUtility.drawnPolygonLayerType, geoJson, false) 
+        onEachFeature={(_, layer) => layer.on({
+          click: () => this.props.onSelectFeature(this.state.drawMode ? this.state.drawMode : ViewerUtility.drawnPolygonLayerType, geoJson, false)
         })}
         pointToLayer={(geoJsonPoint, latlng) => ViewerUtility.createMarker(latlng, icon)}
       />
@@ -168,31 +168,31 @@ export class MapControl extends PureComponent {
           <NavItem>
             <IconButton
               className='tool-button'
-              color='secondary'  
+              color='secondary'
               onClick={this.onPlantTree}
               disabled={disabled}
             >
-              <FontAwesomeIcon icon={faTree} />              
+              <FontAwesomeIcon icon={faTree} />
             </IconButton>
           </NavItem>
           <NavItem>
             <IconButton
               className='tool-button'
-              color='secondary'  
+              color='secondary'
               onClick={() => this.onDrawPolygon()}
               disabled={disabled}
             >
-              <FontAwesomeIcon icon={faDrawPolygon} />              
+              <FontAwesomeIcon icon={faDrawPolygon} />
             </IconButton>
           </NavItem>
           <NavItem>
             <IconButton
               className='tool-button'
-              color='secondary'  
+              color='secondary'
               onClick={this.onDrawLine}
               disabled={disabled}
             >
-              <TimeLineIcon/>  
+              <TimeLineIcon/>
             </IconButton>
           </NavItem>
           {
@@ -200,30 +200,30 @@ export class MapControl extends PureComponent {
               <NavItem>
                 <IconButton
                   className='tool-button'
-                  color='secondary'  
+                  color='secondary'
                   onClick={this.onStopDraw}
                   disabled={disabled}
                 >
-                  <FontAwesomeIcon icon={faTimes} />                  
+                  <FontAwesomeIcon icon={faTimes} />
                 </IconButton>
               </NavItem>
             ) : null
           }
-        </Nav>        
+        </Nav>
       );
     }
-    else if(this.props.mode === ViewerUtility.plannerMode)
+    else if(this.props.mode === ViewerUtility.identificationMode)
     {
       disabled = this.props.user ? false : true
       plannerButtons.push(<Nav className='flex-column map-control map-control-planner' key={this.props.mode + '_' + disabled}>
         <NavItem>
           <IconButton
             className='tool-button'
-            color='secondary'  
+            color='secondary'
             onClick={this.onMapRequest}
             disabled={disabled}
           >
-            <FontAwesomeIcon icon={faDrawPolygon} />              
+            <FontAwesomeIcon icon={faDrawPolygon} />
           </IconButton>
         </NavItem>
       </Nav>)
@@ -235,10 +235,10 @@ export class MapControl extends PureComponent {
           <NavItem>
             <IconButton
               className='tool-button'
-              color='secondary'  
+              color='secondary'
               onClick={() => this.onZoom(1)}
             >
-              <FontAwesomeIcon icon={faPlus} />              
+              <FontAwesomeIcon icon={faPlus} />
             </IconButton>
           </NavItem>
           <NavItem>
@@ -247,18 +247,18 @@ export class MapControl extends PureComponent {
               color='secondary'
               onClick={() => this.onZoom(-1)}
             >
-              <FontAwesomeIcon icon={faMinus} />              
+              <FontAwesomeIcon icon={faMinus} />
             </IconButton>
           </NavItem>
           <NavItem>
             <IconButton
               className='tool-button'
-              color='secondary'              
+              color='secondary'
               onClick={() => this.props.onFlyTo({
                 type: ViewerUtility.flyToType.currentLocation
               })}
             >
-              <MyLocationIcon style={{ fontSize: '21px' }} />              
+              <MyLocationIcon style={{ fontSize: '21px' }} />
             </IconButton>
           </NavItem>
           <NavItem>
@@ -268,12 +268,12 @@ export class MapControl extends PureComponent {
               style={{ fontSize: '18px' }}
               onClick={() => this.onShowLocations()}
             >
-              <FontAwesomeIcon icon={faGlobeAmericas} />              
+              <FontAwesomeIcon icon={faGlobeAmericas} />
             </IconButton>
           </NavItem>
         </Nav>
         {plannerButtons}
-      </div>      
+      </div>
     );
   }
 }

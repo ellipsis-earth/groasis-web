@@ -89,9 +89,10 @@ const ViewerUtility = {
     customPolygon: CUSTOM_POLYGON
   },
 
-  viewerMode: 2,
-  plantMode: 1,
-  plannerMode: 0,
+  viewerMode: 3,
+  plantMode: 2,
+  plannerMode: 1,
+  identificationMode: 0,
 
   markerSize: { x: 17, y: 24 },
 
@@ -169,12 +170,12 @@ const ViewerUtility = {
       }
 
       let xCoord = subCoordinates[0];
-      let yCoord = subCoordinates[1]; 
+      let yCoord = subCoordinates[1];
 
       if (!isNaN(xCoord) && !isNaN(yCoord)) {
         let validX = xCoord >= -180 && xCoord <= 180;
         let validY = yCoord >= -90 && yCoord <= 90;
-  
+
         if (!validX || !validY) {
           return null;
         }

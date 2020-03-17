@@ -275,8 +275,8 @@ class FilterControl extends PureComponent {
 		let bounds = this.props.leafletMapViewport.bounds;
 
 		let timestampNumber = timestampRange ?
-			map.referenceMap.timestamps[timestampRange.end].timestampNumber :
-			map.referenceMap.timestamps[map.timestamps.length - 1].timestampNumber
+			map.referenceMap.timestamps[timestampRange.end].timestamp :
+			map.referenceMap.timestamps[map.timestamps.length - 1].timestamp
 
 		let body = {
 			mapId: map.referenceMap.id,
@@ -320,7 +320,7 @@ class FilterControl extends PureComponent {
 						if (filterDataKeys[i] === 'indices')
 						{
 							requestBody.mapId = this.props.map[GroasisUtility.types.lowRes].id;
-							requestBody.timestamp = map.referenceMap.timestamps[timestampRange.end].timestampNumber;
+							requestBody.timestamp = map.referenceMap.timestamps[timestampRange.end].timestamp;
 						}
 						else if (filterDataKeys[i] === 'soil')
 						{
@@ -411,7 +411,7 @@ class FilterControl extends PureComponent {
 				body = {
 					mapId: map.referenceMap.id,
 					type: ViewerUtility.standardTileLayerType,
-					timestamp: map.referenceMap.timestamps[timestampRange.end].timestampNumber,
+					timestamp: map.referenceMap.timestamps[timestampRange.end].timestamp,
 					elementIds: standardTileIds.ids
 				};
 

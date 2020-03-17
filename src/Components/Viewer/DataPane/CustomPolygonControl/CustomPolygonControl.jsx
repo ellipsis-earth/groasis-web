@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 
-import { 
-  Card,  
+import {
+  Card,
   CardHeader,
   CardContent,
   Typography,
@@ -117,7 +117,7 @@ class CustomPolygonControl extends PureComponent {
     let feature = this.props.element.feature;
     feature.properties = this.state.propertyValues;
 
-    let timestampNumber = this.props.map.referenceMap.timestamps[this.props.timestampRange.end].timestampNumber;
+    let timestampNumber = this.props.map.referenceMap.timestamps[this.props.timestampRange.end].timestamp;
 
     let body = {
       mapId: this.props.map.referenceMap.id,
@@ -128,7 +128,7 @@ class CustomPolygonControl extends PureComponent {
 
     ApiManager.post('/geometry/add', body, this.props.user)
       .then(() => {
-        this.props.onPolygonChange(true, false);        
+        this.props.onPolygonChange(true, false);
         this.setState({
           loading: false,
           propertyValues: {}
@@ -137,7 +137,7 @@ class CustomPolygonControl extends PureComponent {
       .catch(err => {
         if (err && err.status === 400) {
           alert(err.message);
-        } 
+        }
         console.log(err);
         this.setState({ loading: false });
       });
@@ -152,7 +152,7 @@ class CustomPolygonControl extends PureComponent {
     ).properties;
 
     for (let prop in properties) {
-      if (Object.prototype.hasOwnProperty.call(properties, prop) && 
+      if (Object.prototype.hasOwnProperty.call(properties, prop) &&
         !selectedLayerProperties.includes(prop)) {
         delete properties[prop];
       }
@@ -213,10 +213,10 @@ class CustomPolygonControl extends PureComponent {
       }
 
       layerSelect = (
-        <Select 
-          key='layer-selector' 
-          className='selector' 
-          onChange={this.onSelectLayer} 
+        <Select
+          key='layer-selector'
+          className='selector'
+          onChange={this.onSelectLayer}
           value={this.state.selectedLayer}
         >
           {options}
@@ -244,16 +244,16 @@ class CustomPolygonControl extends PureComponent {
             value={this.state.propertyValues[property]}
             onChange={(e) => this.onPropertyValueChange(e, property)}
           />
-        ); 
+        );
       }
 
       propertyInputs = (
         <div>
           {inputs}
           <div className='card-content-item'>
-            <Button 
+            <Button
               className='card-submit-button'
-              variant='contained' 
+              variant='contained'
               color='primary'
               onClick={this.onSubmit}
               disabled={this.state.loading}
@@ -263,7 +263,7 @@ class CustomPolygonControl extends PureComponent {
           </div>
 
         </div>
-      );       
+      );
     }
 
     return (
@@ -282,7 +282,7 @@ class CustomPolygonControl extends PureComponent {
             {propertyInputs}
             { this.state.loading ? <CircularProgress className='loading-spinner'/> : null}
           </CardContent>
-          
+
         </Card>
       </div>
     );

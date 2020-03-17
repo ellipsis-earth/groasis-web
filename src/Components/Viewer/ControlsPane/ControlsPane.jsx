@@ -94,6 +94,7 @@ class ControlsPane extends PureComponent {
           markerSize={this.props.markerSize}
           groasisMaps={this.props.groasisMaps}
           mode={this.props.mode}
+          onWatchlistClick={this.props.onWatchlistClick}
         />
 
         {/* <StandardTileLayersControl
@@ -107,7 +108,8 @@ class ControlsPane extends PureComponent {
           onFeatureClick={(feature) => this.props.onFeatureClick(ViewerUtility.standardTileLayerType, feature, true)}
         /> */}
 
-        <FilterControl
+        {
+          this.props.mode !== ViewerUtility.identificationMode ? <FilterControl
           ref={this.filterControl}
           user={this.props.user}
           map={this.props.map ? this.props.map : null}
@@ -116,7 +118,8 @@ class ControlsPane extends PureComponent {
           override={this.props.override}
           onLayersChange={(layers) => this.onLayersChange(ViewerUtility.standardTileLayerType, layers)}
           onFeatureClick={(feature) => this.props.onFeatureClick(ViewerUtility.standardTileLayerType, feature, true)}
-        />
+        /> : null
+      }
       </div>
     );
   }

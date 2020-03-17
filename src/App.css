@@ -2,6 +2,10 @@
   box-sizing: border-box;
 }
 
+body {
+  overscroll-behavior-y: none;
+}
+
 .App {
   text-align: center;
 }
@@ -337,7 +341,12 @@ button.MuiTab-root {
   pointer-events: none;
 }
 
-.modeSelector .buttonContainer .MuiPaper-root.disabled h1, .modeSelector .buttonContainer .MuiPaper-root.disabled p
+.modeSelector .buttonContainer .MuiPaper-root.disabled h1
+{
+  opacity: 0.75;
+}
+
+.modeSelector .buttonContainer .MuiPaper-root.disabled h1+h1, .modeSelector .buttonContainer .MuiPaper-root.disabled p
 {
   /*color: darkgrey;*/
   color: rgba(0,0,0,0.5);
@@ -369,8 +378,8 @@ button.MuiTab-root {
 .modeSelector .buttonContainer #planning
 {
   background:linear-gradient(
-  rgba(0, 0, 0, 0.66) 0%,
-  rgba(0, 0, 0, 0.66) 100%),
+  rgba(211, 211, 211, 0.90) 0%,
+  rgba(211, 211, 211, 0.90) 100%),
   url("/images/planning.jpg")
   no-repeat center;
 }
@@ -387,8 +396,8 @@ button.MuiTab-root {
 .modeSelector .buttonContainer #planting
 {
   background:linear-gradient(
-  rgba(0, 0, 0, 0.66) 0%,
-  rgba(0, 0, 0, 0.66) 100%),
+  rgba(211, 211, 211, 0.90) 0%,
+  rgba(211, 211, 211, 0.90) 100%),
   url("/images/planting.jpg")
   no-repeat center;
 }
@@ -405,8 +414,8 @@ button.MuiTab-root {
 .modeSelector .buttonContainer #monitoring
 {
   background:linear-gradient(
-  rgba(0, 0, 0, 0.66) 0%,
-  rgba(0, 0, 0, 0.66) 100%),
+  rgba(211, 211, 211, 0.90) 0%,
+  rgba(211, 211, 211, 0.90) 100%),
   url("/images/monitoring.jpg")
   no-repeat center;
 }

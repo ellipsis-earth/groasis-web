@@ -28,21 +28,15 @@ const MAP_TYPES = [
   WEATHER_TYPE
 ];
 
-const METADATA_TYPES = [
-  { key: 'timestamps', function: (map, result) => { map.timestamps = result; } },
-  { key: 'classes', function: (map, result) => { map.classes = result; } },
-  { key: 'measurements', function: (map, result) => { map.measurements = result; } },
-  { key: 'tileLayers', function: (map, result) => { map.layers.tile = result; } },
-  { key: 'polygonLayers', function: (map, result) => { map.layers.polygon = result; } },
-  { key: 'bands', function: (map, result) => { map.bands = result; } },
-  { key: 'forms', function: (map, result) => { map.forms = result; } }
-];
-
 const TREE_RADIUS = 2.5;
+
+const MARKER_SIZE = {x: 17, y: 24};
 
 const WATCH_FORM = 'watch';
 
 const GroasisUtility = {
+  markerSize: MARKER_SIZE,
+
   types: {
     altitude: ALTITUDE_TYPE,
     highRes: HIGHRES_TYPE,
@@ -61,18 +55,25 @@ const GroasisUtility = {
       highResLabel: 'label (high res)',
       lowRes: 'rgb (low res)',
       lowResCir: 'CIR (low res)',
-      contour: 'contour'
+      contour: 'contour',
+      organic: 'Organic Content',
+      clay: 'Clay Content',
+      sand: 'Sand Content',
+      coarse: 'Coarse Content',
+      ph: 'PH',
+
     },
     polygon: {
       trees: 'Trees',
       objectOfInterest: 'Objects of interest',
-      plantingLines: 'Planting lines'
+      plantingLines: 'Planting lines',
+      plantingSites: 'Planting sites',
     }
   },
 
   request: {
     id: REQUEST_MAP_ID,
-    layer: plantingSitesLayer
+    layer: 'Identification Zones'
   },
 
   allTypes: MAP_TYPES,
@@ -92,8 +93,71 @@ const GroasisUtility = {
 
   watchForm: WATCH_FORM,
 
-  getGroasisMaps: async (user, onFeatureClick) => {
-    return ApiManager.get('/account/myMaps', null, user)
+  getGroasisAreas: async (user, onFeatureClick) => {
+    return ApiManager.get('/account/myAreas', null, user)
+      .then(async areas => {
+        let groasisAreas = [];
+        let bounds = {};
+        let geoJsons = [];
+
+        for (let i = 0; i < areas.length; i++)
+        {
+          if (areas[i].atlases.includes('GroasisPlanner'))
+          {
+            if(groasisAreas.length === 0)
+            {
+              bounds.xMin = areas[i].xMin;
+              bounds.xMax = areas[i].xMax;
+              bounds.yMin = areas[i].yMin;
+              bounds.yMax = areas[i].yMax;
+            }
+            else
+            {
+              bounds.xMin = bounds.xMin > areas[i].xMin ? areas[i].xMin : bounds.xMin;
+              bounds.xMax = bounds.xMax < areas[i].xMax ? areas[i].xMax : bounds.xMax;
+              bounds.yMin = bounds.yMin > areas[i].yMin ? areas[i].yMin : bounds.yMin;
+              bounds.yMax = bounds.yMax < areas[i].yMax ? areas[i].yMax : bounds.yMax;
+            }
+
+            await ApiManager.post('/metadata', { mapId: areas[i].id }, user)
+            .then(async result => {
+                areas[i].type = 'area'
+                areas[i].timestamps = result.timestamps;
+                areas[i].classes = result.classes;
+                areas[i].measurements = result.measurements;
+                areas[i].layers = {
+                  tile: result.mapLayers,
+                  polygon: result.polygonLayers
+                };
+                areas[i].bands = result.bands;
+                areas[i].forms = result.forms;
+                areas[i].models = result.models;
+
+                let areaJson = await ApiManager.post('/geometry/area', { mapId: areas[i].id }, user);
+                areaJson.properties.id = areas[i].id;
+                areas[i].geoJson = areaJson;
+                geoJsons.push(areaJson);
+
+                areas[i].metadataLoaded = true;
+
+                return areas[i]
+              }
+            );
+
+            groasisAreas.push(areas[i]);
+          }
+          else
+          {
+            if (areas[i].atlases.length !== 0)
+            {
+              console.warn(areas[i]);
+            }
+          }
+        }
+
+        return {bounds: bounds, areas: groasisAreas, geoJson: {type: 'FeatureCollection', features: geoJsons}};
+      });
+    /*return ApiManager.get('/account/myMaps', null, user)
       .then(maps => {
 
         maps = maps.filter(x => x.atlases.includes(GROASIS_ATLAS));
@@ -176,10 +240,10 @@ const GroasisUtility = {
           .then(() => {
             return groasisMaps;
           })
-      });
+      });*/
   },
 
-  getPolygonLayers: async (groasisMap, user) => {
+  /*getPolygonLayers: async (groasisMap, user) => {
     let returnData = await ApiManager.post('/metadata', { mapId: groasisMap.id, type: 'polygonLayers' }, user)
     .then(results => {
       return results;
@@ -189,47 +253,146 @@ const GroasisUtility = {
     })
 
     return returnData
-  },
+  },*/
 
   getMetadata: async (groasisMap, user) => {
     if (groasisMap.metadataLoaded) {
       return Promise.resolve();
     }
 
-    let promises = [];
+    /*if (groasisMap.id === REQUEST_MAP_ID)
+    {
+      return ApiManager.post('/metadata', { mapId: groasisMap.id }, user)
+      .then(result => {
+        groasisMap.timestamps = result.timestamps;
+        groasisMap.classes = result.classes;
+        groasisMap.measurements = result.measurements;
+        groasisMap.layers = {
+          tile: result.mapLayers,
+          polygon: result.polygonLayers
+        };
+        groasisMap.bands = result.bands;
+        groasisMap.forms = result.forms;
+        groasisMap.models = result.models
 
-    for (let y = 0; y < MAP_TYPES.length; y++) {
-      let type = MAP_TYPES[y];
-      let subMap = groasisMap[type];
-      let subPromises = [];
+        groasisMap.metadataLoaded = true;
+        return groasisMap
+      });
+    }
+    else
+    {
+      let promises = [];
 
-      for (let i = 0; i < METADATA_TYPES.length; i++) {
-        let metadataType = METADATA_TYPES[i];
+      for (let y = 0; y < MAP_TYPES.length; y++) {
+        let type = MAP_TYPES[y];
+        let subMap = groasisMap[type];
 
-        subPromises.push(
-          ApiManager.post('/metadata', { mapId: subMap.id, type: metadataType.key }, user)
-        );
+        promises.push(ApiManager.post('/metadata', { mapId: subMap.id }, user)
+        .then(result => {
+          subMap.timestamps = result.timestamps;
+          subMap.classes = result.classes;
+          subMap.measurements = result.measurements;
+          subMap.layers = {
+            tile: result.mapLayers,
+            polygon: result.polygonLayers
+          };
+          subMap.bands = result.bands;
+          subMap.forms = result.forms;
+          subMap.model = result.model
+
+          subMap.metadataLoaded = true;
+        }));
       }
 
-      promises.push(
-        Promise.all(subPromises)
-          .then(results => {
-            subMap.layers = {};
+      return Promise.all(promises)
+        .then(() => {
+          console.log(groasisMap)
+          groasisMap.metadataLoaded = true;
+        });
+    }*/
+  },
 
-            for (let i = 0; i < results.length; i++) {
-              let result = results[i];
-              let metadataType = METADATA_TYPES[i];
-
-              metadataType.function(subMap, result);
-            }
-          })
-      );
+  getPlantingSites: async (map, user) => {
+    if (map.plantingSitesLoaded)
+    {
+      return Promise.resolve(map.plantingSites);
     }
 
-    return Promise.all(promises)
-      .then(() => {
-        groasisMap.metadataLoaded = true;
+    let selectLayer = map.layers.polygon.find(x => x.id === '8c10c128-b989-43d8-ae9d-b0fd22e8bfa0')
+
+    let body = {
+      mapId: map.id,
+      type: ViewerUtility.polygonLayerType,
+      layer: selectLayer.name,
+      xMin: map.xMin,
+      xMax: map.xMax,
+      yMin: map.yMin,
+      yMax: map.yMax,
+    };
+
+    let leafletGeojsonLayerPromise = await ApiManager.post('/geometry/ids', body, user)
+      .then(polygonIds => {
+
+        body = {
+          mapId: map.id,
+          type: ViewerUtility.polygonLayerType,
+          elementIds: polygonIds.ids
+        };
+
+        return ApiManager.post('/geometry/get', body, user);
+      })
+      .then(polygonsGeoJson => {
+        let icon = ViewerUtility.returnMarker(`#${selectLayer.color}`, MARKER_SIZE, 'RoomTwoTone')
+
+        let linesCollection = {
+          type: 'FeatureCollection',
+          count: 0,
+          features: []
+        };
+
+        for (let i = polygonsGeoJson.features.length - 1; i >= 0; i--)
+        {
+          if (polygonsGeoJson.features[i] && polygonsGeoJson.features[i].geometry.type === 'LineString')
+          {
+            linesCollection.features.push(polygonsGeoJson.features[i]);
+            linesCollection.count = linesCollection.count + 1;
+
+            polygonsGeoJson.count = polygonsGeoJson.count - 1;
+            polygonsGeoJson.features.splice(i,1);
+          }
+        }
+
+        console.log(ViewerUtility.createGeoJsonLayerStyle(`#${selectLayer.color}`))
+        return (
+          [<GeoJSON
+            key={Math.random()}
+            data={polygonsGeoJson}
+            style={ViewerUtility.createGeoJsonLayerStyle(`#${selectLayer.color}`)}
+            zIndex={ViewerUtility.polygonLayerZIndex}
+            onEachFeature={(feature, layer) => {layer.on({ click: () => this.onFeatureClick(feature, selectLayer.hasAggregatedData) })}}
+            pointToLayer={(geoJsonPoint, latlng) => this.markerReturn(latlng, icon)}
+          />,
+          <GeoJSON
+            key={Math.random()}
+            data={linesCollection}
+            style={ViewerUtility.createGeoJsonLayerStyle(`#${selectLayer.color}`, 3)}
+            zIndex={ViewerUtility.polygonLayerZIndex}
+            onEachFeature={(feature, layer) => {layer.on({ click: () => this.onFeatureClick(feature, selectLayer.hasAggregatedData) })}}
+          />]
+        );
+
+      })
+      .then(geoJsons => {
+        map.plantingSitesLoaded = true;
+        map.plantingSites = geoJsons;
+        Promise.resolve(leafletGeojsonLayerPromise);
+      })
+      .catch(err => {
+        console.error(err)
       });
+
+
+    return Promise.resolve(map.plantingSites);
   },
 
   markerToTreePolygon: (markerGeoJson) => {

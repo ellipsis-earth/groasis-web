@@ -35,7 +35,7 @@ export class MapHeader extends PureComponent {
     if (groasisMap && groasisMap.subatlas) {
       text = groasisMap.subatlas.toUpperCase();
     }
-    else if (this.props.mode === ViewerUtility.plannerMode)
+    else if (this.props.mode === ViewerUtility.identificationMode)
     {
       if (!this.props.user)
       {
@@ -50,12 +50,12 @@ export class MapHeader extends PureComponent {
 
     return (
       <div className='map-header'>
-        <Chip        
+        <Chip
           color='primary'
           label={text}
           onClick={type ? () => this.handleClick(type) : null}
-        />  
-      </div>      
+        />
+      </div>
     );
   }
 }

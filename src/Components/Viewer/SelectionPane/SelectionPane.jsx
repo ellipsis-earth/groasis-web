@@ -462,7 +462,7 @@ class SelectionPane extends PureComponent {
       feature.properties = {name: this.state.name}
 
       let body = {
-        mapId: this.props.groasisMaps.request.id,
+        mapId: GroasisUtility.request.id,
         timestamp: 0,
         layer: GroasisUtility.request.layer,
         feature: feature
@@ -686,7 +686,7 @@ class SelectionPane extends PureComponent {
       let nonRestrictedLayer = true;
       let canAdd = true;
 
-      if (this.props.mode !== ViewerUtility.plannerMode)
+      if (this.props.mode !== ViewerUtility.identificationMode)
       {
         nonRestrictedLayer = this.props.map.referenceMap.layers.polygon.find(x => !x.restricted);
 

@@ -80,7 +80,7 @@ class FeedGeoMessageControl extends PureComponent {
       this.setState({
         availableGroups: [...this.props.map.groups, NO_GROUP_NAME],
         filterSettings: this.createEmptyFilterSettings(),
-        rawGeoMessages: [], 
+        rawGeoMessages: [],
         loading: true
       }, this.getGeoMessages);
     }
@@ -129,7 +129,7 @@ class FeedGeoMessageControl extends PureComponent {
         body.messageIds = geoMessageIds;
 
         return ApiManager.post(`/geoMessage/get`, body, this.props.user);
-      })    
+      })
       .then(result => {
         let newRawGeoMessages = [...this.state.rawGeoMessages, ...result];
 
@@ -199,7 +199,7 @@ class FeedGeoMessageControl extends PureComponent {
 
       let body = {
         mapId: map.id,
-        timestamp: map.timestamps[timestampRange.end].timestampNumber
+        timestamp: map.timestamps[timestampRange.end].timestamp
       };
 
       let url = '';

@@ -1,11 +1,12 @@
 import React, { PureComponent } from 'react';
-import { TileLayer , withLeaflet} from 'react-leaflet';
+import { TileLayer, WMSTileLayer , withLeaflet} from 'react-leaflet';
 
 import Card from '@material-ui/core/Card';
 import Checkbox from '@material-ui/core/Checkbox';
 import CardHeader from '@material-ui/core/CardHeader';
 import CardContent from '@material-ui/core/CardContent';
 import Collapse from '@material-ui/core/Collapse';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 import IconButton from '@material-ui/core/IconButton';
 import Radio from '@material-ui/core/Radio';
 import Typography from '@material-ui/core/Typography';
@@ -65,6 +66,14 @@ const AVAILABLE_LAYERS = [
     displayName: 'infrared'
   },
   {
+    name: GroasisUtility.layers.tile.highResLabel,
+    type: LABELS_LAYER_TYPE,
+    mapType: GroasisUtility.types.highRes,
+    stacking: true,
+    urlName: 'label',
+    displayName: 'tree crown'
+  },
+  {
     name: GroasisUtility.layers.tile.lowRes,
     type: IMAGES_LAYER_TYPE,
     mapType: GroasisUtility.types.lowRes,
@@ -81,12 +90,49 @@ const AVAILABLE_LAYERS = [
     displayName: 'infrared'
   },
   {
-    name: GroasisUtility.layers.tile.highResLabel,
-    type: LABELS_LAYER_TYPE,
-    mapType: GroasisUtility.types.highRes,
-    stacking: true,
-    urlName: 'label',
-    displayName: 'tree crown'
+    name: GroasisUtility.layers.tile.organic,
+    type: 'WMS',
+    mapType: null,
+    stacking: false,
+    urlName: 'https://data.isric.org/geoserver/sg250m/wms?',
+    layerName: 'ORCDRC_M_sl1_250m',
+    displayName: GroasisUtility.layers.tile.organic + ' Map'
+  },
+  {
+    name: GroasisUtility.layers.tile.clay,
+    type: 'WMS',
+    mapType: null,
+    stacking: false,
+    urlName: 'https://data.isric.org/geoserver/sg250m/wms?',
+    layerName: 'CLYPPT_M_sl1_250m',
+    displayName: GroasisUtility.layers.tile.clay + ' Map'
+  },
+  {
+    name: GroasisUtility.layers.tile.sand,
+    type: 'WMS',
+    mapType: null,
+    stacking: false,
+    urlName: 'https://data.isric.org/geoserver/sg250m/wms?',
+    layerName: 'SNDPPT_M_sl1_250m',
+    displayName: GroasisUtility.layers.tile.sand + ' Map'
+  },
+  {
+    name: GroasisUtility.layers.tile.coarse,
+    type: 'WMS',
+    mapType: null,
+    stacking: false,
+    urlName: 'https://data.isric.org/geoserver/sg250m/wms?',
+    layerName: 'CRFVOL_M_sl1_250m',
+    displayName: GroasisUtility.layers.tile.coarse + ' Map'
+  },
+  {
+    name: GroasisUtility.layers.tile.ph,
+    type: 'WMS',
+    mapType: null,
+    stacking: false,
+    urlName: 'https://data.isric.org/geoserver/sg250m/wms?',
+    layerName: 'PHIKCL_M_sl1_250m',
+    displayName: GroasisUtility.layers.tile.ph + ' Map'
   },
 ];
 
@@ -170,32 +216,17 @@ class TileLayersControl extends PureComponent {
     let options = [];
 
     let availableLayers = AVAILABLE_LAYERS;
-    if (this.props.mode === ViewerUtility.plannerMode)
+    if (this.props.mode === ViewerUtility.identificationMode)
     {
-      availableLayers = [{
-        name: GroasisUtility.layers.tile.base,
-        type: 'radio',
-        mapType: null,
-        stacking: false,
-        urlName: null,
-        displayName: 'satellite layer'
-      },
-      {
-        name: GroasisUtility.layers.tile.road,
-        type: 'radio',
-        mapType: null,
-        stacking: false,
-        urlName: null,
-        displayName: 'road layer'
-      },
-      {
-        name: GroasisUtility.layers.tile.terrain,
-        type: 'radio',
-        mapType: null,
-        stacking: false,
-        urlName: null,
-        displayName: 'terrain layer'
-      }]
+      availableLayers = [AVAILABLE_LAYERS[0],
+        AVAILABLE_LAYERS[1],
+        AVAILABLE_LAYERS[2],
+        AVAILABLE_LAYERS[AVAILABLE_LAYERS.length - 5],
+        AVAILABLE_LAYERS[AVAILABLE_LAYERS.length - 4],
+        AVAILABLE_LAYERS[AVAILABLE_LAYERS.length - 3],
+        AVAILABLE_LAYERS[AVAILABLE_LAYERS.length - 2],
+        AVAILABLE_LAYERS[AVAILABLE_LAYERS.length - 1]
+      ]
     }
 
     let selectedLayers = this.props.selectedLayers[ViewerUtility.tileLayerType];
@@ -206,18 +237,33 @@ class TileLayersControl extends PureComponent {
       let checked = selectedLayers.find(x => x === availableLayer.name) ? true : false;
 
       let label = null;
-      if (i === 0) {
-        label = (<h3 className='baseLayerHeader'>Base layers</h3>);
-      }
-      else if (i === 3) {
-        label = (<h3>High resolution layers</h3>);
-      }
-      else if (i === 5) {
-        label = (<h3>Low resolution layers</h3>);
-      }
-      else if (i === 7)
+      if (this.props.mode === ViewerUtility.identificationMode)
       {
-        label = (<h3>Classification</h3>);
+        if (i === 0) {
+          label = (<h3 className='baseLayerHeader'>Base layers</h3>);
+        }
+        else if (i === 3) {
+          label = (<h3>Soil layers</h3>);
+        }
+      }
+      else
+      {
+        if (i === 0) {
+          label = (<h3 className='baseLayerHeader'>Base layers</h3>);
+        }
+        else if (i === 3) {
+          label = (<h3>High resolution layers</h3>);
+        }
+        else if (i === 5)
+        {
+          label = (<h3>Classification</h3>);
+        }
+        else if (i === 6) {
+          label = (<h3>Low resolution layers</h3>);
+        }
+        else if (i === 8) {
+          label = (<h3>Soil layers</h3>);
+        }
       }
 
       /*let name = 'base';
@@ -238,16 +284,21 @@ class TileLayersControl extends PureComponent {
         option = (
           <div key={availableLayer.name}>
             {label}
-            <Radio
-              key={availableLayer.name}
-              classes={{ root: 'layers-control-checkbox' }}
-              color="primary"
-              value={availableLayer.name}
-              name={availableLayer.name}
-              onChange={this.onRadioChange}
-              checked={checked}
+            <FormControlLabel
+              margin='dense'
+              control={
+                <Radio
+                  key={availableLayer.name}
+                  classes={{ root: 'layers-control-checkbox' }}
+                  color="primary"
+                  value={availableLayer.name}
+                  name={availableLayer.name}
+                  onChange={this.onRadioChange}
+                  checked={checked}
+                />
+              }
+              label={availableLayer.displayName}
             />
-            {availableLayer.displayName}
           </div>
         )
       }
@@ -256,16 +307,21 @@ class TileLayersControl extends PureComponent {
         option = (
           <div key={availableLayer.name}>
             {label}
-            <Checkbox
-              key={availableLayer.name}
-              classes={{ root: 'layers-control-checkbox' }}
-              color='primary'
-              value={availableLayer.name}
-              name={availableLayer.name}
-              onChange={this.onLayerChange}
-              checked={checked}
+            <FormControlLabel
+              margin='dense'
+              control={
+                <Checkbox
+                  key={availableLayer.name}
+                  classes={{ root: 'layers-control-checkbox' }}
+                  color='primary'
+                  value={availableLayer.name}
+                  name={availableLayer.name}
+                  onChange={this.onLayerChange}
+                  checked={checked}
+                />
+              }
+              label={availableLayer.displayName}
             />
-            {availableLayer.displayName}
           </div>
         )
       }
@@ -293,12 +349,25 @@ class TileLayersControl extends PureComponent {
     let map = this.props.map;
     let timestampRange = this.props.timestampRange;
 
-    if (!map || !timestampRange || this.props.mode === ViewerUtility.plannerMode) {
+    if (!map || !timestampRange || this.props.mode === ViewerUtility.identificationMode) {
+      for (let i = 3; i < AVAILABLE_LAYERS.length; i++) {
+        if (selectedLayers.includes(AVAILABLE_LAYERS[i].name) && AVAILABLE_LAYERS[i].type === 'WMS')
+        {
+          layerElements.push(<WMSTileLayer
+            url={AVAILABLE_LAYERS[i].urlName}
+            layers={AVAILABLE_LAYERS[i].layerName}
+            key={AVAILABLE_LAYERS[i].layerName}
+            zIndex={i + 1}
+            format={'image/png'}
+            transparent={true}
+          />)
+        }
+      }
       this.props.onLayersChange(layerElements);
       return;
     }
 
-    let zIndex = ViewerUtility.tileLayerZIndex + 2;
+    let zIndex = ViewerUtility.tileLayerZIndex + 3;
 
     for (let i = 3; i < AVAILABLE_LAYERS.length; i++) {
       let availableLayer = AVAILABLE_LAYERS[i];
@@ -312,33 +381,46 @@ class TileLayersControl extends PureComponent {
       let timestampStart = availableLayer.stacking ? timestampRange.start : timestampRange.end;
       let timestampEnd = timestampRange.end;
 
-      for (let y = timestampStart; y <= timestampEnd; y++) {
-        let timestampNumber = 0;
-
-        if (availableLayer.name !== GroasisUtility.layers.tile.contour) {
-          timestampNumber = subMap.timestamps[y].timestampNumber;
-        }
-
-        let key = `${subMap.id}_${timestampNumber}_${availableLayer.name}`;
-        let url = `${ApiManager.apiUrl}/tileService/${subMap.id}/${timestampNumber}/${availableLayer.urlName}/{z}/{x}/{y}`;
-
-        if (this.props.user) {
-          url += `?token=${this.props.user.token}`;
-        }
-
-        let layerElement = (
-          <TileLayer
-            key={key}
-            url={url}
-            tileSize={256}
-            noWrap={true}
-            maxNativeZoom={subMap.zoom}
-            format={'image/png'}
+      if (AVAILABLE_LAYERS[i].type === 'WMS')
+      {
+        layerElements.push(<WMSTileLayer
+            url={AVAILABLE_LAYERS[i].urlName}
+            layers={AVAILABLE_LAYERS[i].layerName}
             zIndex={zIndex++}
-          />
-        );
+            format={'image/png'}
+            transparent={true}
+          />)
+      }
+      else
+      {
+        for (let y = timestampStart; y <= timestampEnd; y++) {
+          let timestampNumber = 0;
 
-        layerElements.push(layerElement);
+          if (availableLayer.name !== GroasisUtility.layers.tile.contour) {
+            timestampNumber = subMap.timestamps[y].timestamp;
+          }
+
+          let key = `${subMap.id}_${timestampNumber}_${availableLayer.name}`;
+          let url = `${ApiManager.apiUrl}/tileService/${subMap.id}/${timestampNumber}/${availableLayer.urlName}/{z}/{x}/{y}`;
+
+          if (this.props.user) {
+            url += `?token=${this.props.user.token}`;
+          }
+
+          let layerElement = (
+            <TileLayer
+              key={key}
+              url={url}
+              tileSize={256}
+              noWrap={true}
+              maxNativeZoom={subMap.zoom}
+              format={'image/png'}
+              zIndex={zIndex++}
+            />
+          );
+
+          layerElements.push(layerElement);
+        }
       }
     }
 

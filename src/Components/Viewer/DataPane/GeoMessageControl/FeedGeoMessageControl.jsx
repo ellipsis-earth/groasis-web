@@ -114,7 +114,7 @@ class FeedGeoMessageControl extends PureComponent {
       [ViewerUtility.standardTileLayerType]: { count: 0, features: [] },
       [ViewerUtility.polygonLayerType]: { count: 0, features: [] }
     };
-  
+
   }
 
   getGeoMessages = () => {
@@ -224,7 +224,7 @@ class FeedGeoMessageControl extends PureComponent {
       let body = {
         mapId: map.id,
         type: type,
-        timestamp: map.timestamps[timestampRange.end].timestampNumber,
+        timestamp: map.timestamps[timestampRange.end].timestamp,
         elementIds: filteredElements,
       };
 

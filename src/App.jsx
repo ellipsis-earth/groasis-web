@@ -191,25 +191,31 @@ class App extends Component {
               </div>
               <div className={this.state.mode === -1 ? 'modeSelector' : 'hidden'}>
                 <div className='buttonContainer'>
-                  <Card id='identification' onClick={() => {this.onModeChange(ViewerUtility.plannerMode)}}>
+                  <Card id='identification' onClick={() => {this.onModeChange(ViewerUtility.identificationMode)}}>
                     <h1>Identification &amp; Planning</h1>
                     <p>
                       Identify high potential locations and plan your reforestation projects using satellite imagery and other maps.
                     </p>
                   </Card>
 
-                  <Card id='planting' onClick={() => {this.onModeChange(ViewerUtility.plantMode)}}>
+                  <Card id='planting'  className='disabled' onClick={() => {this.onModeChange(ViewerUtility.plantMode)}}>
+                    <h1>
+                      Coming soon
+                    </h1>
                     <h1>Organization &amp; Implementation</h1>
                     <p>
                       Implement drawn up plans, using already planned planting lines and trees locations.
                     </p>
                   </Card>
 
-                  <Card id='monitoring' onClick={() => {this.onModeChange(ViewerUtility.plantMode)}}>
-                      <h1>Growth &amp; Monitoring</h1>
-                      <p>
-                        Keep track of growth, and growing conditions of individual trees in projects.
-                      </p>
+                  <Card id='monitoring'  className='disabled' onClick={() => {this.onModeChange(ViewerUtility.plantMode)}}>
+                    <h1>
+                      Coming soon
+                    </h1>
+                    <h1>Growth &amp; Monitoring</h1>
+                    <p>
+                      Keep track of growth, and growing conditions of individual trees in projects.
+                    </p>
                   </Card>
 
                   <Card id='learning' className='disabled' onClick={() => {this.onModeChange(ViewerUtility.viewerMode)}}>

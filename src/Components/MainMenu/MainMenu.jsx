@@ -3,6 +3,8 @@ import React, { Component } from 'react';
 import Button from '@material-ui/core/Button';
 import { ToggleButton } from '@material-ui/lab';
 
+import DownloadIcon from '@material-ui/icons/GetApp';
+
 import { NavLink } from 'react-router-dom';
 
 import { Navbar, NavItem } from 'react-bootstrap';
@@ -129,7 +131,7 @@ export class MainMenu extends Component {
     }
 
     let modeText = 'select mode';
-    if(this.props.mode === 0) {modeText = 'Indentification'}
+    if(this.props.mode === 0) {modeText = 'Identification'}
     if(this.props.mode === 1) {modeText = 'Planning'}
     if(this.props.mode === 2) {modeText = 'Monitoring'}
     if(this.props.mode === 3) {modeText = 'Learning'}
@@ -149,7 +151,7 @@ export class MainMenu extends Component {
               <img className='main-menu-logo' src='/images/logos/groasis-tree-atlas-logo.svg' alt='Groasis Tree Altas'/>
             </NavLink>
           </Navbar.Brand>
-            <NavItem>
+            <NavItem className='modeSwitch'>
 {/*              <RadioGroup
                 aria-label="mode"
                 name="mode"
@@ -179,6 +181,11 @@ export class MainMenu extends Component {
                 />
               </RadioGroup>*/}
               {this.props.mode !== -1 ? <Button color='primary' variant='outlined' onClick={() => {this.props.onModeChange(-1)}}>{modeText}</Button> : null}
+            </NavItem>
+            <NavItem>
+              <Button startIcon={<DownloadIcon />} variant='outlined' onClick={() => {window.open('https://public.ellipsis-earth.com/GroasisCalculationModel.xls')}} color='primary'>
+                Calculation Model
+              </Button>
             </NavItem>
             <NavItem>
               <Button variant='outlined' onClick={this.onOpenAccounts} color='primary'>
