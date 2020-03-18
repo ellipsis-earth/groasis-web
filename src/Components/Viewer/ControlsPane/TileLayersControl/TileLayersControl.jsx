@@ -216,7 +216,7 @@ class TileLayersControl extends PureComponent {
     let options = [];
 
     let availableLayers = AVAILABLE_LAYERS;
-    if (this.props.mode === ViewerUtility.identificationMode)
+    if (this.props.mode === ViewerUtility.identificationMode || this.props.mode === ViewerUtility.plannerMode)
     {
       availableLayers = [AVAILABLE_LAYERS[0],
         AVAILABLE_LAYERS[1],
@@ -237,7 +237,7 @@ class TileLayersControl extends PureComponent {
       let checked = selectedLayers.find(x => x === availableLayer.name) ? true : false;
 
       let label = null;
-      if (this.props.mode === ViewerUtility.identificationMode)
+      if (this.props.mode === ViewerUtility.identificationMode || this.props.mode === ViewerUtility.plannerMode)
       {
         if (i === 0) {
           label = (<h3 className='baseLayerHeader'>Base layers</h3>);

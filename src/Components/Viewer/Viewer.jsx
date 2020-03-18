@@ -136,7 +136,7 @@ class Viewer extends PureComponent {
       this.setState({ panes: panes }, () => this.leafletMap.current.leafletElement.invalidateSize());
     });
 
-    let onSubatlasClick = (feature) => {
+/*    let onSubatlasClick = (feature) => {
       let element = {
         type: ViewerUtility.subatlasElementType,
         hasAggregatedData: false,
@@ -144,9 +144,9 @@ class Viewer extends PureComponent {
       };
 
       this.setState({ selectedElement: element });
-    }
+    }*/
 
-    GroasisUtility.getGroasisAreas(this.props.user, onSubatlasClick)
+    GroasisUtility.getGroasisAreas(this.props.user, /*onSubatlasClick*/)
       .then(async groasisMaps => {
         let maps = await groasisMaps;
 
@@ -160,7 +160,9 @@ class Viewer extends PureComponent {
           [maps.bounds.yMin, maps.bounds.xMin],
           [maps.bounds.yMax, maps.bounds.xMax],
         ];
-        if(this.leafletMap.current){this.leafletMap.current.leafletElement.fitBounds(latLngBounds)};
+
+        console.log(JSON.stringify(latLngBounds));
+        if(this.leafletMap.current && JSON.stringify(latLngBounds) !== '[[null,null],[null,null]]'){this.leafletMap.current.leafletElement.fitBounds(latLngBounds)};
       });
 
   }
@@ -371,22 +373,30 @@ class Viewer extends PureComponent {
       {
         map = this.state.groasisMaps.areas.find(x => x.id === id);
 
-        let totalCb = () => GroasisUtility.getPlantingSites(map, this.props.user)
+        let totalCb = () => GroasisUtility.getPlantingSites(map, this.props.user, this.onPlantingSiteClick)
         .then(() => {
+          console.log(map);
+
           let selectedLayers = {
             [ViewerUtility.tileLayerType]: [GroasisUtility.layers.tile.base],
             [ViewerUtility.polygonLayerType]: [GroasisUtility.request.layer, GroasisUtility.layers.polygon.plantingSites],
             [ViewerUtility.standardTileLayerType]: []
           };
 
+          let panes = this.state.panes;
+          if (!this.state.panes.includes(CONTROL_PANE_NAME))
+          {
+            panes = [CONTROL_PANE_NAME, ...panes];
+          }
+
           let timestampRange = this.calculateTimestamps(map, this.selectedLayers);
           this.setState({
             map: map,
             dataPaneAction: dataPaneAction,
-            selectedElement: null,
             timestampRange: timestampRange,
             overrideLeafletLayers: null,
             selectedLayers: selectedLayers,
+            panes: panes,
           }, () => {
             this.onFlyTo({ type: ViewerUtility.flyToType.map, delay: false });
             if (cb) {
@@ -512,22 +522,34 @@ class Viewer extends PureComponent {
     this.setState(newState, cb);
   }
 
-  onWatchlistClick = (id, entry) => {
-    let cb = () => {
-      /*let flyToInfo = {
-        type: ViewerUtility.flyToType.currentElement,
-        elementId: entry.elementId,
-
-        elementType: ViewerUtility.polygonLayerType,
-        overrideType: ViewerUtility.treeElementType
-      };
-
-      this.onFlyTo(flyToInfo);*/
-    };
-
-    this.onSelectMap(id, cb)
+  onWatchlistClick = (feature, entry) => {
+    this.deselectCurrentElement();
+    this.onSelectMap(feature.properties.mapId)
 
     //this.props.onModeChange(ViewerUtility.plannerMode, this.onSelectMap(id, cb));
+  }
+
+  onPlantingSiteClick = (feature) => {
+    console.log(feature)
+    let cb = () => {
+      let flyToInfo = {
+        type: ViewerUtility.flyToType.givenElement,
+        element: feature,
+      };
+
+      this.onFlyTo(flyToInfo);
+    };
+
+    let newLayers = [];
+    for (let key in GroasisUtility.layers.polygon)
+    {
+      newLayers.push(GroasisUtility.layers.polygon[key])
+    }
+
+    let selectedLayers = this.state.selectedLayers;
+    selectedLayers[ViewerUtility.polygonLayerType] = newLayers;
+
+    this.setState({selectedLayers: selectedLayers}, () => {this.props.onModeChange(ViewerUtility.plannerMode, cb);})
   }
 
   watchlistRefresh = (type, data) => {
@@ -563,7 +585,9 @@ class Viewer extends PureComponent {
 
       let markerPane = this.leafletMap.current.leafletElement.getPane('markerPane');
 
-      let map = this.props.mode === ViewerUtility.identificationMode ? this.state.groasisMaps.request : this.state.map.referenceMap;
+      console.log(feature.properties.mapId, feature)
+      let map = this.state.groasisMaps.areas.find(x => x.id === feature.properties.mapId);
+
       let layerCollection = null;
 
       if (!color) {
@@ -701,6 +725,12 @@ class Viewer extends PureComponent {
       else {
         flyToInfo.layer = element.feature.properties.layer;
       }
+    }
+    else if (type === ViewerUtility.flyToType.givenElement)
+    {
+      let geoJsonLayer = L.geoJSON(flyToInfo.element);
+
+      flyToInfo.target = geoJsonLayer.getBounds();
     }
     else {
       this.getElementGeoJson()

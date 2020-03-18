@@ -76,7 +76,9 @@ class PolygonLayersControl extends PureComponent {
       }
     }
 
-    if (differentMap || differentTimestamp || differentBounds || differentSelectedLayers) {
+    let differentMode = prevProps.mode !== this.props.mode;
+
+    if (differentMap || differentTimestamp || differentBounds || differentSelectedLayers || differentMode) {
       let availableLayers = this.props.map.layers ? this.props.map.layers.polygon : [];
       if(this.props.mode === ViewerUtility.identificationMode && this.props.map.type !== 'area')
       {
@@ -86,8 +88,18 @@ class PolygonLayersControl extends PureComponent {
       {
         availableLayers = [...IDENTIFICATION_LAYERS, ...[{name: GroasisUtility.layers.polygon.plantingSites}]];
       }
+      else if(this.props.mode === ViewerUtility.plannerMode)
+      {
+        let newLayers = [];
+        for (let key in GroasisUtility.layers.polygon)
+        {
+          newLayers.push({name: GroasisUtility.layers.polygon[key]})
+        }
 
-      if (differentMap) {
+        availableLayers = [...newLayers];
+      }
+
+      if (differentMap || differentMode) {
         this.layerGeoJsons = {};
 
         this.setState({
@@ -187,6 +199,9 @@ class PolygonLayersControl extends PureComponent {
 
       if(this.props.mode !== ViewerUtility.identificationMode)
       {
+        polygonLayer = map.layers.polygon.find(x => x.name === availableLayers[i].name);
+        console.log(map.layers.polygon, availableLayers[i])
+
         let bounds = this.props.leafletMapViewport.bounds;
 
         let body = {
@@ -249,6 +264,9 @@ class PolygonLayersControl extends PureComponent {
               let feature = polygonsGeoJson.features[i];
               let geometry = feature.geometry;
 
+              feature.properties.mapId = map.id;
+
+
               if (geometry.type === 'LineString') {
                 linesCollection.features.push(feature);
               }
@@ -283,6 +301,8 @@ class PolygonLayersControl extends PureComponent {
 
             let elementType = polygonLayer.name === GroasisUtility.layers.polygon.trees ?
               ViewerUtility.treeElementType : ViewerUtility.polygonLayerType;
+
+            console.log(polygonLayer.color);
 
             return (
               [<GeoJSON
@@ -322,14 +342,13 @@ class PolygonLayersControl extends PureComponent {
       if(selectedLayers.includes(GroasisUtility.request.layer))
       {
         let data = this.props.map.type === 'area' ? {type: 'FeatureCollection', features: [this.props.map.geoJson]} : this.props.map.geoJson;
-        console.log(JSON.stringify(data))
         leafletGeoJsonLayers.push(<GeoJSON
           key={Math.random()}
           data={data}
           style={ViewerUtility.createGeoJsonLayerStyle('#87cef3', 3)}
           zIndex={ViewerUtility.polygonLayerZIndex + leafletGeoJsonLayers.length}
           onEachFeature={(feature, layer) => {layer.on({
-            click: () => {this.props.onWatchlistClick(feature.properties.id)}
+            click: () => {this.props.onWatchlistClick(feature)}
           })}}
           name={GroasisUtility.request.layer}
         />)

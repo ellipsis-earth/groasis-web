@@ -54,7 +54,7 @@ export class MapControl extends PureComponent {
     {
       if (this.props.map)
       {
-        this.setState({map: this.props.map.subatlas})
+        this.setState({map: this.props.map})
       }
     }
   }
@@ -162,7 +162,7 @@ export class MapControl extends PureComponent {
 
     let disabled = !map || !user;
 
-    if (this.props.mode === ViewerUtility.plantMode) {
+    if (this.props.mode === ViewerUtility.plannerMode) {
       plannerButtons.push(
         <Nav className='flex-column map-control map-control-planner' key={this.props.mode}>
           <NavItem>
@@ -175,7 +175,7 @@ export class MapControl extends PureComponent {
               <FontAwesomeIcon icon={faTree} />
             </IconButton>
           </NavItem>
-          <NavItem>
+          {/*<NavItem>
             <IconButton
               className='tool-button'
               color='secondary'
@@ -184,7 +184,7 @@ export class MapControl extends PureComponent {
             >
               <FontAwesomeIcon icon={faDrawPolygon} />
             </IconButton>
-          </NavItem>
+          </NavItem>*/}
           <NavItem>
             <IconButton
               className='tool-button'
@@ -226,6 +226,20 @@ export class MapControl extends PureComponent {
             <FontAwesomeIcon icon={faDrawPolygon} />
           </IconButton>
         </NavItem>
+        {
+            this.state.drawControl && !disabled ? (
+              <NavItem>
+                <IconButton
+                  className='tool-button'
+                  color='secondary'
+                  onClick={this.onStopDraw}
+                  disabled={disabled}
+                >
+                  <FontAwesomeIcon icon={faTimes} />
+                </IconButton>
+              </NavItem>
+            ) : null
+          }
       </Nav>)
     }
 

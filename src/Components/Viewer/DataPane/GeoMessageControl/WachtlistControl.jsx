@@ -108,7 +108,7 @@ class WatchList extends PureComponent {
 
     let elements = areas.map(x => {
       return (
-        <ListItem button key={x.name} onClick={() => this.props.onWatchlistClick(x.id)}>
+        <ListItem button key={x.name} onClick={() => this.props.onWatchlistClick({properties: {mapId: x.id}})}>
           <ListItemIcon>
             <FontAwesomeIcon icon={faTree} style={{ color: 'green' }}/>
           </ListItemIcon>

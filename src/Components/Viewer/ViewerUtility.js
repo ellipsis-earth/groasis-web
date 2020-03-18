@@ -83,6 +83,8 @@ const ViewerUtility = {
     currentLocation: 'current_location',
     currentElement : 'current_element',
 
+    givenElement: 'given_element',
+
     location: 'location',
     standardTile: STANDARD_TILE,
     polygon: POLYGON,

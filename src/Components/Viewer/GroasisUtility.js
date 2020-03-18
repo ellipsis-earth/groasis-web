@@ -65,7 +65,7 @@ const GroasisUtility = {
     },
     polygon: {
       trees: 'Trees',
-      objectOfInterest: 'Objects of interest',
+      /*objectOfInterest: 'Objects of interest',*/
       plantingLines: 'Planting lines',
       plantingSites: 'Planting sites',
     }
@@ -93,7 +93,7 @@ const GroasisUtility = {
 
   watchForm: WATCH_FORM,
 
-  getGroasisAreas: async (user, onFeatureClick) => {
+  getGroasisAreas: async (user /*, onFeatureClick*/) => {
     return ApiManager.get('/account/myAreas', null, user)
       .then(async areas => {
         let groasisAreas = [];
@@ -134,7 +134,7 @@ const GroasisUtility = {
                 areas[i].models = result.models;
 
                 let areaJson = await ApiManager.post('/geometry/area', { mapId: areas[i].id }, user);
-                areaJson.properties.id = areas[i].id;
+                areaJson.properties.mapId = areas[i].id;
                 areas[i].geoJson = areaJson;
                 geoJsons.push(areaJson);
 
@@ -312,7 +312,7 @@ const GroasisUtility = {
     }*/
   },
 
-  getPlantingSites: async (map, user) => {
+  getPlantingSites: async (map, user, onPlantingSiteClick) => {
     if (map.plantingSitesLoaded)
     {
       return Promise.resolve(map.plantingSites);
@@ -352,6 +352,8 @@ const GroasisUtility = {
 
         for (let i = polygonsGeoJson.features.length - 1; i >= 0; i--)
         {
+          polygonsGeoJson.features[i].properties.mapId = map.id;
+
           if (polygonsGeoJson.features[i] && polygonsGeoJson.features[i].geometry.type === 'LineString')
           {
             linesCollection.features.push(polygonsGeoJson.features[i]);
@@ -369,7 +371,7 @@ const GroasisUtility = {
             data={polygonsGeoJson}
             style={ViewerUtility.createGeoJsonLayerStyle(`#${selectLayer.color}`)}
             zIndex={ViewerUtility.polygonLayerZIndex}
-            onEachFeature={(feature, layer) => {layer.on({ click: () => this.onFeatureClick(feature, selectLayer.hasAggregatedData) })}}
+            onEachFeature={(feature, layer) => {layer.on({ click: () => onPlantingSiteClick(feature) })}}
             pointToLayer={(geoJsonPoint, latlng) => this.markerReturn(latlng, icon)}
           />,
           <GeoJSON
@@ -377,7 +379,7 @@ const GroasisUtility = {
             data={linesCollection}
             style={ViewerUtility.createGeoJsonLayerStyle(`#${selectLayer.color}`, 3)}
             zIndex={ViewerUtility.polygonLayerZIndex}
-            onEachFeature={(feature, layer) => {layer.on({ click: () => this.onFeatureClick(feature, selectLayer.hasAggregatedData) })}}
+            onEachFeature={(feature, layer) => {layer.on({ click: () => onPlantingSiteClick(feature) })}}
           />]
         );
 

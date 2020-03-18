@@ -188,7 +188,7 @@ class SelectionPane extends PureComponent {
     };
 
     let body = {
-      mapId: this.props.map.referenceMap.id,
+      mapId: this.props.map.id,
       timestamp: 0,
       layer: GroasisUtility.layers.polygon.trees,
       feature: treeGeoJson
@@ -220,7 +220,7 @@ class SelectionPane extends PureComponent {
     }
 
     let body = {
-      mapId: this.props.map.referenceMap.id,
+      mapId: this.props.map.id,
       timestamp: 0,
       layer: layer,
       feature: {
@@ -240,7 +240,7 @@ class SelectionPane extends PureComponent {
   }
 
   trackAddTree = (trackingId, image) => {
-    let mapId = this.props.map.referenceMap.id;
+    let mapId = this.props.map.id;
 
     let body = {
       mapId: mapId,
@@ -328,7 +328,7 @@ class SelectionPane extends PureComponent {
 
     if (checked) {
       let body = {
-        mapId: this.props.map.referenceMap.id,
+        mapId: this.props.map.id,
         elementId: this.props.element.id,
         type: ViewerUtility.polygonLayerType,
         timestamp: 0,
@@ -361,7 +361,7 @@ class SelectionPane extends PureComponent {
       }
 
       let body = {
-        mapId: this.props.map.referenceMap.id,
+        mapId: this.props.map.id,
         messageId: geoMessage.id,
         type: ViewerUtility.polygonLayerType
       };
@@ -520,6 +520,10 @@ class SelectionPane extends PureComponent {
       map = this.props.map.referenceMap;
     }
     else if (this.props.map && this.props.map.id === '15d843ba-11e5-4995-aa6f-c3449a8f93e2')
+    {
+      map = this.props.map;
+    }
+    else
     {
       map = this.props.map;
     }
@@ -688,7 +692,7 @@ class SelectionPane extends PureComponent {
 
       if (this.props.mode !== ViewerUtility.identificationMode)
       {
-        nonRestrictedLayer = this.props.map.referenceMap.layers.polygon.find(x => !x.restricted);
+        nonRestrictedLayer = this.props.map.layers.polygon.find(x => !x.restricted);
 
         canAdd = user &&
           mapAccessLevel >= ApiManager.accessLevels.addPolygons &&
