@@ -45,7 +45,15 @@ const ViewerUtility = {
 
   tileLayerZIndex: 200,
   standardTileLayerZIndex: 1000,
-  polygonLayerZIndex: 1001,
+
+  polygonLayerZIndex: {
+    'Identification Zones': 1001,
+    'Planting sites': 1002,
+    'Planting lines': 1003,
+    'Trees': 1004,
+    'base': 1005
+  },
+
   customPolygonLayerZIndex: 1100,
   selectedElementLayerZIndex: 1150,
   drawnPolygonLayerZIndex: 1151,
@@ -149,11 +157,12 @@ const ViewerUtility = {
     }
   },
 
-  createGeoJsonLayerStyle: (color, weight, fillOpacity) => {
+  createGeoJsonLayerStyle: (color, weight, fillOpacity, zIndex) => {
     return {
       color: color ? color : '#3388ff',
       weight: weight ? weight : 1,
-      fillOpacity: fillOpacity ? fillOpacity : 0.06
+      fillOpacity: fillOpacity ? fillOpacity : 0.06,
+      zIndex: zIndex ? zIndex : 1000,
     };
   },
 

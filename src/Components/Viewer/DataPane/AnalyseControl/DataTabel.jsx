@@ -1,12 +1,10 @@
 import React, { PureComponent } from 'react';
 
-import {
-  Table,
-  TableCell,
-  TableHead,
-  TableBody,
-  TableRow
-} from '@material-ui/core';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
 
 class DataTable extends PureComponent {
 
@@ -31,7 +29,7 @@ class DataTable extends PureComponent {
     }
 
     let rows = data.map(x =>
-      <TableRow>
+      <TableRow key={x[0] + '_' + x[1]}>
         <TableCell>{x[0]}</TableCell>
         <TableCell>{x[1]}</TableCell>
       </TableRow>

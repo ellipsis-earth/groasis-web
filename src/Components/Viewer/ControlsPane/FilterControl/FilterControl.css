@@ -1,45 +1,91 @@
-.card-content .MuiSlider-root .MuiSlider-markLabel
+.filter-control .showTiles
 {
-	letter-spacing: -1px;
-	transform: translateX(-66%) translateY(7.5px) rotate(-45deg);
+	width: 100%;
+	margin-right: 0;
+	margin-bottom: 0;
 }
 
-.card-content .MuiSlider-markLabel.MuiSlider-markLabelActive
+.filter-control .MuiSlider-root
 {
-	color: #87cef3;
-}
-
-.card-content .MuiSlider-root
-{
-	box-sizing: border-box;
 	display: block;
   width: 85%;
   margin: 0 auto;
   margin-bottom: 4rem;
 }
 
-.card-content .red
+.filter-control .MuiSlider-root .MuiSlider-markLabel
 {
-	color: red;
-	font-weight: 900;
+	letter-spacing: -1px;
+	transform: translateX(-66%) translateY(7.5px) rotate(-45deg);
 }
 
-.card-content .button_count
+.filter-control .MuiSlider-markLabel.MuiSlider-markLabelActive
 {
-	display: grid;
-	grid-auto-columns: 1fr 1fr;
-  grid-auto-flow: column;
-  column-gap: 2rem;
+	color: #87cef3;
 }
 
-.card-content .countMessage
+.filter-control .filterInputContainer
 {
-	display: flex;
-	justify-content: center;
+	width: 100%;
+}
+
+.filter-control .button_count button
+{
+	width: 50%;
+}
+
+.filter-control .button_count .countMessage
+{
+	display: inline-block;
+	width: 50%;
+	font-size: 87.5%;
+	text-align: center;
+}
+
+.filter-control .card-content
+{
+	margin-top: -0.35em;
+}
+
+.filter-control .filterSubtitle
+{
+	line-height: 0;
+	cursor: pointer;
+}
+
+.filter-control .filterSubtitle h3
+{
+	margin: 0;
+	padding: 0;
+  text-transform: capitalize;
+	line-height: 2rem;
+}
+
+.filter-control p
+{
+	font-size: 0.88rem;
+	margin: 0;
+	hyphens: auto;
+}
+
+.filter-control .filterItem
+{
+	padding: 0;
 	flex-wrap: wrap;
 }
 
-.card-content .button_count button
+.filter-control .FilterInput
 {
-    max-height: 38px;
+	margin-right: 0;
+	margin-bottom: 1rem;
 }
+
+.controls-pane .filter-control .MuiFormControlLabel-root .MuiFormControlLabel-label
+{
+	margin-top: 7px;
+}
+
+/*.filter-control .FilterInput .MuiCollapse-container
+{
+	width: 100%;
+}*/

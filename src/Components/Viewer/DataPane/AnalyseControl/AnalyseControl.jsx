@@ -1,9 +1,8 @@
 import React, { PureComponent } from 'react';
-import {
-  Card,
-  CardContent,
-  Slider
-} from '@material-ui/core';
+
+/*import Card from '@material-ui/core/Card';
+import CardContent from '@material-ui/core/CardContent';
+import Slider from '@material-ui/core/Slider';*/
 
 import ViewerUtility from '../../ViewerUtility';
 

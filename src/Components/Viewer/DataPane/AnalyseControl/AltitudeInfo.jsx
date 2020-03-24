@@ -1,21 +1,19 @@
 import React, { PureComponent } from 'react';
 import Papa from 'papaparse';
 
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardActions,
-  Typography,
-  CircularProgress,
-  Collapse,
-  IconButton,
-} from '@material-ui/core';
+import Card from '@material-ui/core/Card';
+import CardHeader from '@material-ui/core/CardHeader';
+import CardContent from '@material-ui/core/CardContent';
+import CardActions from '@material-ui/core/CardActions';
+import Typography from '@material-ui/core/Typography';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Collapse from '@material-ui/core/Collapse';
+import IconButton from '@material-ui/core/IconButton';
+
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import SaveAlt from '@material-ui/icons/SaveAlt';
 
 import ViewerUtility from '../../ViewerUtility';
-import GroasisUtility from '../../GroasisUtility';
 
 import ApiManager from '../../../../ApiManager';
 import DataTable from './DataTabel';
@@ -67,7 +65,7 @@ class AltitudeInfo extends PureComponent {
     };
 
     let body = {
-      mapId: this.props.map[GroasisUtility.types.altitude].id,
+      mapId: this.props.map.maps.find(x => x.dataSources[0].id === "bcf28bab-33e2-4259-a64f-466368efdc8d").id,
       dataType: ViewerUtility.dataType.meanMeasurement,
       type: ViewerUtility.customPolygonTileLayerType,
       element: treefeature

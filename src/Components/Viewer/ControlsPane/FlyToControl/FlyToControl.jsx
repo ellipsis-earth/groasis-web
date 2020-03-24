@@ -1,19 +1,18 @@
 import React, { PureComponent } from 'react';
 
-import {
-  Card,
-  Checkbox,
-  CardHeader,
-  CardContent,
-  CardActions,
-  Collapse,
-  IconButton,
-  Typography,
-  Select,
-  MenuItem,
-  Button,
-  TextField
-} from '@material-ui/core';
+import Card from '@material-ui/core/Card';
+import Checkbox from '@material-ui/core/Checkbox';
+import CardHeader from '@material-ui/core/CardHeader';
+import CardContent from '@material-ui/core/CardContent';
+import CardActions from '@material-ui/core/CardActions';
+import Collapse from '@material-ui/core/Collapse';
+import IconButton from '@material-ui/core/IconButton';
+import Typography from '@material-ui/core/Typography';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
+
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 import Utility from '../../../../Utility';
@@ -138,7 +137,7 @@ class FlyToControl extends PureComponent {
 
 
     return (
-      <Card className='layers-contol'>
+      <Card className='layers-control'>
         <CardHeader
           className='material-card-header'
           title={

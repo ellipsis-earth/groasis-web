@@ -63,6 +63,13 @@ class ControlsPane extends PureComponent {
     this.props.onLayersChange(allLayers);
   }
 
+  refreshLayers = () => {
+    let allLayers = this.tileLayers;
+    allLayers = allLayers.concat(this.standardTileLayers, this.polygonLayers);
+
+    this.props.onLayersChange(allLayers);
+  }
+
   render() {
     let style = {};
     if (!this.props.isOpen) {
@@ -109,7 +116,7 @@ class ControlsPane extends PureComponent {
         /> */}
 
         {
-          this.props.mode !== ViewerUtility.identificationMode ? <FilterControl
+          this.props.mode !== ViewerUtility.identificationMode || (this.props.map && this.props.map.type === 'area') ? <FilterControl
           ref={this.filterControl}
           user={this.props.user}
           map={this.props.map ? this.props.map : null}
@@ -118,6 +125,7 @@ class ControlsPane extends PureComponent {
           override={this.props.override}
           onLayersChange={(layers) => this.onLayersChange(ViewerUtility.standardTileLayerType, layers)}
           onFeatureClick={(feature) => this.props.onFeatureClick(ViewerUtility.standardTileLayerType, feature, true)}
+          key={'FilterControl_' + this.props.mode !== ViewerUtility.identificationMode || (this.props.map && this.props.map.type === 'area')}
         /> : null
       }
       </div>

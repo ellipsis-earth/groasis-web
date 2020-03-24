@@ -1,21 +1,19 @@
 import React, { PureComponent } from 'react';
 import Papa from 'papaparse';
 
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardActions,
-  Typography,
-  CircularProgress,
-  Collapse,
-  IconButton,
-} from '@material-ui/core';
+import Card from '@material-ui/core/Card';
+import CardHeader from '@material-ui/core/CardHeader';
+import CardContent from '@material-ui/core/CardContent';
+import CardActions from '@material-ui/core/CardActions';
+import Typography from '@material-ui/core/Typography';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Collapse from '@material-ui/core/Collapse';
+import IconButton from '@material-ui/core/IconButton';
+
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import SaveAlt from '@material-ui/icons/SaveAlt';
 
 import ViewerUtility from '../../ViewerUtility';
-import GroasisUtility from '../../GroasisUtility';
 
 import ApiManager from '../../../../ApiManager';
 import LineChart from './LineChart/LineChart';
@@ -55,8 +53,10 @@ class SpectralIndicesInfo extends PureComponent {
       geometry: element.feature.originalGeometry ? element.feature.originalGeometry : element.feature.geometry
     };
 
+    this.map = this.props.map.maps.find(x => x.dataSources[0].id === '4c450c42-1bf6-11e9-96ea-f0038c0f0121');
+
     let body = {
-      mapId: this.props.map[GroasisUtility.types.lowRes].id,
+      mapId: this.map.id,
       dataType: ViewerUtility.dataType.meanMeasurement,
       class: ViewerUtility.specialClassName.allClasses,
       type: ViewerUtility.customPolygonTileLayerType,
@@ -112,7 +112,7 @@ class SpectralIndicesInfo extends PureComponent {
     else if (this.state.data) {
       dataElement = (
         <LineChart
-          map={this.props.map[GroasisUtility.types.lowRes]}
+          map={this.map}
           data={this.state.data}
           type={ViewerUtility.dataGraphType.measurements}
           maxMask={this.props.maxMask}

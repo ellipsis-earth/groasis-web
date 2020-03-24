@@ -5,20 +5,9 @@ import ViewerUtility from '../../ViewerUtility';
 import './GeoMessageControl.css';
 
 import ElementGeoMessageControl from './ElementGeoMessageControl';
-import WatchlistControl from './WachtlistControl';
 import TreeGalleryControl from './TreeGalleryControl';
 
 class GeoMessageControl extends PureComponent {
-  constructor(props, context) {
-    super(props, context);
-  }
-
-  componentDidMount() {
-  }
-
-  componentDidUpdate(prevProps) {
-  }
-
   render() {
   if (this.props.element.type === ViewerUtility.treeElementType) {
       return (

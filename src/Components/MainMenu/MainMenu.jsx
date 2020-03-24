@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import Button from '@material-ui/core/Button';
-import { ToggleButton } from '@material-ui/lab';
+/*import { ToggleButton } from '@material-ui/lab';*/
 
 import DownloadIcon from '@material-ui/icons/GetApp';
 
@@ -125,10 +125,10 @@ export class MainMenu extends Component {
         displayStyle.display = 'hidden';
     }
 
-    let navItemClass = (navKey) => {
+    /*let navItemClass = (navKey) => {
       // return navKey === this.state.navKey ? 'nav-item-active' : '';
       return navKey === this.state.navKey;
-    }
+    }*/
 
     let modeText = 'select mode';
     if(this.props.mode === 0) {modeText = 'Identification'}

@@ -1,16 +1,15 @@
 import React, { PureComponent } from 'react';
 import Papa from 'papaparse';
 
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardActions,
-  Typography,
-  CircularProgress,
-  Collapse,
-  IconButton,
-} from '@material-ui/core';
+import Card from '@material-ui/core/Card';
+import CardHeader from '@material-ui/core/CardHeader';
+import CardContent from '@material-ui/core/CardContent';
+import CardActions from '@material-ui/core/CardActions';
+import Typography from '@material-ui/core/Typography';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Collapse from '@material-ui/core/Collapse';
+import IconButton from '@material-ui/core/IconButton';
+
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import SaveAlt from '@material-ui/icons/SaveAlt';
 

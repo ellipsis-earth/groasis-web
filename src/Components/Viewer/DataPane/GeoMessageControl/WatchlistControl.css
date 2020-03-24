@@ -38,3 +38,9 @@ div.watchList h3
 {
 	margin-top: 1rem;
 }
+
+.watchList .MuiListItemIcon-root
+{
+	padding-right: 16px;
+  min-width: 0.75em;
+}

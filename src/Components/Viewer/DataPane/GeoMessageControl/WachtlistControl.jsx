@@ -3,6 +3,7 @@ import React, { PureComponent } from 'react';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import CardHeader from '@material-ui/core/CardHeader';
+import Collapse from '@material-ui/core/Collapse';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -27,37 +28,42 @@ class WatchListControl extends PureComponent {
   }
 
   componentDidMount() {
-    let list = this.prepareWatchlist();
-    this.setState({watchlists: list.list, count: list.count});
+    /*let list = this.prepareWatchlist();
+    this.setState({watchlists: list.list, count: list.count});*/
   }
 
-  updateWatchlist = (data) =>
+  /*updateWatchlist = (data) =>
   {
     let list = this.prepareWatchlist('update', data);
     this.setState({watchlists: list.list, count: list.count});
-  }
+  }*/
 
   prepareWatchlist = (mode = 'normal', data) => {
     let watchlists = [];
-    let count = 0;
 
     if (this.props.groasisMaps)
     {
       watchlists.push(<WatchList
         key={'WatchList'}
         user={this.props.user}
-        map={this.props.groasisMaps}
+        groasisMaps={this.props.groasisMaps}
+        map={this.props.map}
         onWatchlistClick={this.props.onWatchlistClick}
+        onPlantingSiteClick={this.props.onPlantingSiteClick}
       />)
     }
 
-    return({list: watchlists})
+    /*return({list: watchlists})*/
+
+    return watchlists;
   }
 
   render() {
-    if (this.props.home || !this.props.groasisMaps) {
+    if (this.props.home || !this.props.groasisMaps || !this.props.user) {
       return null;
     }
+
+    let watchlist = this.prepareWatchlist();
 
     let message = this.props.user ? 'no areas' : 'please login';
 
@@ -71,7 +77,7 @@ class WatchListControl extends PureComponent {
           }
         />
         <CardContent className='data-pane-card-content' key={this.props.groasisMaps.areas.length}>
-          {this.state.watchlists && this.state.watchlists.length > 0 ? this.state.watchlists : message}
+          {watchlist && watchlist.length > 0 ? watchlist : message}
         </CardContent>
       </Card>
     );
@@ -87,8 +93,9 @@ class WatchList extends PureComponent {
   }
 
   render() {
-    let map = this.props.map;
-    let areas = map.areas;
+    let groasisMaps = this.props.groasisMaps;
+    let areas = groasisMaps.areas;
+
 
     if (areas.length === 0) {
       return null;
@@ -107,14 +114,32 @@ class WatchList extends PureComponent {
     });*/
 
     let elements = areas.map(x => {
-      return (
-        <ListItem button key={x.name} onClick={() => this.props.onWatchlistClick({properties: {mapId: x.id}})}>
-          <ListItemIcon>
-            <FontAwesomeIcon icon={faTree} style={{ color: 'green' }}/>
-          </ListItemIcon>
+      let returnItem = [];
+      let selected = this.props.map && x.id === this.props.map.id;
+      let plantingSites = selected && this.props.map.plantingSites ? this.props.map.plantingSites.find(y => y.props.type === 'plantingSite').props.data.features : false;
+
+      returnItem.push(<ListItem key={x.name + '_' + selected} button selected={selected} onClick={() => this.props.onWatchlistClick({properties: {mapId: x.id}})}>
           <ListItemText primary={x.name} />
-        </ListItem>
-      );
+        </ListItem>);
+
+      if (plantingSites)
+      {
+        let plantingSitesElements = plantingSites.map(z => {
+          return (<ListItem button key={z.id} onClick={() => this.props.onPlantingSiteClick(z)}>
+              <ListItemIcon>
+                <FontAwesomeIcon icon={faTree} style={{ color: 'green' }}/>
+              </ListItemIcon>
+              <ListItemText primary={z.properties.name} />
+            </ListItem>);
+        })
+        returnItem.push(<Collapse in={selected && plantingSites ? true : false} key={x.name + '_collapse'}>
+          <List component="div" disablePadding className='nestedWatchlist' dense={true}>
+            {plantingSitesElements}
+          </List>
+        </Collapse>);
+      };
+
+      return returnItem;
     });
 
     return (

@@ -14,7 +14,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 
   font-size: 15pt;
-  line-height: 1.6; 
+  line-height: 1.6;
   color: #4b483f;
 }
 
@@ -42,7 +42,7 @@ img {
 }
 
 h1, h2, h3, h4 {
-  color: #39f;
+  color: #2683c6;
   font-weight: bold;
 }
 

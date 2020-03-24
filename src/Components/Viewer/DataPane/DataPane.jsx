@@ -1,13 +1,12 @@
 import React, { PureComponent } from 'react';
 
-import {
-  Card,
-  CardHeader,
-  CardActions,
-  Typography,
-  Button,
-  IconButton,
-} from '@material-ui/core';
+import Card from '@material-ui/core/Card';
+import CardHeader from '@material-ui/core/CardHeader';
+import CardActions from '@material-ui/core/CardActions';
+import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
+import IconButton from '@material-ui/core/IconButton';
+
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 
@@ -73,7 +72,7 @@ class DataPane extends PureComponent {
 
     let home = this.state.home;
 
-    let user = this.props.user;
+    /*let user = this.props.user;*/
     let element = this.props.element;
     let action = this.props.action;
     let title = '';
@@ -94,8 +93,10 @@ class DataPane extends PureComponent {
         <WachtlistControl
           user={this.props.user}
           groasisMaps={this.props.groasisMaps}
+          map={this.props.map}
           home={this.props.home}
           onWatchlistClick={this.props.onWatchlistClick}
+          onPlantingSiteClick={this.props.onPlantingSiteClick}
           key={this.props.groasisMaps ? this.props.groasisMaps.areas.join('_') : 'default'}
           watchlistRefresh={this.props.watchlistRefresh}
           ref={this.watchlist}

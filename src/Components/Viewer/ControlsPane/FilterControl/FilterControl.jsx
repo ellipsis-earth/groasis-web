@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { GeoJSON } from 'react-leaflet';
 
 import Papa from 'papaparse';
@@ -10,18 +10,20 @@ import CardHeader from '@material-ui/core/CardHeader';
 import Checkbox from '@material-ui/core/Checkbox';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Collapse from '@material-ui/core/Collapse';
-import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListSubheader from '@material-ui/core/ListSubheader';
 import Slider from '@material-ui/core/Slider';
 import Typography from '@material-ui/core/Typography';
 
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import SaveAlt from '@material-ui/icons/SaveAlt';
+import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 
 import Utility from '../../../../Utility';
 import ViewerUtility from '../../ViewerUtility';
-import GroasisUtility from '../../GroasisUtility';
 
 import './FilterControl.css';
 
@@ -35,12 +37,12 @@ const STANDARD_TILES_LAYER = {
 
 const MAX_TILES = 3000;
 
-class FilterControl extends PureComponent {
+class FilterControl extends Component {
 	constructor(props, context) {
 		super(props, context);
 
 		this.state = {
-			availableLayers: [],
+			availableLayers: [STANDARD_TILES_LAYER],
 			selectedLayers: [],
 			geoJsonInfo: [],
 
@@ -50,6 +52,8 @@ class FilterControl extends PureComponent {
 			count: null,
 
 			loading: false,
+
+			open: [],
 		};
 	}
 
@@ -66,17 +70,13 @@ class FilterControl extends PureComponent {
 
 		let differentMap = this.props.map !== prevProps.map;
 
-		let differentTimestamp = !prevProps.timestampRange ||
-			this.props.timestampRange.start !== prevProps.timestampRange.start ||
-			this.props.timestampRange.end !== prevProps.timestampRange.end;
-
 		let differentBounds = !prevProps.leafletMapViewport ||
 			this.props.leafletMapViewport.bounds.xMin !== prevProps.leafletMapViewport.bounds.xMin ||
 			this.props.leafletMapViewport.bounds.xMax !== prevProps.leafletMapViewport.bounds.xMax ||
 			this.props.leafletMapViewport.bounds.yMin !== prevProps.leafletMapViewport.bounds.yMin ||
 			this.props.leafletMapViewport.bounds.yMax !== prevProps.leafletMapViewport.bounds.yMax;
 
-		if (differentMap || differentTimestamp || differentBounds) {
+		if (differentMap || differentBounds) {
 
 			let availableLayers = this.state.availableLayers;
 			let selectedLayers = this.state.selectedLayers;
@@ -99,26 +99,18 @@ class FilterControl extends PureComponent {
 		this.setState({ loading: true }, this.onLayerChange({target: {value: 'standard tiles', checked: e.target.checked}}));
 	}
 
-	makeMarks = (min, max, unit) => {
-		let marks = [];
+	filterChange = (e, value, valueName, category) => {
+		let stateObj = this.state.filterData;
 
-		let amount = 4;
-
-		for (let i = 0; i <= amount; i++)
+		if(stateObj[category][valueName].value !== value)
 		{
-			let value = min + i * max / amount;
-			let mark = {
-				value: value,
-				label: value.toString() + unit,
-			};
+			stateObj[category][valueName].value = value;
 
-			marks.push(mark)
+			this.setState({filterData: stateObj});
 		}
-
-		return marks;
 	}
 
-	filterChange = (e, value, valueName, category) => {
+	filterSelectionChange = (e, checked, valueName, category) => {
 		let stateObj = this.state.filterData;
 
 		if (!stateObj[category])
@@ -126,105 +118,108 @@ class FilterControl extends PureComponent {
 			stateObj[category] = {};
 		}
 
-		if(stateObj[category][valueName] !== value)
+		if (!stateObj[category][valueName])
 		{
-			stateObj[category][valueName] = value;
+			stateObj[category][valueName] = {};
+		}
+
+		if(stateObj[category][valueName].checked !== checked)
+		{
+			stateObj[category][valueName].checked = checked;
+
 			this.setState({filterData: stateObj});
 		}
 	}
 
-	makeInput = (form) => {
-		let input = [];
-		input.push(<Typography gutterBottom key={form.title + 'Title'}>
-			{form.title}
-		</Typography>);
+	changeOpen = (input) => {
+		let open = this.state.open;
 
-		let marks = form.marks ? form.marks : this.makeMarks(form.min, form.max, form.unit);
+		let index = open.indexOf(input);
 
-		input.push(<Slider
-			defaultValue={[form.min, form.max]}
-			valueLabelDisplay="auto"
-			step={form.step}
-			marks={marks}
-			min={form.min}
-			max={form.max}
-			key={form.title + 'Slider'}
-			onChange={(e, value) => {this.filterChange(e, value, form.valueName, form.category)}}
-		/>);
+		if (index !== -1)
+		{
+			open.splice(index, 1);
+		}
+		else
+		{
+			open.push(input);
+		}
 
-		return input;
+		this.setState({open: open});
 	}
 
 	createFilterForm = () => {
 		let form = [
 			{
-				title: 'Average precipitation per year',
-				step: 5,
-				min: 0,
-				max: 1000,
-				unit: ' mm',
-				category: 'soil',
-				valueName: 'precipitation'
-			},
-			{
-				title: 'Organic Content on 0m',
-				step: 5,
-				min: 0,
-				max: 1000,
-				unit: ' g/kg',
-				category: 'soil',
-				valueName: 'organic'
-			},
-			{
-				title: 'Clay Content on 0m in mass percentage',
-				step: 5,
-				min: 0,
-				max: 100,
-				unit: ' %',
-				category: 'soil',
-				valueName: 'clay'
-			},
-			{
-				title: 'Moisture content by NDVI',
-				step: 0.1,
-				min: -1,
-				max: 1,
-				unit: ' ',
-				category: 'indices',
-				valueName: 'moisture',
-				marks: [
+				name: 'soil',
+				filters: [
 					{
-						value: -1,
-						label: 'Very Dry'
+						title: 'Organic Content on 0m',
+						step: 5,
+						min: 0,
+						max: 1000,
+						unit: ' g/kg',
+						category: 'soil',
+						valueName: 'organic'
 					},
 					{
-						value: -0.5,
-						label: 'Dry'
+						title: 'Clay Content on 0m in mass percentage',
+						step: 5,
+						min: 0,
+						max: 100,
+						unit: ' %',
+						category: 'soil',
+						valueName: 'clay'
 					},
 					{
-						value: 0,
-						label: 'Normal'
-					},
-					{
-						value: 0.5,
-						label: 'Moist'
-					},
-					{
-						value: 1,
-						label: 'Very Moist'
+						title: 'Moisture content by NDVI',
+						step: 0.1,
+						min: -1,
+						max: 1,
+						unit: ' ',
+						category: 'indices',
+						valueName: 'moisture',
+						marks: [
+							{ value: -1, 		label: 'Very Dry'},
+							{ value: -0.5, 	label: 'Dry'},
+							{ value: 0, 		label: 'Normal'},
+							{ value: 0.5, 	label: 'Moist'},
+							{ value: 1, 		label: 'Very Moist'}
+						]
 					}
 				]
-			}
-		];
+			},
+			{
+				name: 'climate',
+				filters: [
+					{
+						title: 'Average precipitation per year',
+						step: 5,
+						min: 0,
+						max: 1000,
+						unit: ' mm',
+						category: 'soil',
+						valueName: 'precipitation'
+					},
+				]
+			},
+		]
 
-		let inputs = [];
+		let filterForm = [];
 
 		for (let i = 0; i < form.length; i++)
 		{
-			inputs.push(this.makeInput(form[i]));
+			let inputs = [];
+
+			for (let j = 0; j < form[i].filters.length; j++)
+			{
+				inputs.push(<ListItem className='filterItem' dense key={form[i].filters[j].title}><FilterInput form={form[i].filters[j]} filterSelectionChange={this.filterSelectionChange} filterChange={this.filterChange}/></ListItem>);
+			}
+
+			filterForm.push({name: form[i].name, inputs: inputs});
 		}
 
-		this.setState({ filterForm: inputs });
+		this.setState({ filterForm: filterForm });
 	}
 
 	filterSubmit = (e) => {
@@ -274,19 +269,21 @@ class FilterControl extends PureComponent {
 	prepareStandardTilesLayer = async (map, timestampRange) => {
 		let bounds = this.props.leafletMapViewport.bounds;
 
-		let timestampNumber = timestampRange ?
-			map.referenceMap.timestamps[timestampRange.end].timestamp :
-			map.referenceMap.timestamps[map.timestamps.length - 1].timestamp
+
+
+		let soilMap = this.props.map.maps.find(x => x.dataSources[0].id === "ce6650f0-91b8-481c-bc17-7a38f12658a1");
+		let lowResMap = this.props.map.maps.find(x => x.dataSources[0].id === "4c450c42-1bf6-11e9-96ea-f0038c0f0121");
+		let timestampNumber = lowResMap.timestamps[lowResMap.timestamps.length - 1].timestamp;
 
 		let body = {
-			mapId: map.referenceMap.id,
+			mapId: soilMap.id,
 			type: ViewerUtility.standardTileLayerType,
-			timestamp: timestampNumber,
+			timestamp: 0,
 			xMin: bounds.xMin,
 			xMax: bounds.xMax,
 			yMin: bounds.yMin,
 			yMax: bounds.yMax,
-			zoom: map.referenceMap.aggregationZoom,
+			zoom: soilMap.aggregationZoom,
 		};
 
 		return await ApiManager.post('/geometry/ids', body, this.props.user)
@@ -319,12 +316,12 @@ class FilterControl extends PureComponent {
 
 						if (filterDataKeys[i] === 'indices')
 						{
-							requestBody.mapId = this.props.map[GroasisUtility.types.lowRes].id;
-							requestBody.timestamp = map.referenceMap.timestamps[timestampRange.end].timestamp;
+							requestBody.mapId = lowResMap.id;
+							requestBody.timestamp = timestampNumber;
 						}
 						else if (filterDataKeys[i] === 'soil')
 						{
-							requestBody.mapId = this.props.map[GroasisUtility.types.soil].id;
+							requestBody.mapId = soilMap.id;
 							requestBody.timestamp = 0;
 						}
 
@@ -338,7 +335,7 @@ class FilterControl extends PureComponent {
 						{
 							for(let key in this.state.filterData[category])
 							{
-								if (key === 'precipitation')
+								if (key === 'precipitation' && filterData[j])
 								{
 									let keys = ['precipitation jan 2011', 'precipitation feb 2011', 'precipitation mar 2011', 'precipitation apr 2011', 'precipitation may 2011', 'precipitation jun 2011', 'precipitation jul 2011', 'precipitation aug 2011', 'precipitation sept 2011', 'precipitation oct 2011', 'precipitation nov 2011', 'precipitation dec 2011'];
 									let precipitation = 0;
@@ -348,34 +345,46 @@ class FilterControl extends PureComponent {
 										precipitation = precipitation + filterData[j][keys[k]];
 									}
 
-									if (precipitation < this.state.filterData[category][key][0] || precipitation > this.state.filterData[category][key][1])
+									if (this.state.filterData[category][key].checked && this.state.filterData[category][key].value)
 									{
-										filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
-										delete filterData[j];
+										if(precipitation < this.state.filterData[category][key].value[0] || precipitation > this.state.filterData[category][key].value[1])
+										{
+											filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
+											delete filterData[j];
+										}
 									}
 								}
 								else if (key === 'organic')
 								{
-									if (filterData[j] && filterData[j]['organic content g/kg 0m'] < this.state.filterData[category][key][0] || filterData[j] && filterData[j]['organic content g/kg 0m'] > this.state.filterData[category][key][1])
+									if (this.state.filterData[category][key].checked && this.state.filterData[category][key].value)
 									{
-										filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
-										delete filterData[j];
+										if(filterData[j] && (filterData[j]['organic content g/kg 0m'] < this.state.filterData[category][key].value[0] || filterData[j]['organic content g/kg 0m'] > this.state.filterData[category][key].value[1]))
+										{
+											filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
+											delete filterData[j];
+										}
 									}
 								}
 								else if (key === 'clay')
 								{
-									if (filterData[j] && filterData[j]['clay content mass percentage 0m'] < this.state.filterData[category][key][0] || filterData[j] && filterData[j]['clay content mass percentage 0m'] > this.state.filterData[category][key][1])
+									if (this.state.filterData[category][key].checked && this.state.filterData[category][key].value)
 									{
-										filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
-										delete filterData[j];
+										if(filterData[j] && (filterData[j]['clay content mass percentage 0m'] < this.state.filterData[category][key].value[0] || filterData[j]['clay content mass percentage 0m'] > this.state.filterData[category][key].value[1]))
+										{
+											filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
+											delete filterData[j];
+										}
 									}
 								}
 								else if (key === 'moisture')
 								{
-									if (filterData[j] && filterData[j]['ndvi'] < this.state.filterData[category][key][0] || filterData[j] && filterData[j]['ndvi'] > this.state.filterData[category][key][1])
+									if (this.state.filterData[category][key].checked && this.state.filterData[category][key].value)
 									{
-										filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
-										delete filterData[j];
+										if(filterData[j] && (filterData[j]['ndvi'] < this.state.filterData[category][key].value[0] || filterData[j]['ndvi'] > this.state.filterData[category][key].value[1]))
+										{
+											filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
+											delete filterData[j];
+										}
 									}
 								}
 							}
@@ -409,9 +418,9 @@ class FilterControl extends PureComponent {
 				}
 
 				body = {
-					mapId: map.referenceMap.id,
+					mapId: map.id,
 					type: ViewerUtility.standardTileLayerType,
-					timestamp: map.referenceMap.timestamps[timestampRange.end].timestamp,
+					timestamp: 0,
 					elementIds: standardTileIds.ids
 				};
 
@@ -504,7 +513,7 @@ class FilterControl extends PureComponent {
 		}
 
 		return (
-			<Card className='layers-contol'>
+			<Card className='layers-control filter-control'>
 				<CardHeader
 					className='material-card-header'
 					title={
@@ -528,6 +537,7 @@ class FilterControl extends PureComponent {
 						className={'card-content'}
 					>
 						<FormControlLabel
+						className='showTiles'
 							control={
 								<Checkbox
 									disabled={this.state.loading}
@@ -537,10 +547,35 @@ class FilterControl extends PureComponent {
 									color="primary"
 								/>
 							}
-							label={this.state.selectedLayers.includes(STANDARD_TILES_LAYER) ? "Hide Tiles" : "Show Tiles"}
+							label="Show Tiles"
 						/>
 						{this.state.loading ? <CircularProgress size={20} /> : null}
-						{this.state.filterForm}
+						<List>
+							{this.state.filterForm.map(x => {
+								let open = this.state.open.includes(x.name)
+								return (<List
+								  key={'list_' + x.name}
+						      subheader={<ListSubheader
+						      	component={(props) => <Grid {...props} />}
+						      	disableGutters
+						      	color='primary'
+						      	className='filterSubtitle'
+						      	container
+						      	direction="row"
+									  justify="space-between"
+									  alignItems="center"
+						      	onClick={() => {this.changeOpen(x.name)}}
+					      	>
+						      	<Grid item><h3>{x.name}</h3></Grid>
+						      	<Grid item><IconButton size="small" color='secondary'> {open ? <ExpandLessIcon /> : <ExpandMoreIcon />}</IconButton></Grid>
+					    		</ListSubheader>
+					    	}>
+						    	<Collapse in={this.state.open.includes(x.name)}>
+							    	{x.inputs}
+						    	</Collapse>
+					  		</List>)
+							})}
+						</List>
 						<div className='button_count'>
 							<Button
 								key={'submit' + this.state.loading}
@@ -552,7 +587,7 @@ class FilterControl extends PureComponent {
 							>
 								Filter
 							</Button>
-							<span className='countMessage' key={this.state.count}>{this.state.count}</span>
+							<div className='countMessage' key={this.state.count}>{this.state.count}</div>
 						</div>
 					</CardContent>
 				</Collapse>
@@ -562,3 +597,93 @@ class FilterControl extends PureComponent {
 }
 
 export default FilterControl;
+
+class FilterInput extends Component {
+	constructor(props, context) {
+		super(props, context);
+
+		this.state = {
+			checked: false,
+		};
+	}
+
+	makeMarks = (min, max, unit) => {
+		let marks = [];
+
+		let amount = 4;
+
+		for (let i = 0; i <= amount; i++)
+		{
+			let value = min + i * max / amount;
+			let mark = {
+				value: value,
+				label: value.toString() + unit,
+			};
+
+			marks.push(mark)
+		}
+
+		return marks;
+	}
+
+	render = () => {
+		let form = this.props.form;
+		let marks = form.marks ? form.marks : this.makeMarks(form.min, form.max, form.unit);
+
+		return <div className='filterInputContainer'>
+			<FormControlLabel
+				className='FilterInput'
+				control={
+					<Checkbox
+						checked={this.state.checked}
+						onChange={(e, checked) => {this.setState({checked: !this.state.checked}, () => this.props.filterSelectionChange(e, checked, form.valueName, form.category))}}
+						color="primary"
+					/>
+				}
+				label={form.title}
+			/>
+			<Collapse in={this.state.checked}>
+				<Slider
+					defaultValue={[form.min, form.max]}
+					valueLabelDisplay="auto"
+					step={form.step}
+					marks={marks}
+					min={form.min}
+					max={form.max}
+					key={form.title + 'Slider'}
+					onChange={(e, value) => {
+						if(this.state.checked)
+						{
+							this.props.filterChange(e, value, form.valueName, form.category);
+						}
+						else {
+							this.setState({checked: true}, () => this.props.filterChange(e, value, form.valueName, form.category))
+						}
+					}}
+				/>
+			</Collapse>
+		</div>
+
+		/*let input = [];
+
+		input.push(<Typography gutterBottom key={form.title + 'Title'}>
+			{form.title}
+		</Typography>);
+
+		let marks = form.marks ? form.marks : this.makeMarks(form.min, form.max, form.unit);
+
+		input.push(<Slider
+			defaultValue={[form.min, form.max]}
+			valueLabelDisplay="auto"
+			step={form.step}
+			marks={marks}
+			min={form.min}
+			max={form.max}
+			key={form.title + 'Slider'}
+			onChange={(e, value) => {this.props.filterChange(e, value, form.valueName, form.category)}}
+		/>);
+
+		return (input);*/
+
+	}
+}

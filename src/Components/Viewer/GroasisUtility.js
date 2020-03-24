@@ -1,14 +1,14 @@
 import React from 'react';
 import { GeoJSON } from 'react-leaflet';
-import L from 'leaflet';
+/*import L from 'leaflet';*/
 
 import ApiManager from '../../ApiManager';
 import ViewerUtility from './ViewerUtility';
-import Utility from '../../Utility';
+/*import Utility from '../../Utility';*/
 
-const GROASIS_COLOR = '#87cef3';
+/*const GROASIS_COLOR = '#87cef3';*/
 
-const GROASIS_ATLAS = 'Groasis';
+/*const GROASIS_ATLAS = 'Groasis';*/
 const SUBATLAS_PROPERTY = '_subatlas';
 
 const ALTITUDE_TYPE = 'altitude';
@@ -18,7 +18,7 @@ const SOIL_TYPE = 'soil';
 const WEATHER_TYPE = 'weather';
 
 const REQUEST_MAP_ID = '15d843ba-11e5-4995-aa6f-c3449a8f93e2';
-const plantingSitesLayer = 'Proposed planting sites';
+/*const plantingSitesLayer = 'Proposed planting sites';*/
 
 const MAP_TYPES = [
   ALTITUDE_TYPE,
@@ -30,12 +30,11 @@ const MAP_TYPES = [
 
 const TREE_RADIUS = 2.5;
 
-const MARKER_SIZE = {x: 17, y: 24};
 
 const WATCH_FORM = 'watch';
 
 const GroasisUtility = {
-  markerSize: MARKER_SIZE,
+  markerSize: ViewerUtility.markerSize,
 
   types: {
     altitude: ALTITUDE_TYPE,
@@ -312,8 +311,43 @@ const GroasisUtility = {
     }*/
   },
 
-  getPlantingSites: async (map, user, onPlantingSiteClick) => {
-    if (map.plantingSitesLoaded)
+  getAreaMaps: (map, user, override = false) => {
+    if (map.mapsLoaded && !override)
+    {
+      return Promise.resolve();
+    }
+    else
+    {
+      return Promise.resolve(ApiManager.get('/account/myMaps', null, user)
+      .then(maps => {
+        map.maps = maps.filter(x => x.area.id === map.id);
+      }))
+      .then(async () => {
+        for (let i = 0; i < map.maps.length; i++)
+        {
+          let metadata = await ApiManager.post('/metadata', {mapId: map.maps[i].id}, user);
+
+          for(let key in metadata)
+          {
+            map.maps[i][key] = metadata[key];
+          }
+        }
+
+        map.mapsLoaded = true;
+      });
+    }
+  },
+
+  getAreaData: async (map, user, onPlantingSiteClick) => {
+    let promises = [];
+    promises.push(GroasisUtility.getPlantingSites(map, user, onPlantingSiteClick));
+    promises.push(GroasisUtility.getAreaMaps(map, user));
+
+    return Promise.all(promises);
+  },
+
+  getPlantingSites: async (map, user, onPlantingSiteClick, override = false) => {
+    if (map.plantingSitesLoaded && override === false)
     {
       return Promise.resolve(map.plantingSites);
     }
@@ -342,7 +376,7 @@ const GroasisUtility = {
         return ApiManager.post('/geometry/get', body, user);
       })
       .then(polygonsGeoJson => {
-        let icon = ViewerUtility.returnMarker(`#${selectLayer.color}`, MARKER_SIZE, 'RoomTwoTone')
+        let icon = ViewerUtility.returnMarker(`#${selectLayer.color}`, ViewerUtility.markerSize, 'RoomTwoTone')
 
         let linesCollection = {
           type: 'FeatureCollection',
@@ -364,21 +398,21 @@ const GroasisUtility = {
           }
         }
 
-        console.log(ViewerUtility.createGeoJsonLayerStyle(`#${selectLayer.color}`))
         return (
           [<GeoJSON
             key={Math.random()}
             data={polygonsGeoJson}
             style={ViewerUtility.createGeoJsonLayerStyle(`#${selectLayer.color}`)}
-            zIndex={ViewerUtility.polygonLayerZIndex}
+            zIndex={ViewerUtility.polygonLayerZIndex[GroasisUtility.layers.polygon.plantingSites]}
             onEachFeature={(feature, layer) => {layer.on({ click: () => onPlantingSiteClick(feature) })}}
             pointToLayer={(geoJsonPoint, latlng) => this.markerReturn(latlng, icon)}
+            type='plantingSite'
           />,
           <GeoJSON
             key={Math.random()}
             data={linesCollection}
             style={ViewerUtility.createGeoJsonLayerStyle(`#${selectLayer.color}`, 3)}
-            zIndex={ViewerUtility.polygonLayerZIndex}
+            zIndex={ViewerUtility.polygonLayerZIndex[GroasisUtility.layers.polygon.plantingSites]}
             onEachFeature={(feature, layer) => {layer.on({ click: () => onPlantingSiteClick(feature) })}}
           />]
         );
@@ -392,7 +426,6 @@ const GroasisUtility = {
       .catch(err => {
         console.error(err)
       });
-
 
     return Promise.resolve(map.plantingSites);
   },
@@ -426,7 +459,7 @@ const GroasisUtility = {
 
 }
 
-function groupMaps(maps) {
+/*function groupMaps(maps) {
   let groasisMaps = {
     subatlases: []
   };
@@ -480,9 +513,9 @@ function groupMaps(maps) {
   groasisMaps.bounds = bounds;
 
   return groasisMaps;
-}
+}*/
 
-function deleteIncompleteMaps(groasisMaps) {
+/*function deleteIncompleteMaps(groasisMaps) {
   for (let i = 0; i < groasisMaps.subatlases.length; i++) {
     let subatlas = groasisMaps.subatlases[i];
     let groasisMap = groasisMaps[subatlas];
@@ -500,6 +533,6 @@ function deleteIncompleteMaps(groasisMaps) {
       }
     }
   }
-}
+}*/
 
 export default GroasisUtility;

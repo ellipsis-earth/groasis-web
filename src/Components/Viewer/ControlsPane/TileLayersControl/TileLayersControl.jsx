@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { TileLayer, WMSTileLayer , withLeaflet} from 'react-leaflet';
+import { TileLayer, WMSTileLayer/* , withLeaflet*/} from 'react-leaflet';
 
 import Card from '@material-ui/core/Card';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -22,7 +22,7 @@ import ApiManager from '../../../../ApiManager';
 
 const IMAGES_LAYER_TYPE = 'images';
 const LABELS_LAYER_TYPE = 'labels';
-const IMAGES2_LAYER_TYPE = 'images2';
+/*const IMAGES2_LAYER_TYPE = 'images2';*/
 
 const AVAILABLE_LAYERS = [
   {
@@ -31,7 +31,7 @@ const AVAILABLE_LAYERS = [
     mapType: null,
     stacking: false,
     urlName: null,
-    displayName: 'satellite layer'
+    displayName: 'Satellite layer'
   },
   {
     name: GroasisUtility.layers.tile.road,
@@ -39,7 +39,7 @@ const AVAILABLE_LAYERS = [
     mapType: null,
     stacking: false,
     urlName: null,
-    displayName: 'road layer'
+    displayName: 'Road layer'
   },
   {
     name: GroasisUtility.layers.tile.terrain,
@@ -47,7 +47,7 @@ const AVAILABLE_LAYERS = [
     mapType: null,
     stacking: false,
     urlName: null,
-    displayName: 'terrain layer'
+    displayName: 'Terrain layer'
   },
   {
     name: GroasisUtility.layers.tile.highRes,
@@ -55,7 +55,7 @@ const AVAILABLE_LAYERS = [
     mapType: GroasisUtility.types.highRes,
     stacking: true,
     urlName: 'rgb',
-    displayName: 'natural color'
+    displayName: 'Natural color'
   },
   {
     name: GroasisUtility.layers.tile.highResCir,
@@ -63,7 +63,7 @@ const AVAILABLE_LAYERS = [
     mapType: GroasisUtility.types.highRes,
     stacking: true,
     urlName: 'CIR',
-    displayName: 'infrared'
+    displayName: 'Infrared'
   },
   {
     name: GroasisUtility.layers.tile.highResLabel,
@@ -71,7 +71,7 @@ const AVAILABLE_LAYERS = [
     mapType: GroasisUtility.types.highRes,
     stacking: true,
     urlName: 'label',
-    displayName: 'tree crown'
+    displayName: 'Tree crown'
   },
   {
     name: GroasisUtility.layers.tile.lowRes,
@@ -79,7 +79,7 @@ const AVAILABLE_LAYERS = [
     mapType: GroasisUtility.types.lowRes,
     stacking: true,
     urlName: 'rgb',
-    displayName: 'natural color'
+    displayName: 'Natural color'
   },
   {
     name: GroasisUtility.layers.tile.lowResCir,
@@ -87,7 +87,7 @@ const AVAILABLE_LAYERS = [
     mapType: GroasisUtility.types.lowRes,
     stacking: true,
     urlName: 'CIR',
-    displayName: 'infrared'
+    displayName: 'Infrared'
   },
   {
     name: GroasisUtility.layers.tile.organic,
@@ -178,6 +178,8 @@ class TileLayersControl extends PureComponent {
 
       expanded: true
     };
+
+    this.lowRes = false;
   }
 
   componentDidMount() {
@@ -208,8 +210,18 @@ class TileLayersControl extends PureComponent {
     }
 
     if (differentMap || differentTimestamp || differentSelectedLayers) {
+      if (this.props.map.maps && this.props.map.maps.find(x => x.dataSources[0].id === "4c450c42-1bf6-11e9-96ea-f0038c0f0121"))
+      {
+        this.lowRes = true;
+      }
+      else
+      {
+        this.lowRes = false;
+      }
+
       this.prepareLayers();
     }
+
   }
 
   renderCheckboxes = () => {
@@ -227,6 +239,13 @@ class TileLayersControl extends PureComponent {
         AVAILABLE_LAYERS[AVAILABLE_LAYERS.length - 2],
         AVAILABLE_LAYERS[AVAILABLE_LAYERS.length - 1]
       ]
+
+      if (this.lowRes)
+      {
+        availableLayers.push(AVAILABLE_LAYERS.find(x => x.name === GroasisUtility.layers.tile.lowRes));
+        availableLayers.push(AVAILABLE_LAYERS.find(x => x.name === GroasisUtility.layers.tile.lowResCir));
+      }
+
     }
 
     let selectedLayers = this.props.selectedLayers[ViewerUtility.tileLayerType];
@@ -244,6 +263,10 @@ class TileLayersControl extends PureComponent {
         }
         else if (i === 3) {
           label = (<h3>Soil layers</h3>);
+        }
+        else if(this.lowRes && i === availableLayers.length - 2)
+        {
+          label = (<h3>Low resolution layers</h3>);
         }
       }
       else
@@ -351,6 +374,9 @@ class TileLayersControl extends PureComponent {
 
     if (!map || !timestampRange || this.props.mode === ViewerUtility.identificationMode) {
       for (let i = 3; i < AVAILABLE_LAYERS.length; i++) {
+        let timestampStart = AVAILABLE_LAYERS[i].stacking ? timestampRange.start : timestampRange.end;
+        let timestampEnd = timestampRange.end;
+
         if (selectedLayers.includes(AVAILABLE_LAYERS[i].name) && AVAILABLE_LAYERS[i].type === 'WMS')
         {
           layerElements.push(<WMSTileLayer
@@ -361,6 +387,47 @@ class TileLayersControl extends PureComponent {
             format={'image/png'}
             transparent={true}
           />)
+        }
+        else
+        {
+          let subMap = null;
+
+          if (this.lowRes && (AVAILABLE_LAYERS[i].name === GroasisUtility.layers.tile.lowRes || AVAILABLE_LAYERS[i].name === GroasisUtility.layers.tile.lowResCir) && selectedLayers.includes(AVAILABLE_LAYERS[i].name))
+          {
+            subMap = this.props.map.maps.find(x => x.dataSources[0].id === "4c450c42-1bf6-11e9-96ea-f0038c0f0121");
+          }
+
+          if (subMap)
+          {
+            for (let y = timestampStart; y <= timestampEnd; y++) {
+              let timestampNumber = 0;
+
+              if (AVAILABLE_LAYERS[i].name !== GroasisUtility.layers.tile.contour) {
+                timestampNumber = subMap.timestamps[y].timestamp;
+              }
+
+              let key = `${subMap.id}_${timestampNumber}_${AVAILABLE_LAYERS[i].name}`;
+              let url = `${ApiManager.apiUrl}/tileService/${subMap.id}/${timestampNumber}/${AVAILABLE_LAYERS[i].urlName}/{z}/{x}/{y}`;
+
+              if (this.props.user) {
+                url += `?token=${this.props.user.token}`;
+              }
+
+              let layerElement = (
+                <TileLayer
+                  key={key}
+                  url={url}
+                  tileSize={256}
+                  noWrap={true}
+                  maxNativeZoom={subMap.zoom}
+                  format={'image/png'}
+                  zIndex={i + 1}
+                />
+              );
+
+              layerElements.push(layerElement);
+            }
+          }
         }
       }
       this.props.onLayersChange(layerElements);
@@ -391,7 +458,7 @@ class TileLayersControl extends PureComponent {
             transparent={true}
           />)
       }
-      else
+      else if (subMap)
       {
         for (let y = timestampStart; y <= timestampEnd; y++) {
           let timestampNumber = 0;
@@ -534,7 +601,7 @@ class TileLayersControl extends PureComponent {
     }
 
     return (
-      <Card className='layers-contol'>
+      <Card className='layers-control'>
         <CardHeader
           className='material-card-header'
           title={

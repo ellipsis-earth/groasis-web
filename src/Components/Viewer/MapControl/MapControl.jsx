@@ -47,7 +47,7 @@ export class MapControl extends PureComponent {
 
     if (this.props.mode === ViewerUtility.viewerMode && this.state.drawControl) {
       this.state.drawControl.disable();
-      this.state.drawControl = null;
+      this.setState({drawControl: null});
     }
 
     if (!prevProps.map || (this.props.map && prevProps.map.subatlas !== this.props.map.subatlas))
@@ -168,7 +168,7 @@ export class MapControl extends PureComponent {
           <NavItem>
             <IconButton
               className='tool-button'
-              color='secondary'
+              style={{ color: 'rgba(0, 0, 0, 0.75)' }}
               onClick={this.onPlantTree}
               disabled={disabled}
             >
@@ -178,7 +178,7 @@ export class MapControl extends PureComponent {
           {/*<NavItem>
             <IconButton
               className='tool-button'
-              color='secondary'
+              style={{ color: 'rgba(0, 0, 0, 0.75)' }}
               onClick={() => this.onDrawPolygon()}
               disabled={disabled}
             >
@@ -188,7 +188,7 @@ export class MapControl extends PureComponent {
           <NavItem>
             <IconButton
               className='tool-button'
-              color='secondary'
+              style={{ color: 'rgba(0, 0, 0, 0.75)' }}
               onClick={this.onDrawLine}
               disabled={disabled}
             >
@@ -200,7 +200,7 @@ export class MapControl extends PureComponent {
               <NavItem>
                 <IconButton
                   className='tool-button'
-                  color='secondary'
+                  style={{ color: 'rgba(0, 0, 0, 0.75)' }}
                   onClick={this.onStopDraw}
                   disabled={disabled}
                 >
@@ -214,33 +214,36 @@ export class MapControl extends PureComponent {
     }
     else if(this.props.mode === ViewerUtility.identificationMode)
     {
-      disabled = this.props.user ? false : true
-      plannerButtons.push(<Nav className='flex-column map-control map-control-planner' key={this.props.mode + '_' + disabled}>
-        <NavItem>
-          <IconButton
-            className='tool-button'
-            color='secondary'
-            onClick={this.onMapRequest}
-            disabled={disabled}
-          >
-            <FontAwesomeIcon icon={faDrawPolygon} />
-          </IconButton>
-        </NavItem>
-        {
-            this.state.drawControl && !disabled ? (
-              <NavItem>
-                <IconButton
-                  className='tool-button'
-                  color='secondary'
-                  onClick={this.onStopDraw}
-                  disabled={disabled}
-                >
-                  <FontAwesomeIcon icon={faTimes} />
-                </IconButton>
-              </NavItem>
-            ) : null
-          }
-      </Nav>)
+      disabled = this.props.user ? false : true;
+      if(this.props.map && this.props.map.type === 'area')
+      {
+        plannerButtons.push(<Nav className='flex-column map-control map-control-planner' key={this.props.mode + '_' + disabled}>
+          <NavItem>
+            <IconButton
+              className='tool-button'
+              style={{ color: 'rgba(0, 0, 0, 0.75)' }}
+              onClick={this.onMapRequest}
+              disabled={disabled}
+            >
+              <FontAwesomeIcon icon={faDrawPolygon} />
+            </IconButton>
+          </NavItem>
+          {
+              this.state.drawControl && !disabled ? (
+                <NavItem>
+                  <IconButton
+                    className='tool-button'
+                    style={{ color: 'rgba(0, 0, 0, 0.75)' }}
+                    onClick={this.onStopDraw}
+                    disabled={disabled}
+                  >
+                    <FontAwesomeIcon icon={faTimes} />
+                  </IconButton>
+                </NavItem>
+              ) : null
+            }
+        </Nav>)
+      }
     }
 
     return (
@@ -249,7 +252,7 @@ export class MapControl extends PureComponent {
           <NavItem>
             <IconButton
               className='tool-button'
-              color='secondary'
+              style={{ color: 'rgba(0, 0, 0, 0.75)' }}
               onClick={() => this.onZoom(1)}
             >
               <FontAwesomeIcon icon={faPlus} />
@@ -258,7 +261,7 @@ export class MapControl extends PureComponent {
           <NavItem>
             <IconButton
               className='tool-button'
-              color='secondary'
+              style={{ color: 'rgba(0, 0, 0, 0.75)' }}
               onClick={() => this.onZoom(-1)}
             >
               <FontAwesomeIcon icon={faMinus} />
@@ -267,7 +270,7 @@ export class MapControl extends PureComponent {
           <NavItem>
             <IconButton
               className='tool-button'
-              color='secondary'
+              style={{ color: 'rgba(0, 0, 0, 0.75)' }}
               onClick={() => this.props.onFlyTo({
                 type: ViewerUtility.flyToType.currentLocation
               })}
@@ -278,8 +281,7 @@ export class MapControl extends PureComponent {
           <NavItem>
             <IconButton
               className='tool-button'
-              color='secondary'
-              style={{ fontSize: '18px' }}
+              style={{ color: 'rgba(0, 0, 0, 0.75)', fontSize: '18px' }}
               onClick={() => this.onShowLocations()}
             >
               <FontAwesomeIcon icon={faGlobeAmericas} />

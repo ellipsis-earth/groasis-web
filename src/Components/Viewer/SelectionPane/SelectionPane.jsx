@@ -9,7 +9,6 @@ import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import CardHeader from '@material-ui/core/CardHeader';
-import Checkbox from '@material-ui/core/Checkbox';
 import CircularProgress  from '@material-ui/core/CircularProgress';
 import IconButton from '@material-ui/core/IconButton';
 import TextField from '@material-ui/core/TextField';
@@ -83,18 +82,24 @@ class SelectionPane extends PureComponent {
   deleteCustomPolygon = () => {
     this.setState({ loading: true }, () => {
       let body = {
-        mapId: this.props.map.referenceMap ? this.props.map.referenceMap.id : this.props.map.id,
+        mapId: this.props.map.id,
         polygonId: this.props.element.feature.properties.id
       };
 
       ApiManager.post('/geometry/delete', body, this.props.user)
-        .then(() => {
-          this.props.onDeletePolygon();
+        .then(async () => {
+          if(this.props.element.feature.properties.layer === GroasisUtility.layers.polygon.plantingSites)
+          {
+            this.props.map.plantingSites = await GroasisUtility.getPlantingSites(this.props.map, this.props.user, this.props.onPlantingSiteClick, true);
+          }
+
+          this.props.onDeletePolygon('modeSwitch', ViewerUtility.identificationMode);
           this.props.onDeselect();
+
           this.setState({ isOpen: false, loading: false });
         })
         .catch(err => {
-          console.log(err);
+          console.error(err);
           this.setState({ loading: false });
         });
     });
@@ -384,7 +389,7 @@ class SelectionPane extends PureComponent {
       return null;
     }
 
-    let checked = this.props.map.watchlist.find(x => x.elementId === this.props.element.id) ? true : false;
+/*    let checked = this.props.map.watchlist.find(x => x.elementId === this.props.element.id) ? true : false;
 
     return (
       <div>
@@ -396,7 +401,7 @@ class SelectionPane extends PureComponent {
         />
         <span>Watch Tree</span>
       </div>
-    );
+    );*/
   }
 
   renderNewTreeInputs = () => {
@@ -457,27 +462,28 @@ class SelectionPane extends PureComponent {
   onAddPlantingSite = () => {
     if (this.props.user)
     {
-      let feature = this.props.element.feature;
+      this.setState({loading: true}, () => {
+        let feature = this.props.element.feature;
 
-      feature.properties = {name: this.state.name}
+      feature.properties = {name: this.state.name, mapId: this.props.map.id}
 
       let body = {
-        mapId: GroasisUtility.request.id,
+        mapId: this.props.map.id,
         timestamp: 0,
-        layer: GroasisUtility.request.layer,
+        layer: GroasisUtility.layers.polygon.plantingSites,
         feature: feature
       };
 
       ApiManager.post('/geometry/add', body, this.props.user)
         .then(tracking => {
           body = {
-            mapId: this.props.groasisMaps.request.id,
+            mapId: this.props.map.id,
             trackingId: tracking.trackingId
           };
 
           let trackFunc = () => {
             ApiManager.post('/geometry/track', body, this.props.user)
-              .then(trackingInfo => {
+              .then(async trackingInfo => {
 
                 if (!trackingInfo.added) {
                   setTimeout(trackFunc, 1000);
@@ -485,13 +491,18 @@ class SelectionPane extends PureComponent {
                 }
                 else
                 {
-                  this.onCloseClick();
+                  this.props.map.plantingSites = await GroasisUtility.getPlantingSites(this.props.map, this.props.user, this.props.onPlantingSiteClick, true);
+                  this.setState({loading: false}, () => {
+                    this.props.onDeletePolygon();
+                    this.onCloseClick();
+                  })
                 }
 
               })
               .catch(err => {
                 alert(JSON.stringify(err));
-                console.log(err);
+                console.error(err);
+                this.setState({loading: false})
               })
           }
 
@@ -499,8 +510,10 @@ class SelectionPane extends PureComponent {
         })
         .catch(err => {
           alert(JSON.stringify(err));
-          console.log(err);
+          console.error(err);
+          this.setState({loading: false})
         });
+      })
     }
   }
 
@@ -620,6 +633,9 @@ class SelectionPane extends PureComponent {
       }
       else if (layer === GroasisUtility.layers.polygon.plantingLines) {
         title = 'Planting line';
+      }
+      else if (layer === GroasisUtility.layers.polygon.plantingSite) {
+        title = 'Planting Site';
       }
 
       let canEdit = user &&
@@ -771,11 +787,13 @@ class SelectionPane extends PureComponent {
       firstRowButtons.push((
         <Button
           color='primary'
-          key='plantingSite'
+          key={this.state.loading + '_plantingSite'}
           variant='contained'
           size='small'
           className="selection-pane-button selection-pane-button-single plantingSite"
           onClick={() => this.onAddPlantingSite()}
+          startIcon={this.state.loading ? <CircularProgress size={24}/> : null}
+          disabled={this.state.loading}
         >
           {'Add Planting Site'}
         </Button>

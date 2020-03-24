@@ -28,8 +28,9 @@ export class TimestampSelector extends PureComponent {
       let timestampReferenceMap = this.props.map[GroasisUtility.types.highRes];
 
       if (tileLayers.includes(GroasisUtility.layers.tile.lowRes) || tileLayers.includes(GroasisUtility.layers.tile.lowResCir)) {
-        timestampReferenceMap = this.props.map[GroasisUtility.types.lowRes];
+        timestampReferenceMap = this.props.map.maps.find(x => x.dataSources[0].id === "4c450c42-1bf6-11e9-96ea-f0038c0f0121");
       }
+
 
       if (this.state.timestampReferenceMap !== timestampReferenceMap && timestampReferenceMap) {
         let timestamps = timestampReferenceMap.timestamps;
@@ -38,6 +39,13 @@ export class TimestampSelector extends PureComponent {
         let dateFormat = 'YYYY-MM-DD';
 
         let dates = timestamps.map(x => moment(x.dateTo).format(dateFormat));
+
+        console.log({
+          timestampReferenceMap: timestampReferenceMap,
+          start: lastTimestamp,
+          end: lastTimestamp,
+          dates: dates
+        });
 
         this.setState({
           timestampReferenceMap: timestampReferenceMap,
@@ -90,7 +98,7 @@ export class TimestampSelector extends PureComponent {
   }
 
   render() {
-    if (!this.props.map || this.props.mode === ViewerUtility.identificationMode) {
+    if (!this.props.map || (this.props.mode === ViewerUtility.identificationMode && this.state.dates.length <= 2)) {
       return null;
     }
 

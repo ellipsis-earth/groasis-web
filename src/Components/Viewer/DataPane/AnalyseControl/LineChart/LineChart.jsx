@@ -1,22 +1,18 @@
 import React, { PureComponent} from 'react';
 import moment from 'moment';
 
-import { 
-  VictoryScatter, 
-  VictoryLine, 
-  VictoryChart, 
-  VictoryBar,
+import {
+  VictoryScatter,
+  VictoryLine,
+  VictoryChart,
   VictoryTheme,
-  VictoryZoomContainer,
-  VictoryVoronoiContainer,
   VictoryAxis,
   VictoryLabel,
   VictoryTooltip,
   createContainer
 } from 'victory';
-import {
-  Checkbox  
-} from '@material-ui/core';
+
+import Checkbox from '@material-ui/core/Checkbox';
 
 import './react-vis-style.css';
 import './LineChart.css';
@@ -30,10 +26,10 @@ const NO_DATA_RESULT = 'no data\n';
 const DATE_COLUMN_NAME = 'date_to';
 const AREA_COLUMN_NAME = 'area';
 
-const CLOUD_COVER_COLUMN_INFO = {
+/*const CLOUD_COVER_COLUMN_INFO = {
   name: 'cloud_cover',
   color: 'bababaff'
-};
+};*/
 
 export class LineChart extends PureComponent {
   constructor(props, context) {
@@ -48,9 +44,9 @@ export class LineChart extends PureComponent {
   componentWillMount = () => {
     let columnInfo = this.getColumnInfo();
     let checkedSeries = [columnInfo[0].name];
-    this.setState({ 
+    this.setState({
       columnInfo: columnInfo,
-      checkedSeries: checkedSeries 
+      checkedSeries: checkedSeries
     }, this.prepareGraph);
   }
 
@@ -62,9 +58,9 @@ export class LineChart extends PureComponent {
     if (differentData || differentType) {
       let columnInfo = this.getColumnInfo();
       let checkedSeries = [columnInfo[0].name];
-      this.setState({ 
+      this.setState({
         columnInfo: columnInfo,
-        checkedSeries: checkedSeries 
+        checkedSeries: checkedSeries
       }, this.prepareGraph);
     }
     else if (differentMaxMask) {
@@ -105,9 +101,9 @@ export class LineChart extends PureComponent {
       });
     }
 
-    if (isMeasurements) {
+    /*if (isMeasurements) {
       adjustedColumnInfo.push(CLOUD_COVER_COLUMN_INFO);
-    }
+    }*/
 
     return adjustedColumnInfo;
   }
@@ -126,6 +122,7 @@ export class LineChart extends PureComponent {
     columnInfo = columnInfo.filter(x => checkedSeries.find(y => y === x.name) || x.name === ViewerUtility.specialClassName.mask);
     let isMeasurements = type === ViewerUtility.dataGraphType.measurements;
     let parsedData = data.parsed;
+
 
     if (data.raw === NO_DATA_RESULT || !parsedData || parsedData.data.length === 0) {
       return null;
@@ -153,6 +150,7 @@ export class LineChart extends PureComponent {
         if (!totalValue) {
           totalValue = parseFloat(row[AREA_COLUMN_NAME]);
         }
+
 
         let value = row[columnName];
         let date = moment(row[DATE_COLUMN_NAME]).unix() * 1000;
@@ -283,20 +281,20 @@ export class LineChart extends PureComponent {
         {graphElements}
         <VictoryAxis
           tickLabelComponent={
-            <VictoryLabel 
+            <VictoryLabel
               angle={-35}
               dx={-32}
-              dy={-10}                     
+              dy={-10}
             />
           }
           tickFormat={(x) => { return moment(x).format('YYYY-MM-DD'); }}
-          tickCount={4}          
+          tickCount={4}
         />
         <VictoryAxis
           dependentAxis
           tickLabelComponent={
             <VictoryLabel
-              // style={{ fontSize: '16px' }}                        
+              // style={{ fontSize: '16px' }}
             />
           }
         />
@@ -323,7 +321,7 @@ export class LineChart extends PureComponent {
             <div className='legend-color' style={{ backgroundColor: `#${seriesInfo.color}`}}></div>
             <span className='legend-label legend-label-graph'>{seriesInfo.name}</span>
           </div>
-        </div>        
+        </div>
       );
     }
 
