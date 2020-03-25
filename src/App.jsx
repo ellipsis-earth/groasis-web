@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
-import { Route } from 'react-router-dom';
 import Modal from 'react-modal';
-import { withRouter } from 'react-router';
 
 import Card from '@material-ui/core/Card';
 
@@ -170,18 +168,14 @@ class App extends Component {
             }
             <div className={contentClassName}>
               <div ref={this.topItemRef}></div>
-              <Route exact path='/'
-                render={() =>
-                  <Viewer
-                    key={this.state.user ? this.state.user.name : 'default'}
-                    user={this.state.user}
-                    mode={this.state.mode}
-                    scrollToBottom={this.scrollToBottom}
-                    onModeChange={this.onModeChange}
-                    openAccounts={this.openAccounts}
-                    ref={this.viewer}
-                  />
-                }
+              <Viewer
+                key={this.state.user ? this.state.user.name : 'default'}
+                user={this.state.user}
+                mode={this.state.mode}
+                scrollToBottom={this.scrollToBottom}
+                onModeChange={this.onModeChange}
+                openAccounts={this.openAccounts}
+                ref={this.viewer}
               />
               <div className={this.state.accountOpen ? 'account' : 'hidden'}>
                 <iframe src={this.accountsUrl} id='account' title="account"/>
@@ -236,4 +230,4 @@ class App extends Component {
 
 }
 
-export default withRouter(App);
+export default App;

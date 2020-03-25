@@ -61,6 +61,7 @@ svg.download-geometry-button-icon {
 
 .controls-pane .MuiFormControlLabel-root {
   align-items: flex-start;
+  margin-right: 0;
 }
 
 .controls-pane .MuiFormControlLabel-root .MuiFormControlLabel-label {

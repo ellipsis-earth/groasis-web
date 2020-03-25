@@ -15,12 +15,18 @@ import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import ListItemText from '@material-ui/core/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader';
 import Slider from '@material-ui/core/Slider';
+import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
+import Zoom from '@material-ui/core/Zoom';
 
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
+import InfoIcon from '@material-ui/icons/Info';
 
 import Utility from '../../../../Utility';
 import ViewerUtility from '../../ViewerUtility';
@@ -154,25 +160,27 @@ class FilterControl extends Component {
 				name: 'soil',
 				filters: [
 					{
-						title: 'Organic Content on 0m',
+						title: 'Organic Content',
 						step: 5,
 						min: 0,
 						max: 1000,
 						unit: ' g/kg',
 						category: 'soil',
-						valueName: 'organic'
+						valueName: 'organic',
+						text: 'Measured on 0m in g/kg'
 					},
 					{
-						title: 'Clay Content on 0m in mass percentage',
+						title: 'Clay Content',
 						step: 5,
 						min: 0,
 						max: 100,
 						unit: ' %',
 						category: 'soil',
-						valueName: 'clay'
+						valueName: 'clay',
+						text: 'Measured on 0m in mass percentage'
 					},
 					{
-						title: 'Moisture content by NDVI',
+						title: 'Moisture content',
 						step: 0.1,
 						min: -1,
 						max: 1,
@@ -185,7 +193,8 @@ class FilterControl extends Component {
 							{ value: 0, 		label: 'Normal'},
 							{ value: 0.5, 	label: 'Moist'},
 							{ value: 1, 		label: 'Very Moist'}
-						]
+						],
+						text: 'Measured by NDVI'
 					}
 				]
 			},
@@ -193,15 +202,16 @@ class FilterControl extends Component {
 				name: 'climate',
 				filters: [
 					{
-						title: 'Average precipitation per year',
+						title: 'Precipitation',
 						step: 5,
 						min: 0,
 						max: 1000,
 						unit: ' mm',
 						category: 'soil',
-						valueName: 'precipitation'
+						valueName: 'precipitation',
+						text: 'Average precipitation per year'
 					},
-				]
+				],
 			},
 		]
 
@@ -213,10 +223,16 @@ class FilterControl extends Component {
 
 			for (let j = 0; j < form[i].filters.length; j++)
 			{
-				inputs.push(<ListItem className='filterItem' dense key={form[i].filters[j].title}><FilterInput form={form[i].filters[j]} filterSelectionChange={this.filterSelectionChange} filterChange={this.filterChange}/></ListItem>);
+				inputs.push(
+      		<FilterInput
+      			key={form[i].filters[j].title + '_FilterInputComponent'}
+      			form={form[i].filters[j]}
+      			filterSelectionChange={this.filterSelectionChange}
+      			filterChange={this.filterChange}
+    			/>);
 			}
 
-			filterForm.push({name: form[i].name, inputs: inputs});
+			filterForm.push({name: form[i].name, inputs: <List disablePadding>{inputs}</List>});
 		}
 
 		this.setState({ filterForm: filterForm });
@@ -533,11 +549,9 @@ class FilterControl extends Component {
 					}
 				/>
 				<Collapse in={this.state.expanded}>
-					<CardContent
-						className={'card-content'}
-					>
+					<CardContent className={'card-content'}>
 						<FormControlLabel
-						className='showTiles'
+							className='showTiles'
 							control={
 								<Checkbox
 									disabled={this.state.loading}
@@ -550,32 +564,28 @@ class FilterControl extends Component {
 							label="Show Tiles"
 						/>
 						{this.state.loading ? <CircularProgress size={20} /> : null}
-						<List>
-							{this.state.filterForm.map(x => {
+						{
+							this.state.filterForm.map(x => {
 								let open = this.state.open.includes(x.name)
-								return (<List
-								  key={'list_' + x.name}
-						      subheader={<ListSubheader
-						      	component={(props) => <Grid {...props} />}
-						      	disableGutters
-						      	color='primary'
-						      	className='filterSubtitle'
-						      	container
-						      	direction="row"
-									  justify="space-between"
-									  alignItems="center"
-						      	onClick={() => {this.changeOpen(x.name)}}
-					      	>
-						      	<Grid item><h3>{x.name}</h3></Grid>
-						      	<Grid item><IconButton size="small" color='secondary'> {open ? <ExpandLessIcon /> : <ExpandMoreIcon />}</IconButton></Grid>
-					    		</ListSubheader>
-					    	}>
-						    	<Collapse in={this.state.open.includes(x.name)}>
-							    	{x.inputs}
-						    	</Collapse>
-					  		</List>)
-							})}
-						</List>
+
+								return(<div className='filterFormItem' key={x.name + "_gridContainer"}>
+					       <Grid
+					      	color='primary'
+					      	className='filterSubtitle'
+					      	container
+					      	direction="row"
+								  justify="space-between"
+								  alignItems="center"
+								  onClick={() => {this.changeOpen(x.name)}}
+				      	>
+					      	<Grid item><h3>{x.name}</h3></Grid>
+					      	<Grid item><IconButton size="small" color='secondary'> {open ? <ExpandLessIcon /> : <ExpandMoreIcon />}</IconButton></Grid>
+					    	</Grid>
+					    	<Collapse in={this.state.open.includes(x.name)} className='filterFormItemCollapse'>
+						    	{x.inputs}
+					    	</Collapse>
+				    	</div>)})
+						}
 						<div className='button_count'>
 							<Button
 								key={'submit' + this.state.loading}
@@ -604,6 +614,7 @@ class FilterInput extends Component {
 
 		this.state = {
 			checked: false,
+			tooltipOpen: false,
 		};
 	}
 
@@ -630,60 +641,64 @@ class FilterInput extends Component {
 		let form = this.props.form;
 		let marks = form.marks ? form.marks : this.makeMarks(form.min, form.max, form.unit);
 
-		return <div className='filterInputContainer'>
-			<FormControlLabel
-				className='FilterInput'
-				control={
-					<Checkbox
-						checked={this.state.checked}
-						onChange={(e, checked) => {this.setState({checked: !this.state.checked}, () => this.props.filterSelectionChange(e, checked, form.valueName, form.category))}}
-						color="primary"
-					/>
-				}
-				label={form.title}
+		let labelId = `checkbox-list-label-${form.title.replace(' ', '-')}`;
+
+		return ([<ListItem
+    	className='filterItem'
+    	dense
+    	button
+    	key={form.title + 'listItem'}
+    	className='MuiListItem-secondaryAction'
+    	onClick={(e, checked) => {this.setState({checked: !this.state.checked}, () => this.props.filterSelectionChange(e, checked, form.valueName, form.category))}}
+  	>
+	    <ListItemIcon>
+	      <Checkbox
+	        edge="start"
+	       	checked={this.state.checked}
+	        tabIndex={-1}
+	        disableRipple
+	        onChange={(e, checked) => {this.setState({checked: !this.state.checked}, () => this.props.filterSelectionChange(e, checked, form.valueName, form.category))}}
+	        inputProps={{ 'aria-labelledby': labelId }}
+	      />
+	    </ListItemIcon>
+	    <ListItemText id={labelId} primary={form.title} className='filterInputText'/>
+	    <ListItemSecondaryAction>
+	    <Tooltip
+	    	TransitionComponent={Zoom}
+	    	title={form.text}
+	    	placement="right"
+	    	leaveDelay={500}
+	    	interactive
+	    	arrow
+	    	open={this.state.tooltipOpen}
+	    	onClose={() => {this.setState({tooltipOpen: false})}}
+	    	onClick={() => {this.setState({tooltipOpen: !this.state.tooltipOpen})}}
+    	>
+			  <IconButton edge="end" aria-label="filter information">
+	        <InfoIcon />
+	      </IconButton>
+			</Tooltip>
+	    </ListItemSecondaryAction>
+    </ListItem>,
+    <Collapse in={this.state.checked} key={form.title + 'collapse'} className='filterInputCollapse'>
+			<Slider
+				defaultValue={[form.min, form.max]}
+				valueLabelDisplay="auto"
+				step={form.step}
+				marks={marks}
+				min={form.min}
+				max={form.max}
+				key={form.title + 'Slider'}
+				onChange={(e, value) => {
+					if(this.state.checked)
+					{
+						this.props.filterChange(e, value, form.valueName, form.category);
+					}
+					else {
+						this.setState({checked: true}, () => this.props.filterChange(e, value, form.valueName, form.category))
+					}
+				}}
 			/>
-			<Collapse in={this.state.checked}>
-				<Slider
-					defaultValue={[form.min, form.max]}
-					valueLabelDisplay="auto"
-					step={form.step}
-					marks={marks}
-					min={form.min}
-					max={form.max}
-					key={form.title + 'Slider'}
-					onChange={(e, value) => {
-						if(this.state.checked)
-						{
-							this.props.filterChange(e, value, form.valueName, form.category);
-						}
-						else {
-							this.setState({checked: true}, () => this.props.filterChange(e, value, form.valueName, form.category))
-						}
-					}}
-				/>
-			</Collapse>
-		</div>
-
-		/*let input = [];
-
-		input.push(<Typography gutterBottom key={form.title + 'Title'}>
-			{form.title}
-		</Typography>);
-
-		let marks = form.marks ? form.marks : this.makeMarks(form.min, form.max, form.unit);
-
-		input.push(<Slider
-			defaultValue={[form.min, form.max]}
-			valueLabelDisplay="auto"
-			step={form.step}
-			marks={marks}
-			min={form.min}
-			max={form.max}
-			key={form.title + 'Slider'}
-			onChange={(e, value) => {this.props.filterChange(e, value, form.valueName, form.category)}}
-		/>);
-
-		return (input);*/
-
+		</Collapse>])
 	}
 }

@@ -147,9 +147,9 @@ export class MainMenu extends Component {
           key={this.state.width}
         >
           <Navbar.Brand>
-            <NavLink exact to='/' className='main-menu-logo-item noselect' onClick={() => {this.props.onModeChange(-1); this.onOpenAccounts(false)}}>
+            <a href='/' className='main-menu-logo-item noselect' onClick={(e) => {e.preventDefault(); this.props.onModeChange(-1); this.onOpenAccounts(false)}}>
               <img className='main-menu-logo' src='/images/logos/groasis-tree-atlas-logo.svg' alt='Groasis Tree Altas'/>
-            </NavLink>
+            </a>
           </Navbar.Brand>
             <NavItem className='modeSwitch'>
 {/*              <RadioGroup

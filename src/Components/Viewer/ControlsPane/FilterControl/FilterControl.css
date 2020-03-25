@@ -26,7 +26,25 @@
 
 .filter-control .filterInputContainer
 {
-	width: 100%;
+	width: inherit;
+	display: inherit;
+	justify-content: inherit;
+	align-items: inherit;
+}
+
+.filter-control .filterFormItem
+{
+	margin: 0.5rem 0;
+}
+
+.filter-control .filterFormItemCollapse .MuiListItemIcon-root
+{
+	min-width: 32px;
+}
+
+.filter-control .button_count
+{
+	margin-top: 1.5rem;
 }
 
 .filter-control .button_count button
@@ -68,10 +86,9 @@
 	hyphens: auto;
 }
 
-.filter-control .filterItem
+.filter-control .filterFormItemCollapse
 {
-	padding: 0;
-	flex-wrap: wrap;
+	margin: 0 -16px;
 }
 
 .filter-control .FilterInput
@@ -83,6 +100,22 @@
 .controls-pane .filter-control .MuiFormControlLabel-root .MuiFormControlLabel-label
 {
 	margin-top: 7px;
+}
+
+.filter-control .filterInputCollapse
+{
+	margin: 0 16px;
+}
+
+.MuiTooltip-tooltip.MuiTooltip-tooltipPlacementRight
+{
+	margin-left: 8px;
+	font-size: 75%;
+}
+
+.filter-control .filterInputText span
+{
+	font-size: 1rem;
 }
 
 /*.filter-control .FilterInput .MuiCollapse-container
