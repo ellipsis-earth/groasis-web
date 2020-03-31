@@ -64,7 +64,8 @@ const ViewerUtility = {
     createCustomPolygon: 'create_custom_polygon',
     editCustomPolygon: 'edit_custom_polygon',
     feed: 'geomessage_feed',
-    gallery: 'gallery'
+    gallery: 'gallery',
+    multiply: 'multiply',
   },
 
   dataGraphType: {
@@ -157,12 +158,13 @@ const ViewerUtility = {
     }
   },
 
-  createGeoJsonLayerStyle: (color, weight, fillOpacity, zIndex) => {
+  createGeoJsonLayerStyle: (color, weight, fillOpacity, zIndex, strokeOpacity) => {
     return {
       color: color ? color : '#3388ff',
       weight: weight ? weight : 1,
       fillOpacity: fillOpacity ? fillOpacity : 0.06,
       zIndex: zIndex ? zIndex : 1000,
+      opacity: strokeOpacity ? strokeOpacity : 1
     };
   },
 

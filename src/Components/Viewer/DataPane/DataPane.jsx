@@ -1,11 +1,11 @@
 import React, { PureComponent } from 'react';
 
+import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
 import CardActions from '@material-ui/core/CardActions';
-import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
+import Typography from '@material-ui/core/Typography';
 
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
@@ -18,8 +18,9 @@ import ViewerUtility from '../ViewerUtility';
 
 /*import LegendControl from './LegendControl/LegendControl';*/
 import AnalyseControl from './AnalyseControl/AnalyseControl';
-import GeoMessageControl from './GeoMessageControl/GeoMessageControl';
 import CustomPolygonControl from './CustomPolygonControl/CustomPolygonControl';
+import GeoMessageControl from './GeoMessageControl/GeoMessageControl';
+import MultiplyControl from './MultiplyControl/MultiplyControl';
 
 import WachtlistControl from './GeoMessageControl/WachtlistControl';
 
@@ -51,6 +52,10 @@ class DataPane extends PureComponent {
 
   goToAction = () => {
     this.setState({ home: false });
+  }
+
+  goToHome = () => {
+    this.setState({ home: true });
   }
 
   onFlyTo = () => {
@@ -100,6 +105,7 @@ class DataPane extends PureComponent {
           key={this.props.groasisMaps ? this.props.groasisMaps.areas.join('_') : 'default'}
           watchlistRefresh={this.props.watchlistRefresh}
           ref={this.watchlist}
+          selectedPlantingSite={this.props.selectedPlantingSite}
         />
       );
     }
@@ -175,6 +181,18 @@ class DataPane extends PureComponent {
             onPolygonChange={this.props.onPolygonChange}
           />
         );
+    }
+    else if (action === ViewerUtility.dataPaneAction.multiply && !this.state.home)
+    {
+      actionControl = (
+        <MultiplyControl
+          /*user={this.props.user}
+          map={this.props.map}*/
+          element={this.props.element}
+          leafletMap={this.props.leafletMap}
+          onLayersChange={this.props.onLayersChange}
+        />
+      );
     }
 
     let dataPaneClassName = 'viewer-pane data-pane';

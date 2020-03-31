@@ -98,6 +98,9 @@ class Viewer extends PureComponent {
       geolocation: null,
 
       overrideLeafletLayers: null,
+
+      selectedPlantingSite: null,
+      selectedPlantingLine: null,
     };
   }
 
@@ -173,7 +176,7 @@ class Viewer extends PureComponent {
     if (this.props.mode !== prevProps.mode) {
       let dataPaneAction = this.state.dataPaneAction;
 
-      if (dataPaneAction === ViewerUtility.dataPaneAction.geoMessage || dataPaneAction === ViewerUtility.dataPaneAction.analyse) {
+      if (dataPaneAction === ViewerUtility.dataPaneAction.geoMessage || dataPaneAction === ViewerUtility.dataPaneAction.analyse || dataPaneAction === ViewerUtility.dataPaneAction.multiply) {
         this.setState({ dataPaneAction: null });
       }
 
@@ -358,7 +361,8 @@ class Viewer extends PureComponent {
         selectedElement: null,
         timestampRange: {start: 0, end: 0},
         selectedLayers: selectedLayers,
-        overrideLeafletLayers: null
+        overrideLeafletLayers: null,
+        selectedPlantingSite: null,
       })
     }
     else
@@ -393,6 +397,8 @@ class Viewer extends PureComponent {
             timestampRange: timestampRange,
             overrideLeafletLayers: null,
             selectedLayers: selectedLayers,
+            selectedPlantingSite: null,
+            selectedPlantingLine: null,
             panes: panes,
           }, () => {
             this.onFlyTo({ type: ViewerUtility.flyToType.map, delay: false });
@@ -535,6 +541,8 @@ class Viewer extends PureComponent {
   }
 
   onPlantingSiteClick = (feature) => {
+    this.deselectCurrentElement();
+
     let cb = () => {
       let flyToInfo = {
         type: ViewerUtility.flyToType.givenElement,
@@ -553,7 +561,7 @@ class Viewer extends PureComponent {
     let selectedLayers = this.state.selectedLayers;
     selectedLayers[ViewerUtility.polygonLayerType] = newLayers;
 
-    this.setState({selectedLayers: selectedLayers}, () => {this.props.onModeChange(ViewerUtility.plannerMode, cb);})
+    this.setState({selectedLayers: selectedLayers, selectedPlantingLine: null, selectedPlantingSite: feature.properties.id}, () => {this.props.onModeChange(ViewerUtility.plannerMode, cb);})
   }
 
   watchlistRefresh = (type, data) => {
@@ -589,7 +597,6 @@ class Viewer extends PureComponent {
 
       let markerPane = this.leafletMap.current.leafletElement.getPane('markerPane');
 
-      console.log(feature.properties.mapId, feature)
       let map = this.state.groasisMaps.areas.find(x => x.id === feature.properties.mapId);
 
       let layerCollection = null;
@@ -623,9 +630,18 @@ class Viewer extends PureComponent {
         />
       );
 
+
+      let stateObj = {selectedElement: element};
+
+      if (feature.properties.layer === GroasisUtility.layers.polygon.plantingLines)
+      {
+        stateObj.selectedPlantingSite = parseInt(feature.properties['Planting site id']);
+        stateObj.selectedPlantingLine = parseInt(feature.properties.id);
+      }
+
       this.selectedElementLayer = selectedElementLayer;
 
-      this.setState({ selectedElement: element }, () => {
+      this.setState(stateObj, () => {
         this.rebuildAllLayers();
         if (cb) {
           console.log(cb)
@@ -648,7 +664,21 @@ class Viewer extends PureComponent {
       this.removeDrawnPolygon(false)
     }
 
-    this.setState({ selectedElement: null, dataPaneAction: dataPaneAction }, this.rebuildAllLayers);
+    this.mapControl.current.onStopDraw();
+
+    let stateObj = { selectedElement: null, dataPaneAction: dataPaneAction, overrideLeafletLayers: null };
+
+    if (selectedElement && selectedElement.feature.properties.layer === GroasisUtility.layers.polygon.plantingLines)
+    {
+      stateObj.selectedPlantingLine = null;
+    }
+    else if (selectedElement && selectedElement.feature.properties.layer === GroasisUtility.layers.polygon.plantingSites)
+    {
+      stateObj.selectedPlantingLine = null;
+      stateObj.selectedPlantingSite = null;
+    }
+
+    this.setState(stateObj, this.rebuildAllLayers);
   }
 
   removeDrawnPolygon = (deselect) => {
@@ -674,7 +704,7 @@ class Viewer extends PureComponent {
       this.drawnPolygonLayer,
     ];
 
-    this.setState({ allLayers: allLayers });
+    this.setState({ allLayers: allLayers});
   }
 
   updatePolygons = (type, value) => {
@@ -956,6 +986,8 @@ class Viewer extends PureComponent {
             groasisMaps={this.state.groasisMaps}
             mode={this.props.mode}
             onWatchlistClick={this.onWatchlistClick}
+            selectedPlantingSite={this.state.selectedPlantingSite}
+            selectedPlantingLine={this.state.selectedPlantingLine}
           />
 
           <div className='viewer-pane map-pane' style={mapPaneStyle}>
@@ -981,6 +1013,8 @@ class Viewer extends PureComponent {
               onSelectMap={this.onSelectMap}
               onPlantingSiteClick={this.onPlantingSiteClick}
               watchlistRefresh={this.watchlistRefresh}
+              selectedPlantingSite={this.state.selectedPlantingSite}
+              selectedPlantingLine={this.state.selectedPlantingLine}
             />
             <Map
               center={DEFAULT_VIEWPORT.center}
@@ -1012,6 +1046,8 @@ class Viewer extends PureComponent {
               map={this.state.map}
               user={this.props.user}
               ref={this.mapControl}
+              selectedPlantingSite={this.state.selectedPlantingSite}
+              selectedPlantingLine={this.state.selectedPlantingLine}
             />
           </div>
 
@@ -1034,6 +1070,8 @@ class Viewer extends PureComponent {
             onFeatureClick={this.selectFeature}
             onWatchlistClick={this.onWatchlistClick}
             onPlantingSiteClick={this.onPlantingSiteClick}
+            selectedPlantingSite={this.state.selectedPlantingSite}
+            leafletMap={this.leafletMap}
           />
         </div>
 

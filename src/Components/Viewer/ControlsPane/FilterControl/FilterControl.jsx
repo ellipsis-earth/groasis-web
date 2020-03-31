@@ -108,12 +108,20 @@ class FilterControl extends Component {
 	filterChange = (e, value, valueName, category) => {
 		let stateObj = this.state.filterData;
 
-		if(stateObj[category][valueName].value !== value)
+		if (!stateObj[category])
 		{
-			stateObj[category][valueName].value = value;
-
-			this.setState({filterData: stateObj});
+			stateObj[category] = {};
 		}
+
+		if (!stateObj[category][valueName])
+		{
+			stateObj[category][valueName] = {};
+		}
+
+		stateObj[category][valueName].value = value;
+		stateObj[category][valueName].checked = true;
+
+		this.setState({filterData: stateObj});
 	}
 
 	filterSelectionChange = (e, checked, valueName, category) => {
@@ -180,6 +188,36 @@ class FilterControl extends Component {
 						text: 'Measured on 0m in mass percentage'
 					},
 					{
+						title: 'Coarse Fragment',
+						step: 5,
+						min: 0,
+						max: 100,
+						unit: [' m', {type: 'sup' , value: '3'}],
+						category: 'soil',
+						valueName: 'coarse',
+						text: 'Measured on 0m in m3'
+					},
+					{
+						title: 'Sand Content',
+						step: 5,
+						min: 0,
+						max: 100,
+						unit: ' %',
+						category: 'soil',
+						valueName: 'sand',
+						text: 'Measured on 0m in mass percentage'
+					},
+					{
+						title: 'pH',
+						step: 0.1,
+						min: 0,
+						max: 14,
+						unit: '',
+						category: 'soil',
+						valueName: 'pH',
+						text: 'Measured on 0m'
+					},
+					{
 						title: 'Moisture content',
 						step: 0.1,
 						min: -1,
@@ -210,6 +248,16 @@ class FilterControl extends Component {
 						category: 'soil',
 						valueName: 'precipitation',
 						text: 'Average precipitation per year'
+					},
+					{
+						title: 'Temperature Range',
+						step: 5,
+						min: -25,
+						max: 50,
+						unit: ' °C',
+						category: 'soil',
+						valueName: 'temperature',
+						text: 'Maximum and minimum temperature in selected area'
 					},
 				],
 			},
@@ -268,6 +316,7 @@ class FilterControl extends Component {
 				}
 				else if (results[0] && results[0].count)
 				{
+					console.log(results[0]);
 					if (results[0].count > MAX_TILES)
 					{
 						countMessage = [<div key={'countDiv' + results[0].count}><span className='red' key='count'>{results[0].count}</span><span>/{MAX_TILES}</span></div>, <span key='message'>Zoom in further or change filters.</span>];
@@ -284,8 +333,6 @@ class FilterControl extends Component {
 
 	prepareStandardTilesLayer = async (map, timestampRange) => {
 		let bounds = this.props.leafletMapViewport.bounds;
-
-
 
 		let soilMap = this.props.map.maps.find(x => x.dataSources[0].id === "ce6650f0-91b8-481c-bc17-7a38f12658a1");
 		let lowResMap = this.props.map.maps.find(x => x.dataSources[0].id === "4c450c42-1bf6-11e9-96ea-f0038c0f0121");
@@ -311,6 +358,9 @@ class FilterControl extends Component {
 					geoJson: null,
 					geoJsonElement: null
 				};
+
+				let nonDataIds = [];
+
 
 				let filterDataKeys = Object.keys(this.state.filterData);
 				if (result.count === 0 || (result.count > MAX_TILES && filterDataKeys === 0))
@@ -343,27 +393,72 @@ class FilterControl extends Component {
 
 
 						let filterData = await ApiManager.post('/data/ids', requestBody, this.props.user);
-						filterData = Papa.parse(filterData, {header: true, fastMode: true, dynamicTyping: true, skipEmptyLines: true}).data;
+						filterData = Papa.parse(filterData, {header: true, dynamicTyping: true}).data;
+
+						if(standardTileIds.ids.length > filterData.length)
+						{
+							for(let j = standardTileIds.count - 1; j >= 0; j--)
+							{
+								let filterNonData = filterData.find(x => x.tileX === standardTileIds.ids[j].tileX && x.tileY === standardTileIds.ids[j].tileY);
+								if (!filterNonData)
+								{
+									nonDataIds.push({tileX: standardTileIds.ids[j].tileX, tileY: standardTileIds.ids[j].tileY});
+								}
+							}
+						}
 
 						let category = filterDataKeys[i];
+						let keys = Object.keys(filterData[0]);
 
-						for (var j = 0; j < filterData.length; j++)
+						for (let j = filterData.length - 1; j >= 0; j--)
 						{
 							for(let key in this.state.filterData[category])
 							{
 								if (key === 'precipitation' && filterData[j])
 								{
-									let keys = ['precipitation jan 2011', 'precipitation feb 2011', 'precipitation mar 2011', 'precipitation apr 2011', 'precipitation may 2011', 'precipitation jun 2011', 'precipitation jul 2011', 'precipitation aug 2011', 'precipitation sept 2011', 'precipitation oct 2011', 'precipitation nov 2011', 'precipitation dec 2011'];
+									let precipitationKeys = keys.filter(x => x.includes('precipitation'));
+									//['precipitation jan 2011', 'precipitation feb 2011', 'precipitation mar 2011', 'precipitation apr 2011', 'precipitation may 2011', 'precipitation jun 2011', 'precipitation jul 2011', 'precipitation aug 2011', 'precipitation sept 2011', 'precipitation oct 2011', 'precipitation nov 2011', 'precipitation dec 2011']
 									let precipitation = 0;
 
-									for (let k = 0; k < keys.length; k++)
+									for (let k = 0; k < precipitationKeys.length; k++)
 									{
-										precipitation = precipitation + filterData[j][keys[k]];
+										precipitation = precipitation + filterData[j][precipitationKeys[k]];
 									}
 
 									if (this.state.filterData[category][key].checked && this.state.filterData[category][key].value)
 									{
 										if(precipitation < this.state.filterData[category][key].value[0] || precipitation > this.state.filterData[category][key].value[1])
+										{
+											filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
+											delete filterData[j];
+										}
+									}
+								}
+								else if (key === 'temperature')
+								{
+									if (this.state.filterData[category][key].checked && this.state.filterData[category][key].value && filterData[j])
+									{
+										let tempKeys = keys.filter(x => x.includes('temp'));
+										let max = -100000;
+										let min = 100000;
+
+										for (var l = 0; l < tempKeys.length; l++)
+										{
+											if(filterData[j][tempKeys[l]] > max)
+											{
+												max = filterData[j][tempKeys[l]];
+											}
+
+											if(filterData[j][tempKeys[l]] < min)
+											{
+												min = filterData[j][tempKeys[l]];
+											}
+										}
+
+										let minInput = this.state.filterData[category][key].value[0];
+										let maxInput = this.state.filterData[category][key].value[1];
+
+										if(min < minInput || max > maxInput || min > maxInput || max < minInput)
 										{
 											filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
 											delete filterData[j];
@@ -386,6 +481,28 @@ class FilterControl extends Component {
 									if (this.state.filterData[category][key].checked && this.state.filterData[category][key].value)
 									{
 										if(filterData[j] && (filterData[j]['clay content mass percentage 0m'] < this.state.filterData[category][key].value[0] || filterData[j]['clay content mass percentage 0m'] > this.state.filterData[category][key].value[1]))
+										{
+											filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
+											delete filterData[j];
+										}
+									}
+								}
+								else if (key === 'sand')
+								{
+									if (this.state.filterData[category][key].checked && this.state.filterData[category][key].value)
+									{
+										if(filterData[j] && (filterData[j]['sand content mass percentage 0m'] < this.state.filterData[category][key].value[0] || filterData[j]['sand content mass percentage 0m'] > this.state.filterData[category][key].value[1]))
+										{
+											filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
+											delete filterData[j];
+										}
+									}
+								}
+								else if (key === 'pH')
+								{
+									if (this.state.filterData[category][key].checked && this.state.filterData[category][key].value)
+									{
+										if(filterData[j] && (filterData[j]['PH 0m'] < this.state.filterData[category][key].value[0] || filterData[j]['PH 0m'] > this.state.filterData[category][key].value[1]))
 										{
 											filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
 											delete filterData[j];
@@ -416,6 +533,18 @@ class FilterControl extends Component {
 									standardTileIds.ids.splice(j, 1);
 								}
 							}
+						}
+					}
+				}
+
+				for (let i = nonDataIds.length - 1; i >= 0; i--)
+				{
+					for (let j = standardTileIds.ids.length - 1; j >= 0; j--)
+					{
+						if (standardTileIds.ids[j] && nonDataIds[i].tileX === standardTileIds.ids[j].tileX && nonDataIds[i].tileY === standardTileIds.ids[j].tileY)
+						{
+							standardTileIds.count = standardTileIds.count - 1;
+							standardTileIds.ids.splice(j, 1);
 						}
 					}
 				}
@@ -623,12 +752,39 @@ class FilterInput extends Component {
 
 		let amount = 4;
 
+		let valueStep = (max - min) / amount;
+
 		for (let i = 0; i <= amount; i++)
 		{
-			let value = min + i * max / amount;
+			let value = min + i * valueStep;
+
+			let handledUnit = '';
+
+			if (typeof unit !== 'string')
+			{
+				for (let j = 0; j < unit.length; j++)
+				{
+					if(typeof unit[j] !== 'string')
+					{
+						if (unit[j].type === 'sup' && unit[j].value === '3')
+						{
+							handledUnit = handledUnit + '³';
+						}
+					}
+					else
+					{
+						handledUnit = handledUnit + unit[j];
+					}
+				}
+			}
+			else
+			{
+				handledUnit = unit;
+			}
+
 			let mark = {
 				value: value,
-				label: value.toString() + unit,
+				label: value.toString() + handledUnit,
 			};
 
 			marks.push(mark)

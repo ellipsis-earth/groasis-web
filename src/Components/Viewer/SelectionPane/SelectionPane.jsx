@@ -189,7 +189,9 @@ class SelectionPane extends PureComponent {
     let treeGeoJson = GroasisUtility.markerToTreePolygon(markerGeoJson);
     treeGeoJson.properties = {
       [GroasisUtility.treeProperties.species]: newTreeProps.species,
-      [GroasisUtility.treeProperties.plantingDate]: newTreeProps.plantingDate
+      /*[GroasisUtility.treeProperties.plantingDate]: newTreeProps.plantingDate,*/
+      'Planting site id': this.props.selectedPlantingSite,
+      'Planting line id': this.props.selectedPlantingLine,
     };
 
     let body = {
@@ -217,8 +219,10 @@ class SelectionPane extends PureComponent {
     let element = this.props.element;
 
     let layer = null;
+    let properties = {};
     if (element.type === ViewerUtility.plantingLineElementType) {
       layer = GroasisUtility.layers.polygon.plantingLines;
+      properties['Planting site id'] = this.props.selectedPlantingSite;
     }
     else if (element.type === ViewerUtility.ooiElementType) {
       layer = GroasisUtility.layers.polygon.objectOfInterest;
@@ -230,7 +234,7 @@ class SelectionPane extends PureComponent {
       layer: layer,
       feature: {
         ...element.feature,
-        properties: {}
+        properties: properties
       }
     };
 
@@ -427,7 +431,7 @@ class SelectionPane extends PureComponent {
             this.setState({ newTreeProps: newTreeProps });
           }}
         />
-        <MuiPickersUtilsProvider utils={DateFnsUtils}>
+        {/*<MuiPickersUtilsProvider utils={DateFnsUtils}>
           <KeyboardDatePicker
             id='planting-date-picker'
             disableToolbar
@@ -454,7 +458,7 @@ class SelectionPane extends PureComponent {
           type='file'
           accept='image/*'
           onChange={this.onImageChange}
-        />
+        />*/}
       </div>
     )
   }
@@ -601,6 +605,10 @@ class SelectionPane extends PureComponent {
       ));
     }
 
+    let canEdit = user &&
+        (mapAccessLevel > ApiManager.accessLevels.alterOrDeleteCustomPolygons ||
+        element.feature.properties.user === user.username);
+
     if (element.type === ViewerUtility.standardTileLayerType) {
       if (elementProperties.type === ViewerUtility.wmsTileLayerType) {
         title = 'WMS tile';
@@ -633,28 +641,35 @@ class SelectionPane extends PureComponent {
       }
       else if (layer === GroasisUtility.layers.polygon.plantingLines) {
         title = 'Planting line';
+        secondRowButtons.push(<Button
+          key='multiply'
+          variant='outlined'
+          size='small'
+          color='primary'
+          className='selection-pane-button'
+          onClick={() => this.onElementActionClick(ViewerUtility.dataPaneAction.multiply)}
+          disabled={!canEdit}
+        >
+          {ViewerUtility.dataPaneAction.multiply}
+        </Button>);
       }
       else if (layer === GroasisUtility.layers.polygon.plantingSite) {
         title = 'Planting Site';
       }
 
-      let canEdit = user &&
-        (mapAccessLevel > ApiManager.accessLevels.alterOrDeleteCustomPolygons ||
-        element.feature.properties.user === user.username);
-
-        firstRowButtons = [];
+      firstRowButtons = [];
 
       secondRowButtons.push(
-        // <Button
-        //   key='edit'
-        //   variant='outlined'
-        //   size='small'
-        //   className='selection-pane-button'
-        //   onClick={() => this.onElementActionClick(ViewerUtility.dataPaneAction.editCustomPolygon)}
-        //   disabled={!canEdit}
-        // >
-        //   {'EDIT'}
-        // </Button>,
+        /*<Button
+          key='edit'
+          variant='outlined'
+          size='small'
+          className='selection-pane-button'
+          onClick={() => this.onElementActionClick(ViewerUtility.dataPaneAction.editCustomPolygon)}
+          disabled={!canEdit}
+        >
+          {'EDIT'}
+        </Button>,*/
         <Button
           key='delete'
           variant='outlined'
@@ -675,7 +690,6 @@ class SelectionPane extends PureComponent {
           <Button
             key='gallery'
             variant='contained'
-            color='primary'
             size='small'
             className='selection-pane-button'
             onClick={() => this.onElementActionClick(ViewerUtility.dataPaneAction.geoMessage)}

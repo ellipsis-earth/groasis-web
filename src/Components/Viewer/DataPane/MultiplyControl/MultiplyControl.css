@@ -1,0 +1,29 @@
+.multiplyControl
+{
+	margin-top: 1rem;
+}
+
+.multiplyControl p
+{
+	font-size: 75%;
+	hyphens: auto;
+
+}
+
+.multiplyControl label
+{
+	hyphens: auto;
+	width: 100%;
+	font-size:calc(12px + 1.5vw);
+  transition: color 200ms cubic-bezier(0.0, 0, 0.2, 1) 0ms,transform 200ms cubic-bezier(0.0, 0, 0.2, 1) 0ms, width 200ms cubic-bezier(0.0, 0, 0.2, 1);
+}
+
+.multiplyControl label[data-shrink="false"]
+{
+	margin-right: 8px;
+}
+
+.multiplyControl label[data-shrink="true"]
+{
+	width: 125%;
+}

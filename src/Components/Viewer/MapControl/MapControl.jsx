@@ -3,9 +3,11 @@ import { Nav, NavItem } from 'react-bootstrap';
 import L from 'leaflet';
 import { GeoJSON } from 'react-leaflet';
 
-import { IconButton } from '@material-ui/core';
+import IconButton from '@material-ui/core/IconButton';
+
 import MyLocationIcon from '@material-ui/icons/MyLocation';
 import TimeLineIcon from '@material-ui/icons/Timeline';
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faTimes,
@@ -165,16 +167,6 @@ export class MapControl extends PureComponent {
     if (this.props.mode === ViewerUtility.plannerMode) {
       plannerButtons.push(
         <Nav className='flex-column map-control map-control-planner' key={this.props.mode}>
-          <NavItem>
-            <IconButton
-              className='tool-button'
-              style={{ color: 'rgba(0, 0, 0, 0.75)' }}
-              onClick={this.onPlantTree}
-              disabled={disabled}
-            >
-              <FontAwesomeIcon icon={faTree} />
-            </IconButton>
-          </NavItem>
           {/*<NavItem>
             <IconButton
               className='tool-button'
@@ -185,16 +177,30 @@ export class MapControl extends PureComponent {
               <FontAwesomeIcon icon={faDrawPolygon} />
             </IconButton>
           </NavItem>*/}
-          <NavItem>
-            <IconButton
-              className='tool-button'
-              style={{ color: 'rgba(0, 0, 0, 0.75)' }}
-              onClick={this.onDrawLine}
-              disabled={disabled}
-            >
-              <TimeLineIcon/>
-            </IconButton>
-          </NavItem>
+          {
+            this.props.selectedPlantingSite ? <NavItem>
+              <IconButton
+                className='tool-button'
+                style={{ color: 'rgba(0, 0, 0, 0.75)' }}
+                onClick={this.onDrawLine}
+                disabled={disabled}
+              >
+                <TimeLineIcon/>
+              </IconButton>
+            </NavItem> : null
+          }
+          {
+            this.props.selectedPlantingSite && this.props.selectedPlantingLine ? <NavItem>
+              <IconButton
+                className='tool-button'
+                style={{ color: 'rgba(0, 0, 0, 0.75)' }}
+                onClick={this.onPlantTree}
+                disabled={disabled}
+              >
+                <FontAwesomeIcon icon={faTree} />
+              </IconButton>
+            </NavItem> : null
+          }
           {
             this.state.drawControl && !disabled ? (
               <NavItem>

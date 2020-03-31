@@ -3,3 +3,10 @@ div.layerDivIcon
 	display: flex;
 	justify-content: center;
 }
+
+.leaflet-pane > svg path.noClick.leaflet-interactive
+{
+  cursor: grab;
+  cursor: -webkit-grab;
+  pointer-events: none;
+}

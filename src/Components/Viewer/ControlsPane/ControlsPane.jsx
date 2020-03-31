@@ -55,10 +55,7 @@ class ControlsPane extends PureComponent {
       this.polygonLayers = layers;
     }
 
-    let allLayers = this.tileLayers;
-    if (!this.props.override) {
-      allLayers = allLayers.concat(this.standardTileLayers, this.polygonLayers);
-    }
+    let allLayers = [...this.tileLayers, ...this.standardTileLayers, ...this.polygonLayers];
 
     this.props.onLayersChange(allLayers);
   }
@@ -102,6 +99,8 @@ class ControlsPane extends PureComponent {
           groasisMaps={this.props.groasisMaps}
           mode={this.props.mode}
           onWatchlistClick={this.props.onWatchlistClick}
+          selectedPlantingSite={this.props.selectedPlantingSite}
+          selectedPlantingLine={this.props.selectedPlantingLine}
         />
 
         {/* <StandardTileLayersControl
@@ -119,7 +118,7 @@ class ControlsPane extends PureComponent {
           this.props.mode !== ViewerUtility.identificationMode || (this.props.map && this.props.map.type === 'area') ? <FilterControl
           ref={this.filterControl}
           user={this.props.user}
-          map={this.props.map ? this.props.map : null}
+          map={this.props.map}
           leafletMapViewport={this.props.leafletMapViewport}
           timestampRange={this.props.timestampRange}
           override={this.props.override}

@@ -23,20 +23,9 @@ class WatchListControl extends PureComponent {
 
     this.state = {
       watchlists: [],
-      count: 0
+      count: 0,
     };
   }
-
-  componentDidMount() {
-    /*let list = this.prepareWatchlist();
-    this.setState({watchlists: list.list, count: list.count});*/
-  }
-
-  /*updateWatchlist = (data) =>
-  {
-    let list = this.prepareWatchlist('update', data);
-    this.setState({watchlists: list.list, count: list.count});
-  }*/
 
   prepareWatchlist = (mode = 'normal', data) => {
     let watchlists = [];
@@ -44,16 +33,15 @@ class WatchListControl extends PureComponent {
     if (this.props.groasisMaps)
     {
       watchlists.push(<WatchList
-        key={'WatchList'}
         user={this.props.user}
         groasisMaps={this.props.groasisMaps}
         map={this.props.map}
         onWatchlistClick={this.props.onWatchlistClick}
         onPlantingSiteClick={this.props.onPlantingSiteClick}
+        selectedPlantingSite={this.props.selectedPlantingSite}
+        key={'watchlists' + this.props.groasisMaps.length}
       />)
     }
-
-    /*return({list: watchlists})*/
 
     return watchlists;
   }
@@ -96,22 +84,9 @@ class WatchList extends PureComponent {
     let groasisMaps = this.props.groasisMaps;
     let areas = groasisMaps.areas;
 
-
     if (areas.length === 0) {
       return null;
     }
-
-    /*areas.sort((a, b) => {
-      if (a.elementId > b.elementId) {
-        return 1;
-      }
-      else if (a.elementId < b.elementId) {
-        return -1;
-      }
-      else {
-        return 0;
-      }
-    });*/
 
     let elements = areas.map(x => {
       let returnItem = [];
@@ -125,7 +100,8 @@ class WatchList extends PureComponent {
       if (plantingSites)
       {
         let plantingSitesElements = plantingSites.map(z => {
-          return (<ListItem button key={z.id} onClick={() => this.props.onPlantingSiteClick(z)}>
+          let selectedPlantingSite = parseInt(z.id) === this.props.selectedPlantingSite;
+          return (<ListItem button key={z.id + '_' + selectedPlantingSite} onClick={() => this.props.onPlantingSiteClick(z)} selected={selectedPlantingSite}>
               <ListItemIcon>
                 <FontAwesomeIcon icon={faTree} style={{ color: 'green' }}/>
               </ListItemIcon>
