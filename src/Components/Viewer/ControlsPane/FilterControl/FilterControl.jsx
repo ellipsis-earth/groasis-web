@@ -316,7 +316,6 @@ class FilterControl extends Component {
 				}
 				else if (results[0] && results[0].count)
 				{
-					console.log(results[0]);
 					if (results[0].count > MAX_TILES)
 					{
 						countMessage = [<div key={'countDiv' + results[0].count}><span className='red' key='count'>{results[0].count}</span><span>/{MAX_TILES}</span></div>, <span key='message'>Zoom in further or change filters.</span>];

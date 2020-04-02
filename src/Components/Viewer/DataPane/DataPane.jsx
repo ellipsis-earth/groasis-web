@@ -34,6 +34,7 @@ class DataPane extends PureComponent {
     };
 
     this.watchlist = React.createRef();
+    this.multiplyControl = React.createRef();
   }
 
   componentDidMount() {
@@ -186,11 +187,13 @@ class DataPane extends PureComponent {
     {
       actionControl = (
         <MultiplyControl
-          /*user={this.props.user}
-          map={this.props.map}*/
+          user={this.props.user}
+          map={this.props.map}
+          selectedPlantingSite={this.props.selectedPlantingSite}
           element={this.props.element}
           leafletMap={this.props.leafletMap}
           onLayersChange={this.props.onLayersChange}
+          ref={this.multiplyControl}
         />
       );
     }

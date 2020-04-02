@@ -136,9 +136,8 @@ class CustomPolygonControl extends PureComponent {
       })
       .catch(err => {
         if (err && err.status === 400) {
-          alert(err.message);
+          console.error(err);
         }
-        console.log(err);
         this.setState({ loading: false });
       });
   }

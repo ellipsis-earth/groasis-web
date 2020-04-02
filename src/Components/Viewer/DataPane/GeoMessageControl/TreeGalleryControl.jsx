@@ -63,7 +63,7 @@ class TreeGalleryControl extends PureComponent {
         polygonIds: [elementProperties.id]
       }
     };
-    
+
     return ApiManager.post('/geoMessage/ids', body, this.props.user)
       .then((result) => {
         if (result.count === 0) {
@@ -140,11 +140,10 @@ class TreeGalleryControl extends PureComponent {
 
     let user = this.props.user;
     let accessLevel = this.props.map.referenceMap.accessLevel;
-    
+
     let rows = rawGeoMessages.map(x => {
-      let canDelete = this.props.user && 
+      let canDelete = this.props.user &&
         (x.user === user.username || accessLevel > ApiManager.accessLevels.deleteGeomessages);
-        console.log(x)
       return (
         <tr>
           <td>
@@ -168,7 +167,7 @@ class TreeGalleryControl extends PureComponent {
                 }}
               />
               <span className='timeline-span'></span>
-            </div>            
+            </div>
           </td>
           <td>
             {
@@ -186,7 +185,7 @@ class TreeGalleryControl extends PureComponent {
           </td>
         </tr>
       )
-    });    
+    });
 
     return (
       <table className='tree-gallery-table'>
@@ -197,7 +196,7 @@ class TreeGalleryControl extends PureComponent {
             <th></th>
           </tr>
           {rows}
-        </tbody>        
+        </tbody>
       </table>
     );
   }
@@ -221,7 +220,7 @@ class TreeGalleryControl extends PureComponent {
             </IconButton>
           </div>
           <img className='geomessage-lightbox-image' src={this.state.fullImage} alt="fullscreen"></img>
-        </div> 
+        </div>
       );
     }
 

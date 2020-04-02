@@ -668,15 +668,7 @@ class Viewer extends PureComponent {
 
     let stateObj = { selectedElement: null, dataPaneAction: dataPaneAction, overrideLeafletLayers: null };
 
-    if (selectedElement && selectedElement.feature.properties.layer === GroasisUtility.layers.polygon.plantingLines)
-    {
-      stateObj.selectedPlantingLine = null;
-    }
-    else if (selectedElement && selectedElement.feature.properties.layer === GroasisUtility.layers.polygon.plantingSites)
-    {
-      stateObj.selectedPlantingLine = null;
-      stateObj.selectedPlantingSite = null;
-    }
+    stateObj = this.deselectPlantingObjects(stateObj);
 
     this.setState(stateObj, this.rebuildAllLayers);
   }
@@ -719,6 +711,30 @@ class Viewer extends PureComponent {
     else
     {
       cb();
+    }
+  }
+
+  deselectPlantingObjects = (returnObject = false) => {
+    let selectedElement = this.state.selectedElement;
+    let stateObj = returnObject ? returnObject : {};
+
+    if (selectedElement && selectedElement.feature.properties.layer === GroasisUtility.layers.polygon.plantingLines)
+    {
+      stateObj.selectedPlantingLine = null;
+    }
+    else if (selectedElement && selectedElement.feature.properties.layer === GroasisUtility.layers.polygon.plantingSites)
+    {
+      stateObj.selectedPlantingLine = null;
+      stateObj.selectedPlantingSite = null;
+    }
+
+    if(returnObject)
+    {
+      return stateObj;
+    }
+    else
+    {
+      this.setState(stateObj, this.updatePolygons);
     }
   }
 
@@ -1013,6 +1029,7 @@ class Viewer extends PureComponent {
               onSelectMap={this.onSelectMap}
               onPlantingSiteClick={this.onPlantingSiteClick}
               watchlistRefresh={this.watchlistRefresh}
+              deselectPlantingObjects={this.deselectPlantingObjects}
               selectedPlantingSite={this.state.selectedPlantingSite}
               selectedPlantingLine={this.state.selectedPlantingLine}
             />

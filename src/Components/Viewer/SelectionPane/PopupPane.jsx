@@ -67,7 +67,7 @@ class PopupPane extends PureComponent {
           this.setState({ isOpen: false, loading: false });
         })
         .catch(err => {
-          console.log(err);
+          console.error(err);
           this.setState({ loading: false });
         });
     });

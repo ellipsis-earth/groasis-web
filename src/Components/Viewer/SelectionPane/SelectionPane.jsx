@@ -91,9 +91,9 @@ class SelectionPane extends PureComponent {
           if(this.props.element.feature.properties.layer === GroasisUtility.layers.polygon.plantingSites)
           {
             this.props.map.plantingSites = await GroasisUtility.getPlantingSites(this.props.map, this.props.user, this.props.onPlantingSiteClick, true);
+            this.props.onDeletePolygon('modeSwitch', ViewerUtility.identificationMode);
           }
 
-          this.props.onDeletePolygon('modeSwitch', ViewerUtility.identificationMode);
           this.props.onDeselect();
 
           this.setState({ isOpen: false, loading: false });
@@ -206,12 +206,14 @@ class SelectionPane extends PureComponent {
         if (this.uploadedImage) {
           this.trackAddTree(trackingInfo.trackingId, this.uploadedImage);
         }
+
+        this.props.deselectPlantingObjects();
+
         this.setState({error: {species: false, date: false}})
         this.onCloseClick();
       })
       .catch(err => {
-        alert(JSON.stringify(err));
-        console.log(err);
+        console.error(err);
       });
   }
 
@@ -240,11 +242,12 @@ class SelectionPane extends PureComponent {
 
     ApiManager.post('/geometry/add', body, this.props.user)
       .then(() => {
+        this.props.deselectPlantingObjects();
+
         this.onCloseClick();
       })
       .catch(err => {
-        alert(JSON.stringify(err));
-        console.log(err);
+        console.error(err);
       });
   }
 

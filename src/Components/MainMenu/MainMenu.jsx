@@ -5,8 +5,6 @@ import Button from '@material-ui/core/Button';
 
 import DownloadIcon from '@material-ui/icons/GetApp';
 
-import { NavLink } from 'react-router-dom';
-
 import { Navbar, NavItem } from 'react-bootstrap';
 
 import './MainMenu.css';

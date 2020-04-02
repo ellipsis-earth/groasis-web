@@ -128,7 +128,6 @@ class App extends Component {
   onModeChange = (mode, cb) => {
     if (this.viewer.current)
     {
-      console.log(this.viewer.current)
       this.viewer.current.mapControl.current.onStopDraw();
     }
 

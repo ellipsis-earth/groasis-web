@@ -9,6 +9,8 @@ import CardContent from '@material-ui/core/CardContent';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import TextField from '@material-ui/core/TextField';
 
+import ApiManager from '../../../../ApiManager';
+import GroasisUtility from '../../GroasisUtility';
 import ViewerUtility from '../../ViewerUtility';
 
 import './MultiplyControl.css';
@@ -24,8 +26,14 @@ class MultiplyControl extends PureComponent {
   }
 
   componentDidMount = (e) => {
-  	this.props.leafletMap.current.leafletElement.on('mouseup', this.handleMouseUp)
-  	this.props.leafletMap.current.leafletElement.on('mousemove', this.handleMouseMove)
+  	this.props.leafletMap.current.leafletElement.on('mouseup', this.handleMouseUp);
+  	this.props.leafletMap.current.leafletElement.on('mousemove', this.handleMouseMove);
+  }
+
+  componentWillUnmount = () => {
+  	this.props.leafletMap.current.leafletElement.off('mouseup', this.handleMouseUp);
+		this.props.leafletMap.current.leafletElement.off('mousemove', this.handleMouseMove);
+		this.props.onLayersChange(null, true);
   }
 
 	handleChange = (e) => {
@@ -42,7 +50,7 @@ class MultiplyControl extends PureComponent {
         data={lines}
         style={ViewerUtility.createGeoJsonLayerStyle('#87cef3', 3, null, null, 0.5)}
         name={'Preview lines'}
-        zIndex={1000}
+        zIndex={1010}
       />
 
       this.props.onLayersChange(linesObject, true);
@@ -52,8 +60,8 @@ class MultiplyControl extends PureComponent {
 	handleMouseUp = (e) => {
 		if (this.state.initialPosition && this.state.distance)
 		{
-			this.props.leafletMap.current.leafletElement.off('mouseup', this.handleMouseUp)
-  		this.props.leafletMap.current.leafletElement.off('mousemove', this.handleMouseMove)
+			this.props.leafletMap.current.leafletElement.off('mouseup', this.handleMouseUp);
+  		this.props.leafletMap.current.leafletElement.off('mousemove', this.handleMouseMove);
 
 			let lines = this.createLines(e);
 
@@ -62,14 +70,14 @@ class MultiplyControl extends PureComponent {
         data={lines}
         style={ViewerUtility.createGeoJsonLayerStyle('#87cef3', 3)}
         name={'Lines'}
-        zIndex={1001}
+        zIndex={1011}
       />
 
-			this.setState({initialPosition: null, lines: lines}, () => {this.props.onLayersChange(linesObject, true);})
+			this.setState({initialPosition: null, lines: lines}, () => {this.props.onLayersChange(linesObject, true)});
 		}
 		else if(this.state.distance)
 		{
-			this.setState({initialPosition: e.latlng})
+			this.setState({initialPosition: e.latlng});
 		}
 	}
 
@@ -78,6 +86,8 @@ class MultiplyControl extends PureComponent {
 
 		let mouseDistance = e.latlng.distanceTo(this.state.initialPosition);
 		let amount = Math.floor(mouseDistance / this.state.distance);
+				amount = amount > 50 ? 50 : amount;
+
 		let addAmount = {lat: (e.latlng.lat - this.state.initialPosition.lat) / amount, lng: (e.latlng.lng - this.state.initialPosition.lng) / amount}
 
 		let coordinates = this.props.element.feature.geometry.coordinates;
@@ -100,19 +110,52 @@ class MultiplyControl extends PureComponent {
 	}
 
 	confirm = () => {
-		console.log('confirm')
 		let lines = this.state.lines;
+		let feature = {type: 'Feature', properties: {'Planting site id': this.props.selectedPlantingSite}}
 
-		this.setState({initialPosition: null, lines: null}, () => {this.props.onLayersChange(null, true)});
+    let body = {
+      mapId: this.props.map.id,
+      timestamp: 0,
+      layer: GroasisUtility.layers.polygon.plantingLines,
+      feature: feature,
+    };
+
+    let promises = [];
+
+		for (let i = 0; i < lines.features.length; i++)
+		{
+			body.feature.geometry = lines.features[i].geometry;
+
+			promises.push(ApiManager.post('/geometry/add', body, this.props.user)
+	      .then((result) => {
+	      	return result
+	      })
+	      .catch(err => {
+	        console.error(err);
+	      })
+      );
+		}
+
+		Promise.all(promises)
+		.then((values) => {
+			console.log(values)
+		});
 	}
 
 	deny = () => {
 		this.props.leafletMap.current.leafletElement.on('mouseup', this.handleMouseUp);
 		this.props.leafletMap.current.leafletElement.on('mousemove', this.handleMouseMove);
 
-		this.setState({initialPosition: null, lines: null}, () => {this.props.onLayersChange(null, true)});
+		this.props.onLayersChange(null, true);
+		this.setState({initialPosition: null, lines: null});
+	}
 
-		console.log('deny')
+	stopDraw = () => {
+		this.props.leafletMap.current.leafletElement.off('mouseup', this.handleMouseUp);
+		this.props.leafletMap.current.leafletElement.off('mousemove', this.handleMouseMove);
+
+		this.props.onLayersChange(null, true);
+		this.setState({initialPosition: null, lines: null});
 	}
 
 	render = () => {

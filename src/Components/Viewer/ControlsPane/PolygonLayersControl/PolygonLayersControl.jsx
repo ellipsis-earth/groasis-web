@@ -102,6 +102,7 @@ class PolygonLayersControl extends PureComponent {
         availableLayers = [...IDENTIFICATION_LAYERS, ...newLayers];
       }
 
+
       if (differentMap || differentMode) {
         this.layerGeoJsons = {};
 
