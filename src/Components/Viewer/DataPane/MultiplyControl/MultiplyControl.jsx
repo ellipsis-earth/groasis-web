@@ -15,6 +15,8 @@ import ViewerUtility from '../../ViewerUtility';
 
 import './MultiplyControl.css';
 
+const MAX_LINES = 50;
+
 class MultiplyControl extends PureComponent {
 	constructor(props, context) {
     super(props, context);
@@ -22,22 +24,40 @@ class MultiplyControl extends PureComponent {
     this.state = {
       distance: null,
       initialPosition: null,
+      amount: 0,
     };
+
+    this.lastPosition = {};
   }
 
   componentDidMount = (e) => {
-  	this.props.leafletMap.current.leafletElement.on('mouseup', this.handleMouseUp);
+  	this.props.leafletMap.current.leafletElement.on('click', this.handleMouseUp);
   	this.props.leafletMap.current.leafletElement.on('mousemove', this.handleMouseMove);
   }
 
   componentWillUnmount = () => {
-  	this.props.leafletMap.current.leafletElement.off('mouseup', this.handleMouseUp);
+  	this.props.leafletMap.current.leafletElement.off('click', this.handleMouseUp);
 		this.props.leafletMap.current.leafletElement.off('mousemove', this.handleMouseMove);
 		this.props.onLayersChange(null, true);
   }
 
 	handleChange = (e) => {
-		this.setState({distance: e.target.value, initialPosition: null})
+		let cb = () => {};
+
+		if (e.target.value === '')
+		{
+
+		}
+		else if (this.state.lines)
+		{
+			cb = () => {this.handleMouseUp(this.lastPosition)};
+		}
+		else
+		{
+			cb = () => {this.handleMouseMove(this.lastPosition)};
+		}
+
+		this.setState({distance: e.target.value}, cb)
 	}
 
 	handleMouseMove = (e) => {
@@ -53,17 +73,28 @@ class MultiplyControl extends PureComponent {
         zIndex={1010}
       />
 
+      this.lastPosition.last = e;
+
       this.props.onLayersChange(linesObject, true);
 		}
 	}
 
 	handleMouseUp = (e) => {
-		if (this.state.initialPosition && this.state.distance)
+		if (this.state.initialPosition && this.state.distance || e.last && e.start)
 		{
-			this.props.leafletMap.current.leafletElement.off('mouseup', this.handleMouseUp);
+			this.props.leafletMap.current.leafletElement.off('click', this.handleMouseUp);
   		this.props.leafletMap.current.leafletElement.off('mousemove', this.handleMouseMove);
 
-			let lines = this.createLines(e);
+  		let lines = null;
+
+  		if (e.last && e.start)
+  		{
+				lines = this.createLines(e.last, e.start);
+  		}
+  		else
+  		{
+				lines = this.createLines(e);
+  		}
 
 			let linesObject = <GeoJSON
         key={Math.random()}
@@ -75,20 +106,21 @@ class MultiplyControl extends PureComponent {
 
 			this.setState({initialPosition: null, lines: lines}, () => {this.props.onLayersChange(linesObject, true)});
 		}
-		else if(this.state.distance)
+		else if(this.state.distance && !this.state.initialPosition)
 		{
+			this.lastPosition.start = e.latlng;
 			this.setState({initialPosition: e.latlng});
 		}
 	}
 
-	createLines = (e) => {
+	createLines = (e, initialPosition = this.state.initialPosition) => {
 		let lines = [];
 
-		let mouseDistance = e.latlng.distanceTo(this.state.initialPosition);
+		let mouseDistance = e.latlng.distanceTo(initialPosition);
 		let amount = Math.floor(mouseDistance / this.state.distance);
-				amount = amount > 50 ? 50 : amount;
+				amount = amount > MAX_LINES ? MAX_LINES : amount;
 
-		let addAmount = {lat: (e.latlng.lat - this.state.initialPosition.lat) / amount, lng: (e.latlng.lng - this.state.initialPosition.lng) / amount}
+		let addAmount = {lat: (e.latlng.lat - initialPosition.lat) / amount, lng: (e.latlng.lng - initialPosition.lng) / amount}
 
 		let coordinates = this.props.element.feature.geometry.coordinates;
 
@@ -100,8 +132,13 @@ class MultiplyControl extends PureComponent {
 				line.push([coordinates[j][0] + (i * addAmount.lng), coordinates[j][1] + (i * addAmount.lat)])
 			}
 
-			lines.push({"type" : "Feature", properties: this.props.element.feature.properties, geometry: {type: "LineString", coordinates: line}});
+			lines.push({
+				"type" : "Feature",
+				properties: this.props.element.feature.properties,
+				geometry: {type: "LineString", coordinates: line}});
 		}
+
+		this.setState({amount: Math.floor(mouseDistance / this.state.distance)});
 
 		return {
 			"type" : "FeatureCollection",
@@ -143,19 +180,21 @@ class MultiplyControl extends PureComponent {
 	}
 
 	deny = () => {
-		this.props.leafletMap.current.leafletElement.on('mouseup', this.handleMouseUp);
+		this.props.leafletMap.current.leafletElement.on('click', this.handleMouseUp);
 		this.props.leafletMap.current.leafletElement.on('mousemove', this.handleMouseMove);
 
+		this.lastPosition = {};
 		this.props.onLayersChange(null, true);
-		this.setState({initialPosition: null, lines: null});
+		this.setState({initialPosition: null, lines: null, amount: 0});
 	}
 
 	stopDraw = () => {
-		this.props.leafletMap.current.leafletElement.off('mouseup', this.handleMouseUp);
+		this.props.leafletMap.current.leafletElement.off('click', this.handleMouseUp);
 		this.props.leafletMap.current.leafletElement.off('mousemove', this.handleMouseMove);
 
+		this.lastPosition = {};
 		this.props.onLayersChange(null, true);
-		this.setState({initialPosition: null, lines: null});
+		this.setState({initialPosition: null, lines: null, amount: 0});
 	}
 
 	render = () => {
@@ -182,10 +221,14 @@ class MultiplyControl extends PureComponent {
 					  label="Distance between lines"
 					  fullWidth
 					  onChange={this.handleChange}
+					  type="number"
 					  InputProps={{
+					  	inputProps: { min: 1 },
 					    endAdornment: <InputAdornment position="end">m</InputAdornment>,
 					  }}
 					/>
+
+					<p><span className={this.state.amount > MAX_LINES ? 'geometry-limit-exceeded' : ''}>{this.state.amount}</span>/{MAX_LINES}</p>
 				</CardContent>
 				<CardActions>
 					{message}
