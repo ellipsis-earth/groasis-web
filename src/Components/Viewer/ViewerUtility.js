@@ -66,6 +66,7 @@ const ViewerUtility = {
     feed: 'geomessage_feed',
     gallery: 'gallery',
     multiply: 'multiply',
+    planTrees: 'plan trees',
   },
 
   dataGraphType: {

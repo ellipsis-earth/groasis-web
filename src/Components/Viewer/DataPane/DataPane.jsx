@@ -20,6 +20,7 @@ import ViewerUtility from '../ViewerUtility';
 import AnalyseControl from './AnalyseControl/AnalyseControl';
 import CustomPolygonControl from './CustomPolygonControl/CustomPolygonControl';
 import GeoMessageControl from './GeoMessageControl/GeoMessageControl';
+import PlanControl from './PlanControl/PlanControl';
 import MultiplyControl from './MultiplyControl/MultiplyControl';
 
 import WachtlistControl from './GeoMessageControl/WachtlistControl';
@@ -35,6 +36,7 @@ class DataPane extends PureComponent {
 
     this.watchlist = React.createRef();
     this.multiplyControl = React.createRef();
+    this.plantControl = React.createRef();
   }
 
   componentDidMount() {
@@ -194,6 +196,21 @@ class DataPane extends PureComponent {
           leafletMap={this.props.leafletMap}
           onLayersChange={this.props.onLayersChange}
           ref={this.multiplyControl}
+        />
+      );
+    }
+    else if (action === ViewerUtility.dataPaneAction.planTrees && !this.state.home)
+    {
+      actionControl = (
+        <PlanControl
+          user={this.props.user}
+          map={this.props.map}
+          selectedPlantingSite={this.props.selectedPlantingSite}
+          selectedPlantingLine={this.props.selectedPlantingLine}
+          element={this.props.element}
+          leafletMap={this.props.leafletMap}
+          onLayersChange={this.props.onLayersChange}
+          ref={this.plantControl}
         />
       );
     }

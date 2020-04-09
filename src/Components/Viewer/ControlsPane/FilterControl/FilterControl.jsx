@@ -18,7 +18,6 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
-import ListSubheader from '@material-ui/core/ListSubheader';
 import Slider from '@material-ui/core/Slider';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
@@ -799,11 +798,10 @@ class FilterInput extends Component {
 		let labelId = `checkbox-list-label-${form.title.replace(' ', '-')}`;
 
 		return ([<ListItem
-    	className='filterItem'
+    	className='MuiListItem-secondaryAction filterItem'
     	dense
     	button
     	key={form.title + 'listItem'}
-    	className='MuiListItem-secondaryAction'
     	onClick={(e, checked) => {this.setState({checked: !this.state.checked}, () => this.props.filterSelectionChange(e, checked, form.valueName, form.category))}}
   	>
 	    <ListItemIcon>

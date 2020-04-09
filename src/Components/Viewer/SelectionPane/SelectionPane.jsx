@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import { readAndCompressImage } from 'browser-image-resizer';
 
-import DateFnsUtils from '@date-io/date-fns';
 import moment from 'moment';
 
 import Button from '@material-ui/core/Button';
@@ -15,7 +14,6 @@ import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/pickers';
 
 import ClearIcon from '@material-ui/icons/Clear';
 import SaveAlt from '@material-ui/icons/SaveAlt';
@@ -644,7 +642,21 @@ class SelectionPane extends PureComponent {
       }
       else if (layer === GroasisUtility.layers.polygon.plantingLines) {
         title = 'Planting line';
-        secondRowButtons.push(<Button
+        firstRowButtons = [];
+
+        firstRowButtons.push(<Button
+          key='planTrees'
+          variant='outlined'
+          size='small'
+          color='primary'
+          className='selection-pane-button'
+          onClick={() => this.onElementActionClick(ViewerUtility.dataPaneAction.planTrees)}
+          disabled={!canEdit}
+        >
+          {ViewerUtility.dataPaneAction.planTrees}
+        </Button>);
+
+        firstRowButtons.push(<Button
           key='multiply'
           variant='outlined'
           size='small'
@@ -660,7 +672,6 @@ class SelectionPane extends PureComponent {
         title = 'Planting Site';
       }
 
-      firstRowButtons = [];
 
       secondRowButtons.push(
         /*<Button

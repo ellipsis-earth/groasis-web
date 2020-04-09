@@ -1,0 +1,54 @@
+.plantControl
+{
+	margin-top: 1rem;
+}
+
+.plantControl p
+{
+	font-size: 75%;
+	hyphens: auto;
+	text-align: center;
+	display: block;
+	width: 100%;
+	margin: 6px 0px;
+}
+
+.plantControl p+p
+{
+	margin-top: 12px;
+}
+
+.plantControl label
+{
+	hyphens: auto;
+	width: 100%;
+	font-size: 16px;
+  transition: color 200ms cubic-bezier(0.0, 0, 0.2, 1) 0ms,transform 200ms cubic-bezier(0.0, 0, 0.2, 1) 0ms, width 200ms cubic-bezier(0.0, 0, 0.2, 1);
+}
+
+.plantControl label[data-shrink="false"]
+{
+	margin-right: 8px;
+}
+
+.plantControl label[data-shrink="true"]
+{
+	width: 125%;
+}
+
+.plantControl .distanceInput
+{
+	margin-bottom: 2rem;
+}
+
+.plantControl button.plantButton
+{
+	margin: 1rem auto;
+	margin-top: 0;
+}
+
+.plantControl .MuiCardContent-root
+{
+	padding-top: 0;
+	padding-bottom: 8px;
+}

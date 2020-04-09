@@ -1,0 +1,44 @@
+ul.treeControl
+{
+	width: 100%;
+	padding-top: 0;
+}
+
+.treeControl .MuiListSubheader-root.MuiListSubheader-colorPrimary
+{
+	line-height: initial;
+	margin-bottom: 8px;
+	text-align: left;
+}
+
+.treeControl .addListOption
+{
+	text-align: center;
+	color: #87cef3;
+}
+
+.treeControl .addListOption span:hover
+{
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.treeControl .addListOption .inputContainer
+{
+	width: 100%;
+}
+
+.treeControl .MuiInputLabel-shrink
+{
+	width: 125%;
+}
+
+.treeControl .filterAddHandlingButtonsContainer
+{
+  justify-content: flex-end;
+}
+
+.treeControl .MuiSelect-select.MuiSelect-select
+{
+	text-align: center;
+}

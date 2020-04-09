@@ -26,6 +26,11 @@ div.data-pane-title-card {
   min-height: 55px;
 }
 
+div.data-pane-title-card+div.data-pane-card, div.data-pane-card+div.data-pane-card
+{
+  margin-top: 1rem;
+}
+
 div.data-pane-title-header {
   padding: 4px;
   padding-top: 8px;
