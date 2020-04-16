@@ -336,9 +336,9 @@ class PolygonLayersControl extends PureComponent {
               let elementType = polygonLayer.name === GroasisUtility.layers.polygon.trees ?
                 ViewerUtility.treeElementType : ViewerUtility.polygonLayerType;
 
-                let onEachFeature;
+                let onEachFeature = null;
 
-                if (this.props.mode === ViewerUtility.plannerMode && polygonLayer.name !== GroasisUtility.layers.polygon.plantingSites)
+                if (this.props.mode === ViewerUtility.plannerMode && polygonLayer.name !== GroasisUtility.layers.polygon.plantingSites && polygonLayer.name !== GroasisUtility.request.layer)
                 {
                   onEachFeature = (feature, layer) => {layer.on({
                     click: () => this.props.onFeatureClick(elementType, feature, polygonLayer.hasAggregatedData)
@@ -364,8 +364,7 @@ class PolygonLayersControl extends PureComponent {
                   name={polygonLayer.name}
                   zIndex={ViewerUtility.polygonLayerZIndex[polygonLayer.name]}
                   className={!onEachFeature ? 'noClick' : ''}
-                />
-                ]
+                />]
               );
             });
 
@@ -381,11 +380,12 @@ class PolygonLayersControl extends PureComponent {
                 key={Math.random()}
                 data={data}
                 style={this.props.map.type === 'area' ? ViewerUtility.createGeoJsonLayerStyle('#87cef3', 3, null, ViewerUtility.polygonLayerZIndex[GroasisUtility.request.layer]) : ViewerUtility.createGeoJsonLayerStyle('#48ac3e', 3, null, ViewerUtility.polygonLayerZIndex[GroasisUtility.request.layer])}
-                onEachFeature={(feature, layer) => {layer.on({
+                /*onEachFeature={(feature, layer) => {layer.on({
                   click: () => {this.props.onWatchlistClick(feature)}
-                })}}
+                })}}*/
+                className='noClick'
                 name={GroasisUtility.request.layer}
-                zIndex={ViewerUtility.polygonLayerZIndex['Identification Zones']}
+                zIndex={ViewerUtility.polygonLayerZIndex[GroasisUtility.request.layer]}
               />)
             );
           }
@@ -405,10 +405,11 @@ class PolygonLayersControl extends PureComponent {
           key={Math.random()}
           data={data}
           style={ViewerUtility.createGeoJsonLayerStyle('#87cef3', 3, null, ViewerUtility.polygonLayerZIndex[GroasisUtility.request.layer])}
-          onEachFeature={(feature, layer) => {layer.on({
-            click: () => {this.props.onWatchlistClick(feature)}
-          })}}
           name={GroasisUtility.request.layer}
+          /*onEachFeature={(feature, layer) => {layer.on({
+            click: () => {this.props.onWatchlistClick(feature)}
+          })}}*/
+          className='noClick'
         />)
       }
 

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import L from 'leaflet';
-/*import { GeoJSON } from 'react-leaflet';*/
+import { GeoJSON } from 'react-leaflet';
 
 import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
@@ -27,17 +27,7 @@ class PlanControl extends Component {
     super(props, context);
 
     this.state = {
-    	availableTrees: [
-    		{
-    			name: 'Douglas',
-    		},
-    		{
-    			name: 'Oak',
-    		},
-    		{
-    			name: 'Willow',
-    		}
-    	],
+    	availableTrees: GroasisUtility.species.map(x => {return {name: x}}),
     	selectedTrees: [],
     	distance: '',
 
@@ -48,13 +38,22 @@ class PlanControl extends Component {
   }
 
 	setSelectedTrees = (selectedTrees) => {
-  	this.setState({selectedTrees: selectedTrees}, () => {
+  	this.setState({selectedTrees: selectedTrees}, async () => {
   		this.treeControl.current.setListLength(selectedTrees.length);
+      /*if(selectedTrees.length > 0 && this.state.distance > 0)
+      {
+        this.props.onLayersChange(await this.treesToGeoJSON(), true);
+      }*/
   	});
   }
 
   setDistance = (distance) => {
-  	this.setState({distance: distance});
+  	this.setState({distance: distance}/*, async () => {
+      if(this.state.selectedTrees.length > 0 && distance > 0)
+      {
+        this.props.onLayersChange(await this.treesToGeoJSON(), true);
+      }
+    }*/);
   }
 
   getSpeciesList = () => {
@@ -86,6 +85,26 @@ class PlanControl extends Component {
   	{
   		return list[0];
   	}
+  }
+
+  treesToGeoJSON = async () => {
+    let icon = ViewerUtility.returnMarker('#388e3cff', 2, 'RoomTwoTone', 0.5);
+
+    let treeFeatures = await this.planTrees();
+    console.log(treeFeatures);
+    let geoJson =  <GeoJSON
+        key={Math.random()}
+        data={await this.planTrees()}
+        pointToLayer={(geoJsonPoint, latlng) => this.markerReturn(latlng, icon)}
+        name='tree preview'
+        zIndex={1001}
+      />;
+
+    return geoJson;
+  }
+
+  markerReturn = (latlng, icon) => {
+    return L.marker(latlng, {icon: icon, pane: 'overlayPane'});
   }
 
   planTrees = async () => {
@@ -135,7 +154,6 @@ class PlanControl extends Component {
     	let coordinates = JSON.parse(JSON.stringify(plantingLines[i].geometry.coordinates));
     	let rest = 0;
 
-
     	for (let j = 0; j < coordinates.length - 1; j++)
     	{
     		let c1 = coordinates[j];
@@ -145,7 +163,7 @@ class PlanControl extends Component {
     		c1[0] = c1[0] + ((c2[0] - c1[0]) / d) * rest;
     		c1[1] = c1[1] + ((c2[1] - c1[1]) / d) * rest;
 
-    		for (let k = 0; k < Math.floor((d - rest) / a); k++)
+    		for (let k = 0; k < Math.floor(((d - rest) / a) + 1); k++)
     		{
     			let x = c1[0] + ((c2[0] - c1[0]) / d) * a * k;
     			let y = c1[1] + ((c2[1] - c1[1]) / d) * a * k;
@@ -153,7 +171,7 @@ class PlanControl extends Component {
     			let treeGeoJSON = {type: 'Feature', properties: {
   		      [GroasisUtility.treeProperties.species]: this.getRandomTreeSpecies(treeSpecies),
   		      'Planting site id': this.props.selectedPlantingSite,
-  		      'Planting line id': this.props.element.feature.id,
+  		      'Planting line id': parseInt(plantingLines[i].id),
   		    }, geometry: {type: 'Point', coordinates: [x, y]}};
 
   		    treeFeatures.push(treeGeoJSON);

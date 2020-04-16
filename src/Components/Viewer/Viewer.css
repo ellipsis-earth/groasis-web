@@ -13,8 +13,8 @@ div.content {
 }
 
 .viewer-pane {
+  display: inline-block;
   position: relative;
-  float: left;
   height: 100%;
   background-color: #f4f4f4;
 }
@@ -88,7 +88,7 @@ div.selector-single {
   left: 0;
   background: rgba(0, 0, 0, 0.75);
   color: white;
-  z-index: 9999999;  
+  z-index: 9999999;
 }
 
 .viewer-modal-close {
@@ -103,7 +103,7 @@ div.selector-single {
   .controls-pane {
     width: 100vw;
   }
-  
+
   .data-pane {
     width: 100vw;
   }

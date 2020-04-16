@@ -1,18 +1,19 @@
 import React, { PureComponent } from 'react';
 
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  Typography,
-  CircularProgress,
-  Button,
-  Select,
-  MenuItem,
-  TextField,
-} from '@material-ui/core';
+import Card from '@material-ui/core/Card';
+import CardHeader from '@material-ui/core/CardHeader';
+import CardContent from '@material-ui/core/CardContent';
+import Typography from '@material-ui/core/Typography';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Button from '@material-ui/core/Button';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+import TextField from '@material-ui/core/TextField';
 
 import './CustomPolygonControl.css';
+
+import GroasisUtility from '../../GroasisUtility';
+
 import ApiManager from '../../../../ApiManager';
 
 class CustomPolygonControl extends PureComponent {
@@ -117,10 +118,10 @@ class CustomPolygonControl extends PureComponent {
     let feature = this.props.element.feature;
     feature.properties = this.state.propertyValues;
 
-    let timestampNumber = this.props.map.referenceMap.timestamps[this.props.timestampRange.end].timestamp;
+    let timestampNumber = this.props.map.timestamps[this.props.timestampRange.end].timestamp;
 
     let body = {
-      mapId: this.props.map.referenceMap.id,
+      mapId: this.props.map.id,
       timestamp: timestampNumber,
       layer: layer,
       feature: feature
@@ -146,7 +147,7 @@ class CustomPolygonControl extends PureComponent {
     let layer = this.state.selectedLayer;
     let properties = this.state.propertyValues;
 
-    let selectedLayerProperties = this.props.map.referenceMap.layers.polygon.find(
+    let selectedLayerProperties = this.props.map.layers.polygon.find(
       x => x.name === this.state.selectedLayer
     ).properties;
 
@@ -159,8 +160,14 @@ class CustomPolygonControl extends PureComponent {
 
     let oldProperties = this.props.element.feature.properties;
 
+    if(layer === 'Trees')
+    {
+      properties['Planting line id'] = oldProperties['Planting line id'];
+      properties['Planting site id'] = oldProperties['Planting site id'];
+    }
+
     let body = {
-      mapId: this.props.map.referenceMap.id,
+      mapId: this.props.map.id,
       polygonId: oldProperties.id,
       newLayerName: layer,
       newProperties: properties,
@@ -192,7 +199,7 @@ class CustomPolygonControl extends PureComponent {
     }
 
     let layerSelect = null;
-    let layers = this.props.map.referenceMap.layers.polygon;
+    let layers = this.props.map.layers.polygon;
     if (layers.length > 0) {
       let options = [
         <MenuItem key='default' value='default' disabled hidden>Select a layer</MenuItem>
@@ -201,7 +208,7 @@ class CustomPolygonControl extends PureComponent {
       for (let i = 0; i < layers.length; i++) {
         let layer = layers[i];
 
-        if (layer.restricted && this.props.map.referenceMap.accessLevel < ApiManager.accessLevels.addRestrictedPolygons) {
+        if (layer.restricted && this.props.map.accessLevel < ApiManager.accessLevels.addRestrictedPolygons) {
           continue;
         }
 
@@ -234,16 +241,30 @@ class CustomPolygonControl extends PureComponent {
 
       for (let i = 0; i < selectedLayer.properties.length; i++) {
         let property = selectedLayer.properties[i];
-
-        inputs.push(
-          <TextField
-            className='card-content-item data-pane-text-field'
-            key={property}
-            label={property}
-            value={this.state.propertyValues[property]}
+        if(property === 'Species')
+        {
+          let options = GroasisUtility.species.map(x => {return <MenuItem key={x} value={x}>{x}</MenuItem>})
+          inputs.push(<Select
+            key='species-selector'
+            className='selector'
             onChange={(e) => this.onPropertyValueChange(e, property)}
-          />
-        );
+            value={this.state.propertyValues[property]}
+          >
+            {options}
+          </Select>)
+        }
+        else
+        {
+          inputs.push(
+            <TextField
+              className='card-content-item data-pane-text-field'
+              key={property}
+              label={property}
+              value={this.state.propertyValues[property]}
+              onChange={(e) => this.onPropertyValueChange(e, property)}
+            />
+          );
+        }
       }
 
       propertyInputs = (
@@ -277,7 +298,7 @@ class CustomPolygonControl extends PureComponent {
             }
           />
           <CardContent>
-            {layerSelect}
+            {/*layerSelect*/}
             {propertyInputs}
             { this.state.loading ? <CircularProgress className='loading-spinner'/> : null}
           </CardContent>

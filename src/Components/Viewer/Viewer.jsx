@@ -954,7 +954,7 @@ class Viewer extends PureComponent {
 
   render() {
     let mapPaneStyle = {
-      display: 'block',
+      /*display: 'inline-block',*/
       width: '100vw'
     };
 

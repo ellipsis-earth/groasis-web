@@ -79,6 +79,11 @@ class SelectionPane extends PureComponent {
 
   deleteCustomPolygon = () => {
     this.setState({ loading: true }, () => {
+      if(this.props.element.feature.properties.layer === GroasisUtility.layers.polygon.plantingLines)
+      {
+        this.deletePlantingLineTrees();
+      }
+
       let body = {
         mapId: this.props.map.id,
         polygonId: this.props.element.feature.properties.id
@@ -90,6 +95,10 @@ class SelectionPane extends PureComponent {
           {
             this.props.map.plantingSites = await GroasisUtility.getPlantingSites(this.props.map, this.props.user, this.props.onPlantingSiteClick, true);
             this.props.onDeletePolygon('modeSwitch', ViewerUtility.identificationMode);
+          }
+          else
+          {
+            this.props.onDeletePolygon();
           }
 
           this.props.onDeselect();
@@ -174,7 +183,7 @@ class SelectionPane extends PureComponent {
             this.props.onDeletePolygon();
             this.setState({loading: false });
           })
-          .catch(err => {console.error(err)});
+          .catch(err => {console.error(err); this.setState({loading: false });});
         })
         .catch(err => {
           console.error(err);
@@ -703,7 +712,7 @@ class SelectionPane extends PureComponent {
 
         firstRowButtons.push(
           <Button
-            key='edit'
+            key='annotate'
             variant='outlined'
             size='small'
             className='selection-pane-button'
@@ -770,18 +779,7 @@ class SelectionPane extends PureComponent {
         title = 'Planting Site';
       }
 
-
       secondRowButtons.push(
-        /*<Button
-          key='edit'
-          variant='outlined'
-          size='small'
-          className='selection-pane-button'
-          onClick={() => this.onElementActionClick(ViewerUtility.dataPaneAction.editCustomPolygon)}
-          disabled={!canEdit}
-        >
-          {'EDIT'}
-        </Button>,*/
         <Button
           key='delete'
           variant='outlined'
@@ -812,6 +810,17 @@ class SelectionPane extends PureComponent {
       }
       else {
         firstRowButtons = [];
+        firstRowButtons.push(<Button
+          key='edit'
+          variant='outlined'
+          size='small'
+          className='selection-pane-button'
+          onClick={() => this.onElementActionClick(ViewerUtility.dataPaneAction.editCustomPolygon)}
+          disabled={!canEdit}
+        >
+          {'EDIT'}
+        </Button>);
+
         secondRowButtons.push(
           <Button
             key='delete'
@@ -931,6 +940,17 @@ class SelectionPane extends PureComponent {
       firstRowButtons = [];
       secondRowButtons = [];
       firstRowButtons.push(<Button
+        key='edit'
+        variant='outlined'
+        size='small'
+        className='selection-pane-button'
+        onClick={() => this.onElementActionClick(ViewerUtility.dataPaneAction.editCustomPolygon)}
+        disabled={!canEdit}
+      >
+        {'EDIT'}
+      </Button>);
+
+      firstRowButtons.push(<Button
         key='planTrees'
         variant='outlined'
         size='small'
@@ -975,6 +995,9 @@ class SelectionPane extends PureComponent {
 
     let selectionPaneClass = 'selection-pane';
 
+    let layer = element.feature.properties.layer;
+    console.log(layer, element.type);
+
     for (let property in elementProperties) {
       let propertyValue = elementProperties[property];
 
@@ -1002,10 +1025,9 @@ class SelectionPane extends PureComponent {
         continue;
       }
 
-      if (element.type === ViewerUtility.treeElementType) {
-        if (property !== GroasisUtility.treeProperties.species &&
-          property !== GroasisUtility.treeProperties.plantingDate
-          && !isId) {
+
+      if (element.type === ViewerUtility.treeElementType || element.type === ViewerUtility.plantingSiteElementType || layer === GroasisUtility.layers.polygon.plantingLines) {
+        if (property !== 'name' && property !== 'id' && property !== 'user' && property !== 'Species') {
           continue;
         }
       }
