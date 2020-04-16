@@ -617,7 +617,7 @@ class Viewer extends PureComponent {
       color = !color ? '#3388ff' : color;
 
 
-      let icon = ViewerUtility.returnMarker(color, ViewerUtility.markerSize, 'RoomTwoTone');
+      let icon = ViewerUtility.returnMarker(color, 2, 'RoomTwoTone');
 
       let selectedElementLayer = (
         <GeoJSON
@@ -1043,7 +1043,7 @@ class Viewer extends PureComponent {
               onViewportChanged={this.onLeafletMapViewportChanged}
             >
               {this.state.allLayers}
-              {this.state.geolocation ? <Marker position={this.state.geolocation} icon={ViewerUtility.returnMarker('#3388ff', ViewerUtility.markerSize, 'PersonPinCircle')}/> : null}
+              {this.state.geolocation ? <Marker position={this.state.geolocation} icon={ViewerUtility.returnMarker('#3388ff', 1.5, 'PersonPinCircle')}/> : null}
             </Map>
             <MapHeader
               map={this.state.map}
@@ -1088,7 +1088,9 @@ class Viewer extends PureComponent {
             onWatchlistClick={this.onWatchlistClick}
             onPlantingSiteClick={this.onPlantingSiteClick}
             selectedPlantingSite={this.state.selectedPlantingSite}
+            selectedPlantingLine={this.state.selectedPlantingLine}
             leafletMap={this.leafletMap}
+            updatePolygons={this.updatePolygons}
           />
         </div>
 

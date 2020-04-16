@@ -282,7 +282,7 @@ class PolygonLayersControl extends PureComponent {
                 bounds: bounds
               };
 
-              let icon = ViewerUtility.returnMarker(`#${polygonLayer.color}`, this.props.markerSize, 'RoomTwoTone');
+              let icon = ViewerUtility.returnMarker(`#${polygonLayer.color}`, 2, 'RoomTwoTone');
 
               let geometryCollection = {
                 type: 'FeatureCollection',

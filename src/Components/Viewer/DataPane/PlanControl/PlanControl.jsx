@@ -1,7 +1,7 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 
 import L from 'leaflet';
-import { GeoJSON } from 'react-leaflet';
+/*import { GeoJSON } from 'react-leaflet';*/
 
 import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
@@ -22,7 +22,7 @@ import ViewerUtility from '../../ViewerUtility';
 
 import './PlanControl.css';
 
-class PlanControl extends PureComponent {
+class PlanControl extends Component {
 	constructor(props, context) {
     super(props, context);
 
@@ -38,11 +38,7 @@ class PlanControl extends PureComponent {
     			name: 'Willow',
     		}
     	],
-    	selectedTrees: [
-	    	{
-	    		name: 'Douglas',
-	    	}
-    	],
+    	selectedTrees: [],
     	distance: '',
 
     	loading: false,
@@ -52,35 +48,172 @@ class PlanControl extends PureComponent {
   }
 
 	setSelectedTrees = (selectedTrees) => {
-  	this.setState({selectedTrees: selectedTrees});
+  	this.setState({selectedTrees: selectedTrees}, () => {
+  		this.treeControl.current.setListLength(selectedTrees.length);
+  	});
   }
 
   setDistance = (distance) => {
   	this.setState({distance: distance});
   }
 
-  planTrees = () => {
-  	console.log('planTrees');
+  getSpeciesList = () => {
+  	if (this.state.selectedTrees.length > 1)
+  	{
+  		let treeList = [];
+	  	for (let i = 0; i < this.state.selectedTrees.length; i++)
+	  	{
+	  		for (let j = 0; j < this.state.selectedTrees[i].ratio; j++)
+	  		{
+	  			treeList.push(this.state.selectedTrees[i].name)
+	  		}
+	  	}
+
+  		return treeList;
+  	}
+  	else
+  	{
+  		return [this.state.selectedTrees[0].name];
+  	}
+  }
+
+  getRandomTreeSpecies = (list) => {
+  	if (list.length > 1)
+  	{
+  		return list[Math.floor(Math.random() * list.length)];
+  	}
+  	else
+  	{
+  		return list[0];
+  	}
+  }
+
+  planTrees = async () => {
+  	let treeSpecies = this.getSpeciesList();
 
   	let a = this.state.distance;
-  	let coordinates = this.props.element.feature.geometry.coordinates;
-  	let rest = 0;
+  	let treeFeatures = [];
 
-  	for (let i = 0; i < coordinates.length - 1; i++)
-  	{
-  		let currentCoordinate = coordinates[i];
-  		let nextCoordinate = coordinates[i + 1];
-  		let d = L.latLng(currentCoordinate).distanceTo(L.latLng(nextCoordinate));
+    let plantingLines = [];
 
-  		let currentCoordinate[0] = currentCoordinate[0] + ((nextCoordinate[0] - currentCoordinate[0]) / d) * rest;
-  		let currentCoordinate[1] = currentCoordinate[1] + ((nextCoordinate[1] - currentCoordinate[1]) / d) * rest;
+    if(this.props.element.type === ViewerUtility.plantingSiteElementType)
+    {
+      let body = {
+        mapId: this.props.map.id,
+        type: ViewerUtility.polygonLayerType,
+        layer: GroasisUtility.layers.polygon.plantingLines,
+        filters: [{key: 'Planting site id', value: this.props.selectedPlantingSite, operator: '='}]
+      };
 
-  		for (let j = 0; j < Math.Floor((d - rest) / a); j++)
-  		{
-  			/*let x = x1 +*/
-  		}
+      plantingLines = await ApiManager.post('/geometry/ids', body, this.props.user)
+      .then(polygonIds => {
+        body = {
+          mapId: this.props.map.id,
+          type: ViewerUtility.polygonLayerType,
+          elementIds: polygonIds.ids,
+        };
+
+        return ApiManager.post('/geometry/get', body, this.props.user)
+        .then(polygonElements => {
+          return polygonElements.features;
+        })
+        .catch(err => {
+          console.error(err);
+        })
+      })
+      .catch(err => {
+        console.error(err);
+      });
+    }
+    else
+    {
+      plantingLines.push(this.props.element.feature);
+    }
+
+    for (let i = 0; i < plantingLines.length; i++)
+    {
+    	let coordinates = JSON.parse(JSON.stringify(plantingLines[i].geometry.coordinates));
+    	let rest = 0;
+
+
+    	for (let j = 0; j < coordinates.length - 1; j++)
+    	{
+    		let c1 = coordinates[j];
+    		let c2 = coordinates[j + 1];
+    		let d = L.latLng(c1).distanceTo(L.latLng(c2));
+
+    		c1[0] = c1[0] + ((c2[0] - c1[0]) / d) * rest;
+    		c1[1] = c1[1] + ((c2[1] - c1[1]) / d) * rest;
+
+    		for (let k = 0; k < Math.floor((d - rest) / a); k++)
+    		{
+    			let x = c1[0] + ((c2[0] - c1[0]) / d) * a * k;
+    			let y = c1[1] + ((c2[1] - c1[1]) / d) * a * k;
+
+    			let treeGeoJSON = {type: 'Feature', properties: {
+  		      [GroasisUtility.treeProperties.species]: this.getRandomTreeSpecies(treeSpecies),
+  		      'Planting site id': this.props.selectedPlantingSite,
+  		      'Planting line id': this.props.element.feature.id,
+  		    }, geometry: {type: 'Point', coordinates: [x, y]}};
+
+  		    treeFeatures.push(treeGeoJSON);
+    		}
+
+    		rest = (d - rest) % a;
+    	}
+    }
+
+  	return treeFeatures
+  }
+
+  trackAdd = (trackingId) => {
+    let body = {
+      mapId: this.props.map.id,
+      trackingId: trackingId
+    };
+
+    let trackFunc = () => {
+      ApiManager.post('/geometry/track', body, this.props.user)
+        .then(trackingInfo => {
+          if (!trackingInfo.added) {
+            setTimeout(trackFunc, 1000);
+            return;
+          }
+          else
+          {
+          	this.setState({loading: false}, () => {
+              this.props.updatePolygons();
+			      	this.props.onDeselect();
+			      	this.props.onLayersChange(null, true);
+			      });
+          }
+    })};
+
+    trackFunc();
+  }
+
+  confirmTrees = async () => {
+    let treeFeatures = await this.planTrees();
+
+  	let treePromises = [];
+
+  	for (let i = 0; i < treeFeatures.length; i++) {
+  		let body = {
+	      mapId: this.props.map.id,
+	      timestamp: 0,
+	      layer: GroasisUtility.layers.polygon.trees,
+	      feature: GroasisUtility.markerToTreePolygon(treeFeatures[i])
+	    };
+
+	    treePromises.push(ApiManager.post('/geometry/add', body, this.props.user)
+      .catch(err => {console.error(err)}));
   	}
 
+  	Promise.all(treePromises)
+  	.then(trackingInfo => {
+  		this.trackAdd(trackingInfo[trackingInfo.length - 1].trackingId)
+    })
+    .catch(err => {console.error(err)})
   }
 
 	render = () => {
@@ -102,6 +235,7 @@ class PlanControl extends PureComponent {
 		  			layer={this.props.layer}
 		  			availableTrees={this.state.availableTrees}
 		  			selectedTrees={this.state.selectedTrees}
+		  			distance={this.state.distance}
 		  			setSelectedTrees={this.setSelectedTrees}
 		  			setDistance={this.setDistance}
 		  			ref={this.treeControl}
@@ -109,11 +243,12 @@ class PlanControl extends PureComponent {
 				</CardContent>
 				<CardActions>
 					<Button
+						key={'planButton_' + this.state.selectedTrees.length + '_' + this.state.distance === '' ? '-' : this.state.distance + '_' + this.state.loading}
 		        variant="contained"
 		        color="secondary"
 		        startIcon={this.state.loading ? <CircularProgress size='20px' /> : <CheckIcon />}
 		        className='plantButton'
-		        onClick={() => {this.setState({loading: true}, this.planTrees)}}
+		        onClick={() => {this.setState({loading: true}, this.confirmTrees)}}
 		        disabled={this.state.distance === '' || this.state.selectedTrees.length === 0 || this.state.loading}
 		      >
 		        Plan Trees

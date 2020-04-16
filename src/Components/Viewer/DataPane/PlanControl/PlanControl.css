@@ -52,3 +52,9 @@
 	padding-top: 0;
 	padding-bottom: 8px;
 }
+
+.plantControl .red
+{
+	color: red;
+	font-weight: 700;
+}

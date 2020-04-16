@@ -279,7 +279,7 @@ class FilterControl extends Component {
     			/>);
 			}
 
-			filterForm.push({name: form[i].name, inputs: <List disablePadding>{inputs}</List>});
+			filterForm.push({name: form[i].name, inputs: <List dense disablePadding>{inputs}</List>});
 		}
 
 		this.setState({ filterForm: filterForm });
@@ -816,21 +816,21 @@ class FilterInput extends Component {
 	    </ListItemIcon>
 	    <ListItemText id={labelId} primary={form.title} className='filterInputText'/>
 	    <ListItemSecondaryAction>
-	    <Tooltip
-	    	TransitionComponent={Zoom}
-	    	title={form.text}
-	    	placement="right"
-	    	leaveDelay={500}
-	    	interactive
-	    	arrow
-	    	open={this.state.tooltipOpen}
-	    	onClose={() => {this.setState({tooltipOpen: false})}}
-	    	onClick={() => {this.setState({tooltipOpen: !this.state.tooltipOpen})}}
-    	>
-			  <IconButton edge="end" aria-label="filter information">
-	        <InfoIcon />
-	      </IconButton>
-			</Tooltip>
+		    <Tooltip
+		    	TransitionComponent={Zoom}
+		    	title={form.text}
+		    	placement="right"
+		    	leaveDelay={500}
+		    	interactive
+		    	arrow
+		    	open={this.state.tooltipOpen}
+		    	onClose={() => {this.setState({tooltipOpen: false})}}
+		    	onClick={() => {this.setState({tooltipOpen: !this.state.tooltipOpen})}}
+	    	>
+				  <IconButton edge="end" aria-label="filter information">
+		        <InfoIcon />
+		      </IconButton>
+				</Tooltip>
 	    </ListItemSecondaryAction>
     </ListItem>,
     <Collapse in={this.state.checked} key={form.title + 'collapse'} className='filterInputCollapse'>

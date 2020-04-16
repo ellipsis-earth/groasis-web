@@ -105,7 +105,7 @@ export class MapControl extends PureComponent {
     });
     d.enable();
 
-    this.setState({ drawControl: d, drawMode: ViewerUtility.plantingLineElementType });
+    this.setState({ drawControl: d, drawMode: ViewerUtility.newPlantingLineElementType });
   }
 
   onShapeDraw = (e) => {
@@ -115,7 +115,7 @@ export class MapControl extends PureComponent {
     geoJson.properties.id = Math.random();
     geoJson.properties[ViewerUtility.selection.specialProperty.type] = this.state.drawMode;
 
-    let icon = ViewerUtility.returnMarker('#3388ff', ViewerUtility.markerSize, 'RoomTwoTone');
+    let icon = ViewerUtility.returnMarker('#3388ff', 2, 'RoomTwoTone');
 
     let drawnGeometryElement = (
       <GeoJSON
@@ -153,7 +153,7 @@ export class MapControl extends PureComponent {
   }
 
   onMapRequest = () => {
-    this.onDrawPolygon(ViewerUtility.plantingSiteElementType);
+    this.onDrawPolygon(ViewerUtility.newPlantingSiteElementType);
   }
 
   render() {

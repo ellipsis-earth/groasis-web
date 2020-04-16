@@ -9,6 +9,7 @@ ul.treeControl
 	line-height: initial;
 	margin-bottom: 8px;
 	text-align: left;
+	padding-right: 48px;
 }
 
 .treeControl .addListOption
@@ -38,7 +39,18 @@ ul.treeControl
   justify-content: flex-end;
 }
 
-.treeControl .MuiSelect-select.MuiSelect-select
+.treeControl .MuiSelect-select, .treeControl input
+{
+	text-align: center;
+}
+
+.treeControl .treeAddHandlingButtonsContainer
+{
+  justify-content: flex-end;
+  padding-right: 32px;
+}
+
+.treeControl .ratioSubheader, .treeControl .ratioItem
 {
 	text-align: center;
 }

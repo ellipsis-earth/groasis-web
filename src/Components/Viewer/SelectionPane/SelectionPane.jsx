@@ -101,7 +101,86 @@ class SelectionPane extends PureComponent {
           this.setState({ loading: false });
         });
     });
+  }
 
+  deletePlantingLines = () => {
+    this.setState({ loading: true }, () => {
+      let body = {
+        mapId: this.props.map.id,
+        type: ViewerUtility.polygonLayerType,
+        layer: GroasisUtility.layers.polygon.plantingLines,
+        filters: [{key: 'Planting site id', value: this.props.selectedPlantingSite, operator: '='}]
+      };
+
+      ApiManager.post('/geometry/ids', body, this.props.user)
+      .then(ids => {
+        let deletePromises = [];
+
+        for (let i = 0; i < ids.ids.length; i++) {
+          let body = {
+            mapId: this.props.map.id,
+            polygonId: ids.ids[i]
+          };
+
+          deletePromises.push(ApiManager.post('/geometry/delete', body, this.props.user).catch(err => {console.error(err)}))
+        }
+
+        Promise.all(deletePromises)
+        .then(() => {
+          this.props.onDeletePolygon();
+          this.setState({loading: false });
+        })
+        .catch(err => {console.error(err)});
+      })
+      .catch(err => {
+        console.error(err);
+        this.setState({ loading: false });
+      });
+    })
+  }
+
+  deletePlantingLineTrees = (type) => {
+    this.setState({ loading: true }, () => {
+      let body = {
+        mapId: this.props.map.id,
+        type: ViewerUtility.polygonLayerType,
+        layer: GroasisUtility.layers.polygon.trees,
+      };
+
+      if(type === 'all')
+      {
+        body.filters = [{key: 'Planting site id', value: this.props.selectedPlantingSite, operator: '='}]
+      }
+      else
+      {
+        body.filters = [{key: 'Planting line id', value: this.props.selectedPlantingLine, operator: '='}]
+      }
+
+      ApiManager.post('/geometry/ids', body, this.props.user)
+        .then(ids => {
+          let deletePromises = [];
+
+          for (let i = 0; i < ids.ids.length; i++) {
+            let body = {
+              mapId: this.props.map.id,
+              polygonId: ids.ids[i]
+            };
+
+            deletePromises.push(ApiManager.post('/geometry/delete', body, this.props.user).catch(err => {console.error(err)}))
+          }
+
+          Promise.all(deletePromises)
+          .then(() => {
+            this.props.onDeletePolygon();
+            this.setState({loading: false });
+          })
+          .catch(err => {console.error(err)});
+        })
+        .catch(err => {
+          console.error(err);
+          this.setState({ loading: false });
+        });
+    });
   }
 
   onCloseClick = () => {
@@ -110,9 +189,15 @@ class SelectionPane extends PureComponent {
     this.setState({ isOpen: false, error: {species: false, date: false} });
   }
 
-  onElementActionClick = (action) => {
+  onElementActionClick = (action, extra) => {
     if (action === DELETE_CUSTOM_POLYGON_ACTION) {
       this.deleteCustomPolygon();
+    }
+    else if (action === ViewerUtility.dataPaneAction.deletePlantingLineTrees) {
+      this.deletePlantingLineTrees(extra);
+    }
+    else if (action === ViewerUtility.dataPaneAction.deletePlantingLines) {
+      this.deletePlantingLines();
     }
     else if (action === ANNOTATE_ACTION) {
       this.setState({ annotate: true });
@@ -220,7 +305,7 @@ class SelectionPane extends PureComponent {
 
     let layer = null;
     let properties = {};
-    if (element.type === ViewerUtility.plantingLineElementType) {
+    if (element.type === ViewerUtility.newPlantingLineElementType) {
       layer = GroasisUtility.layers.polygon.plantingLines;
       properties['Planting site id'] = this.props.selectedPlantingSite;
     }
@@ -591,7 +676,7 @@ class SelectionPane extends PureComponent {
       ];
       title = element.feature.properties[GroasisUtility.subatlasProperty].toUpperCase();
     }
-    else if (element.type !== ViewerUtility.drawnPolygonLayerType && element.type !== ViewerUtility.treeElementType) {
+    else if (element.type !== ViewerUtility.drawnPolygonLayerType && element.type !== ViewerUtility.treeElementType && element.type !== ViewerUtility.plantingSiteElementType) {
       firstRowButtons.push((
         <Button
           key='geoMessage'
@@ -653,7 +738,7 @@ class SelectionPane extends PureComponent {
           onClick={() => this.onElementActionClick(ViewerUtility.dataPaneAction.planTrees)}
           disabled={!canEdit}
         >
-          {ViewerUtility.dataPaneAction.planTrees}
+          Plan Trees
         </Button>);
 
         firstRowButtons.push(<Button
@@ -667,6 +752,19 @@ class SelectionPane extends PureComponent {
         >
           {ViewerUtility.dataPaneAction.multiply}
         </Button>);
+
+        secondRowButtons.push(
+        <Button
+          key='deletePlantingLineTrees'
+          variant='outlined'
+          size='small'
+          className='selection-pane-button'
+          onClick={() => this.onElementActionClick(ViewerUtility.dataPaneAction.deletePlantingLineTrees)}
+          disabled={!canEdit}
+        >
+          {'DELETE ALL TREES ON LINE'}
+        </Button>
+      );
       }
       else if (layer === GroasisUtility.layers.polygon.plantingSite) {
         title = 'Planting Site';
@@ -790,7 +888,7 @@ class SelectionPane extends PureComponent {
         </Button>
       ];
     }
-    else if (element.type === ViewerUtility.plantingLineElementType) {
+    else if (element.type === ViewerUtility.newPlantingLineElementType) {
       title = 'New planting line';
 
       firstRowButtons = [
@@ -807,7 +905,7 @@ class SelectionPane extends PureComponent {
         </Button>
       ];
     }
-    else if (element.type === ViewerUtility.plantingSiteElementType)
+    else if (element.type === ViewerUtility.newPlantingSiteElementType)
     {
       title = 'New Planting Site';
       firstRowButtons = [];
@@ -826,6 +924,49 @@ class SelectionPane extends PureComponent {
           {'Add Planting Site'}
         </Button>
       ));
+    }
+    else if (element.type === ViewerUtility.plantingSiteElementType)
+    {
+      title = 'Planting Site';
+      firstRowButtons = [];
+      secondRowButtons = [];
+      firstRowButtons.push(<Button
+        key='planTrees'
+        variant='outlined'
+        size='small'
+        color='primary'
+        className='selection-pane-button'
+        onClick={() => this.onElementActionClick(ViewerUtility.dataPaneAction.planTrees)}
+        disabled={!canEdit}
+      >
+        Plan Trees on all lines
+      </Button>);
+
+      secondRowButtons.push(
+        <Button
+          key='deletePlantingLineTrees'
+          variant='outlined'
+          size='small'
+          className='selection-pane-button'
+          onClick={() => this.onElementActionClick(ViewerUtility.dataPaneAction.deletePlantingLineTrees, 'all')}
+          disabled={!canEdit}
+        >
+          DELETE ALL TREES IN SITE
+        </Button>
+      );
+
+      secondRowButtons.push(
+        <Button
+          key='deletePlantingLines'
+          variant='outlined'
+          size='small'
+          className='selection-pane-button'
+          onClick={() => this.onElementActionClick(ViewerUtility.dataPaneAction.deletePlantingLines)}
+          disabled={!canEdit}
+        >
+          DELETE ALL LINES IN SITE
+        </Button>
+      );
     }
 
 
@@ -846,7 +987,7 @@ class SelectionPane extends PureComponent {
       let drawnType =
         element.type === ViewerUtility.drawnPolygonLayerType ||
         element.type === ViewerUtility.newTreeElementType ||
-        element.type === ViewerUtility.plantingLineElementType ||
+        element.type === ViewerUtility.newPlantingLineElementType ||
         element.type === ViewerUtility.ooiElementType;
 
       if (drawnType && isId) {
@@ -891,7 +1032,7 @@ class SelectionPane extends PureComponent {
     else if (element.type === ViewerUtility.newTreeElementType) {
       inputElements = this.renderNewTreeInputs();
     }
-    else if (element.type === ViewerUtility.plantingSiteElementType) {
+    else if (element.type === ViewerUtility.newPlantingSiteElementType) {
       properties = null;
     }
 

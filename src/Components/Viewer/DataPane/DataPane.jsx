@@ -107,8 +107,9 @@ class DataPane extends PureComponent {
           onPlantingSiteClick={this.props.onPlantingSiteClick}
           key={this.props.groasisMaps ? this.props.groasisMaps.areas.join('_') : 'default'}
           watchlistRefresh={this.props.watchlistRefresh}
-          ref={this.watchlist}
           selectedPlantingSite={this.props.selectedPlantingSite}
+          onFeatureClick={this.props.onFeatureClick}
+          ref={this.watchlist}
         />
       );
     }
@@ -195,6 +196,8 @@ class DataPane extends PureComponent {
           element={this.props.element}
           leafletMap={this.props.leafletMap}
           onLayersChange={this.props.onLayersChange}
+          updatePolygons={this.props.updatePolygons}
+          onDeselect={this.props.onDeselect}
           ref={this.multiplyControl}
         />
       );
@@ -210,6 +213,8 @@ class DataPane extends PureComponent {
           element={this.props.element}
           leafletMap={this.props.leafletMap}
           onLayersChange={this.props.onLayersChange}
+          updatePolygons={this.props.updatePolygons}
+          onDeselect={this.props.onDeselect}
           ref={this.plantControl}
         />
       );

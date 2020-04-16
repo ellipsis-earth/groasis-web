@@ -193,7 +193,7 @@ const GroasisUtility = {
           groasisMaps.geoJson.features.push(groasisMap.geoJson);
         }
 
-        let icon = ViewerUtility.returnMarker(GROASIS_COLOR, { x: 17, y: 24 }, 'RoomTwoTone');
+        let icon = ViewerUtility.returnMarker(GROASIS_COLOR, 2, 'RoomTwoTone');
         groasisMaps.geoJsonElement = (
           <GeoJSON
             data={groasisMaps.geoJson}
@@ -376,7 +376,7 @@ const GroasisUtility = {
         return ApiManager.post('/geometry/get', body, user);
       })
       .then(polygonsGeoJson => {
-        let icon = ViewerUtility.returnMarker(`#${selectLayer.color}`, ViewerUtility.markerSize, 'RoomTwoTone')
+        let icon = ViewerUtility.returnMarker(`#${selectLayer.color}`, 2, 'RoomTwoTone')
 
         let linesCollection = {
           type: 'FeatureCollection',
@@ -451,7 +451,8 @@ const GroasisUtility = {
       geometry: {
         type: 'Polygon',
         coordinates: coordinates
-      }
+      },
+      properties: markerGeoJson.properties,
     };
 
     return treeGeoJson;

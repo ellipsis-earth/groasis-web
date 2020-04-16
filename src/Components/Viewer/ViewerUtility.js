@@ -40,8 +40,9 @@ const ViewerUtility = {
   treeElementType: 'tree',
   newTreeElementType: 'new_tree',
   ooiElementType: 'ooi',
-  plantingLineElementType: 'planting_line',
-  plantingSiteElementType: 'new_planting_site',
+  newPlantingLineElementType: 'new_planting_line',
+  plantingSiteElementType: 'planting_site',
+  newPlantingSiteElementType: 'new_planting_site',
 
   tileLayerZIndex: 200,
   standardTileLayerZIndex: 1000,
@@ -66,7 +67,8 @@ const ViewerUtility = {
     feed: 'geomessage_feed',
     gallery: 'gallery',
     multiply: 'multiply',
-    planTrees: 'plan trees',
+    planTrees: 'plan_trees',
+    deletePlantingLineTrees: 'delete_planting_line_trees'
   },
 
   dataGraphType: {
@@ -120,15 +122,28 @@ const ViewerUtility = {
     return L.marker(latlng, { icon: icon });
   },
 
-  returnMarker: (color, markerSize, iconName) => {
+  returnMarker: (color = '#026464', modifier = 1.5, iconName = 'RoomTwoTone', opacity = 1) => {
     let IconClass = require(('@material-ui/icons/' + iconName)).default;
-    let temp = <IconClass viewBox={`${markerSize.y/4} 0 ${markerSize.y/2} ${markerSize.y}`} className="layerMarker" style={{fill: color, filter: 'drop-shadow(1px 1px 1px rgba(0,0,0,0.5))', width: markerSize.x*2 + 'px', height: markerSize.y*2 + 'px'}}/>;
+    let temp = <IconClass
+      viewBox='5 2 14 20'
+      className="layerMarker"
+      style={{
+        fill: color,
+        //filter: 'drop-shadow(1px 1px 1px rgba(0,0,0,0.5))',
+        transform: 'scale(' + modifier + ')',
+        width: ViewerUtility.markerSize.x + 'px',
+        height: ViewerUtility.markerSize.y + 'px',
+        transformOrigin: 'bottom',
+        opacity: opacity
+      }}
+    />;
+
     let markerIcon = renderToStaticMarkup(temp);
     let icon = divIcon({
       className: 'layerDivIcon',
       html: markerIcon,
-      iconSize: [markerSize.x*2, markerSize.y*2],
-      iconAnchor: [markerSize.x, markerSize.y*2],
+      iconSize: [ViewerUtility.markerSize.x, ViewerUtility.markerSize.y],
+      iconAnchor: [ViewerUtility.markerSize.x / 2, ViewerUtility.markerSize.y],
     });
 
     return icon;

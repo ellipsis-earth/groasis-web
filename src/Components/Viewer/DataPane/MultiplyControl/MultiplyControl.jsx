@@ -6,6 +6,7 @@ import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import TextField from '@material-ui/core/TextField';
 
@@ -25,9 +26,11 @@ class MultiplyControl extends PureComponent {
       distance: null,
       initialPosition: null,
       amount: 0,
+      loading: false,
     };
 
     this.lastPosition = {};
+    this.timer = null;
   }
 
   componentDidMount = (e) => {
@@ -39,6 +42,8 @@ class MultiplyControl extends PureComponent {
   	this.props.leafletMap.current.leafletElement.off('click', this.handleMouseUp);
 		this.props.leafletMap.current.leafletElement.off('mousemove', this.handleMouseMove);
 		this.props.onLayersChange(null, true);
+    clearTimeout(this.timer);
+    this.timer = null;
   }
 
 	handleChange = (e) => {
@@ -147,36 +152,39 @@ class MultiplyControl extends PureComponent {
 	}
 
 	confirm = () => {
-		let lines = this.state.lines;
-		let feature = {type: 'Feature', properties: {'Planting site id': this.props.selectedPlantingSite}}
+		this.setState({loading: true}, () => {
+			let lines = this.state.lines;
+			let feature = {type: 'Feature', properties: {'Planting site id': this.props.selectedPlantingSite}}
 
-    let body = {
-      mapId: this.props.map.id,
-      timestamp: 0,
-      layer: GroasisUtility.layers.polygon.plantingLines,
-      feature: feature,
-    };
+	    let body = {
+	      mapId: this.props.map.id,
+	      timestamp: 0,
+	      layer: GroasisUtility.layers.polygon.plantingLines,
+	      feature: feature,
+	    };
 
-    let promises = [];
+	    let promises = [];
 
-		for (let i = 0; i < lines.features.length; i++)
-		{
-			body.feature.geometry = lines.features[i].geometry;
+			for (let i = 0; i < lines.features.length; i++)
+			{
+				body.feature.geometry = lines.features[i].geometry;
 
-			promises.push(ApiManager.post('/geometry/add', body, this.props.user)
-	      .then((result) => {
-	      	return result
-	      })
-	      .catch(err => {
-	        console.error(err);
-	      })
-      );
-		}
+				promises.push(ApiManager.post('/geometry/add', body, this.props.user)
+		      .catch(err => {
+		        console.error(err);
+		      })
+	      );
+			}
 
-		Promise.all(promises)
-		.then((values) => {
-			console.log(values)
-		});
+			Promise.all(promises)
+			.then(() => {
+				this.timer = setTimeout(() => {
+					this.stopDraw();
+					this.props.onDeselect();
+					this.props.updatePolygons();
+				}, 3000)
+			});
+		})
 	}
 
 	deny = () => {
@@ -194,7 +202,7 @@ class MultiplyControl extends PureComponent {
 
 		this.lastPosition = {};
 		this.props.onLayersChange(null, true);
-		this.setState({initialPosition: null, lines: null, amount: 0});
+		this.setState({initialPosition: null, lines: null, amount: 0, loading: false});
 	}
 
 	render = () => {
@@ -208,9 +216,13 @@ class MultiplyControl extends PureComponent {
 		{
 			message = <p>Click on the line to create the anchorpoint</p>;
 		}
-		else if (this.state.lines)
+		else if (this.state.lines && !this.state.loading)
 		{
 			message = <p><Button color='secondary' onClick={this.confirm}>Confirm</Button> or <Button onClick={this.deny}>Deny</Button></p>;
+		}
+		else if (this.state.lines && this.state.loading)
+		{
+			message = <p><Button color='secondary' disabled startIcon={<CircularProgress size={12} />} onClick={this.confirm}>Confirm</Button> or <Button disabled onClick={this.deny}>Deny</Button></p>;
 		}
 
 		return (

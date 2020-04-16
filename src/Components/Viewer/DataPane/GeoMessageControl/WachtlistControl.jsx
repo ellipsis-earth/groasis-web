@@ -4,16 +4,21 @@ import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import CardHeader from '@material-ui/core/CardHeader';
 import Collapse from '@material-ui/core/Collapse';
+import IconButton from '@material-ui/core/IconButton';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
 import Typography from '@material-ui/core/Typography';
+
+import EditIcon from '@material-ui/icons/Edit';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTree } from '@fortawesome/free-solid-svg-icons';
 
 import GroasisUtility from '../../GroasisUtility';
+import ViewerUtility from '../../ViewerUtility';
 
 import './WatchlistControl.css';
 
@@ -39,6 +44,7 @@ class WatchListControl extends PureComponent {
         onWatchlistClick={this.props.onWatchlistClick}
         onPlantingSiteClick={this.props.onPlantingSiteClick}
         selectedPlantingSite={this.props.selectedPlantingSite}
+        onFeatureClick={this.props.onFeatureClick}
         key={'watchlists' + this.props.groasisMaps.length}
       />)
     }
@@ -101,11 +107,18 @@ class WatchList extends PureComponent {
       {
         let plantingSitesElements = plantingSites.map(z => {
           let selectedPlantingSite = parseInt(z.id) === this.props.selectedPlantingSite;
-          return (<ListItem button key={z.id + '_' + selectedPlantingSite} onClick={() => this.props.onPlantingSiteClick(z)} selected={selectedPlantingSite}>
+          return (<ListItem button key={z.id + '_' + selectedPlantingSite} onClick={() => {this.props.onPlantingSiteClick(z)}} selected={selectedPlantingSite}>
               <ListItemIcon>
                 <FontAwesomeIcon icon={faTree} style={{ color: 'green' }}/>
               </ListItemIcon>
               <ListItemText primary={z.properties.name} />
+              {this.props.map.accessLevel >= 900 && selectedPlantingSite ?
+                <ListItemSecondaryAction>
+                  <IconButton edge="end" aria-label="edit planting site" size='small' onClick={() => {this.props.onFeatureClick(ViewerUtility.plantingSiteElementType, z)}}>
+                    <EditIcon />
+                  </IconButton>
+                </ListItemSecondaryAction> : null
+              }
             </ListItem>);
         })
         returnItem.push(<Collapse in={selected && plantingSites ? true : false} key={x.name + '_collapse'}>
