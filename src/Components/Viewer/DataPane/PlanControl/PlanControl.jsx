@@ -37,6 +37,14 @@ class PlanControl extends Component {
     this.treeControl = React.createRef();
   }
 
+  componentDidMount() {
+    this._ismounted = true;
+  }
+
+  componentWillUnmount() {
+     this._ismounted = false;
+  }
+
 	setSelectedTrees = (selectedTrees) => {
   	this.setState({selectedTrees: selectedTrees}, async () => {
   		this.treeControl.current.setListLength(selectedTrees.length);
@@ -91,7 +99,6 @@ class PlanControl extends Component {
     let icon = ViewerUtility.returnMarker('#388e3cff', 2, 'RoomTwoTone', 0.5);
 
     let treeFeatures = await this.planTrees();
-    console.log(treeFeatures);
     let geoJson =  <GeoJSON
         key={Math.random()}
         data={await this.planTrees()}
@@ -193,17 +200,28 @@ class PlanControl extends Component {
     let trackFunc = () => {
       ApiManager.post('/geometry/track', body, this.props.user)
         .then(trackingInfo => {
-          if (!trackingInfo.added) {
+          if (!trackingInfo.added)
+          {
+            this.props.updatePolygons();
             setTimeout(trackFunc, 1000);
             return;
           }
           else
           {
-          	this.setState({loading: false}, () => {
+            if (this._ismounted)
+            {
+            	this.setState({loading: false}, () => {
+                this.props.updatePolygons();
+  			      	this.props.onDeselect();
+  			      	this.props.onLayersChange(null, true);
+  			      });
+            }
+            else
+            {
               this.props.updatePolygons();
-			      	this.props.onDeselect();
-			      	this.props.onLayersChange(null, true);
-			      });
+              this.props.onDeselect();
+              this.props.onLayersChange(null, true);
+            }
           }
     })};
 

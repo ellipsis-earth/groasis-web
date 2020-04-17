@@ -99,6 +99,11 @@ div.selector-single {
   height: 50px;
 }
 
+.layerDivIcon
+{
+  z-index: 600!important;
+}
+
 @media only screen and (max-width: 700px) {
   .controls-pane {
     width: 100vw;

@@ -1,7 +1,7 @@
 div.layerDivIcon
 {
-	display: flex;
-	justify-content: center;
+	/*display: flex;
+	justify-content: center;*/
 }
 
 .leaflet-pane > svg path.noClick.leaflet-interactive
@@ -9,4 +9,19 @@ div.layerDivIcon
   cursor: grab;
   cursor: -webkit-grab;
   pointer-events: none;
+}
+
+.leaflet-pane.leaflet-planting-sites-pane
+{
+	z-index: 399;
+}
+
+.leaflet-pane.leaflet-planting-sites-pane
+{
+	z-index: 401;
+}
+
+.leaflet-pane.leaflet-planting-lines-pane
+{
+	z-index: 402;
 }

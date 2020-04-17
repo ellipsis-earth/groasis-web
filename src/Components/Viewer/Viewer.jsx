@@ -80,7 +80,7 @@ class Viewer extends PureComponent {
       leafletMapViewport: DEFAULT_VIEWPORT,
       isSmallWindow: false,
 
-      panes: [MAP_PANE_NAME, DATA_PANE_NAME],
+      panes: [CONTROL_PANE_NAME, MAP_PANE_NAME, DATA_PANE_NAME],
 
       mapCollection: null,
       selectedLayers: {
@@ -369,7 +369,6 @@ class Viewer extends PureComponent {
     {
       if (!id) {
         //id = this.state.selectedElement.feature.properties[GroasisUtility.subatlasProperty];
-        console.log('something with selected Element')
       }
       else
       {
@@ -644,7 +643,6 @@ class Viewer extends PureComponent {
       this.setState(stateObj, () => {
         this.rebuildAllLayers();
         if (cb) {
-          console.log(cb)
           cb();
         }
       });

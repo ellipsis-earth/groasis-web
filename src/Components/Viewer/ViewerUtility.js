@@ -48,11 +48,11 @@ const ViewerUtility = {
   standardTileLayerZIndex: 1000,
 
   polygonLayerZIndex: {
-    'Identification Zones': 1001,
-    'Planting sites': 1002,
-    'Planting lines': 1003,
-    'Trees': 1004,
-    'base': 1005
+    'Identification Zones': 399,
+    'Planting sites': 401,
+    'Planting lines': 402,
+    'Trees': 600,
+    'base': 400
   },
 
   customPolygonLayerZIndex: 1100,
@@ -134,7 +134,8 @@ const ViewerUtility = {
         width: ViewerUtility.markerSize.x + 'px',
         height: ViewerUtility.markerSize.y + 'px',
         transformOrigin: 'bottom',
-        opacity: opacity
+        opacity: opacity,
+        zIndex: 600,
       }}
     />;
 
@@ -179,7 +180,7 @@ const ViewerUtility = {
       color: color ? color : '#3388ff',
       weight: weight ? weight : 1,
       fillOpacity: fillOpacity ? fillOpacity : 0.06,
-      zIndex: zIndex ? zIndex : 1000,
+      zIndex: zIndex ? zIndex : 400,
       opacity: strokeOpacity ? strokeOpacity : 1
     };
   },

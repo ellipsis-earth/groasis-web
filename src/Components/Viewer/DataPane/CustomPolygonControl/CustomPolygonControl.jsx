@@ -198,8 +198,9 @@ class CustomPolygonControl extends PureComponent {
       title = 'Edit';
     }
 
-    let layerSelect = null;
     let layers = this.props.map.layers.polygon;
+
+    /*let layerSelect = null;
     if (layers.length > 0) {
       let options = [
         <MenuItem key='default' value='default' disabled hidden>Select a layer</MenuItem>
@@ -231,7 +232,7 @@ class CustomPolygonControl extends PureComponent {
     }
     else {
       layerSelect = 'No layers available.'
-    }
+    }*/
 
     let propertyInputs = null;
     let selectedLayer = layers.find(x => x.name === this.state.selectedLayer)

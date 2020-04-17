@@ -40,13 +40,6 @@ export class TimestampSelector extends PureComponent {
 
         let dates = timestamps.map(x => moment(x.dateTo).format(dateFormat));
 
-        console.log({
-          timestampReferenceMap: timestampReferenceMap,
-          start: lastTimestamp,
-          end: lastTimestamp,
-          dates: dates
-        });
-
         this.setState({
           timestampReferenceMap: timestampReferenceMap,
           start: lastTimestamp,

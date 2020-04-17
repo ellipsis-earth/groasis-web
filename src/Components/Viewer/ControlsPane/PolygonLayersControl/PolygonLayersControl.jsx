@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { GeoJSON } from 'react-leaflet';
+import { Pane, GeoJSON } from 'react-leaflet';
 import L from 'leaflet';
 
 import Card from '@material-ui/core/Card';
@@ -101,7 +101,6 @@ class PolygonLayersControl extends PureComponent {
 
         availableLayers = [...IDENTIFICATION_LAYERS, ...newLayers];
       }
-
 
       if (differentMap || differentMode) {
         this.layerGeoJsons = {};
@@ -272,7 +271,7 @@ class PolygonLayersControl extends PureComponent {
 
           let leafletGeojsonLayerPromise = await ApiManager.post('/geometry/get', body, this.props.user)
             .then(polygonsGeoJson => {
-              if (!polygonsGeoJson) {
+              if (!polygonsGeoJson || !polygonsGeoJson.features) {
                 this.layerGeoJsons[polygonLayer.name] = null;
                 return null;
               }
@@ -345,11 +344,12 @@ class PolygonLayersControl extends PureComponent {
                   })};
                 }
 
-              return (
+                let zIndex = ViewerUtility.polygonLayerZIndex[polygonLayer.name] ? ViewerUtility.polygonLayerZIndex[polygonLayer.name] : ViewerUtility.polygonLayerZIndex.base + i;
+              return (<Pane zIndex={zIndex} key={Math.random()} name={polygonLayer.name.replace(' ', '-').toLowerCase()}>
                 [<GeoJSON
                   key={Math.random()}
                   data={polygonsGeoJson}
-                  style={ViewerUtility.createGeoJsonLayerStyle(`#${polygonLayer.color}`, null, null, ViewerUtility.polygonLayerZIndex[polygonLayer.name] ? ViewerUtility.polygonLayerZIndex[polygonLayer.name] : ViewerUtility.polygonLayerZIndex.base + i)}
+                  style={ViewerUtility.createGeoJsonLayerStyle(`#${polygonLayer.color}`, null, null, zIndex)}
                   onEachFeature={onEachFeature}
                   pointToLayer={(geoJsonPoint, latlng) => this.markerReturn(latlng, icon)}
                   name={polygonLayer.name}
@@ -359,13 +359,13 @@ class PolygonLayersControl extends PureComponent {
                 <GeoJSON
                   key={Math.random()}
                   data={linesCollection}
-                  style={ViewerUtility.createGeoJsonLayerStyle(`#${polygonLayer.color}`, 3, null, ViewerUtility.polygonLayerZIndex[polygonLayer.name] ? ViewerUtility.polygonLayerZIndex[polygonLayer.name] : ViewerUtility.polygonLayerZIndex.base + i)}
+                  style={ViewerUtility.createGeoJsonLayerStyle(`#${polygonLayer.color}`, 3, null, zIndex)}
                   onEachFeature={onEachFeature}
                   name={polygonLayer.name}
                   zIndex={ViewerUtility.polygonLayerZIndex[polygonLayer.name]}
                   className={!onEachFeature ? 'noClick' : ''}
                 />]
-              );
+              </Pane>);
             });
 
           promises.push(leafletGeojsonLayerPromise);
@@ -374,19 +374,22 @@ class PolygonLayersControl extends PureComponent {
         {
           if(selectedLayers.includes(GroasisUtility.request.layer))
           {
+            let zIndex = ViewerUtility.polygonLayerZIndex[GroasisUtility.request.layer];
             let data = this.props.map.type === 'area' ? {type: 'FeatureCollection', features: [this.props.map.geoJson]} : this.props.map.geoJson;
             promises.push(Promise.resolve(
-              <GeoJSON
-                key={Math.random()}
-                data={data}
-                style={this.props.map.type === 'area' ? ViewerUtility.createGeoJsonLayerStyle('#87cef3', 3, null, ViewerUtility.polygonLayerZIndex[GroasisUtility.request.layer]) : ViewerUtility.createGeoJsonLayerStyle('#48ac3e', 3, null, ViewerUtility.polygonLayerZIndex[GroasisUtility.request.layer])}
-                /*onEachFeature={(feature, layer) => {layer.on({
-                  click: () => {this.props.onWatchlistClick(feature)}
-                })}}*/
-                className='noClick'
-                name={GroasisUtility.request.layer}
-                zIndex={ViewerUtility.polygonLayerZIndex[GroasisUtility.request.layer]}
-              />)
+              <Pane zIndex={zIndex} key={Math.random()} name={GroasisUtility.request.layer.replace(' ', '-').toLowerCase()}>
+                <GeoJSON
+                  key={Math.random()}
+                  data={data}
+                  style={this.props.map.type === 'area' ? ViewerUtility.createGeoJsonLayerStyle('#87cef3', 3, null, zIndex) : ViewerUtility.createGeoJsonLayerStyle('#48ac3e', 3, null, zIndex)}
+                  /*onEachFeature={(feature, layer) => {layer.on({
+                    click: () => {this.props.onWatchlistClick(feature)}
+                  })}}*/
+                  className='noClick'
+                  name={GroasisUtility.request.layer}
+                  zIndex={zIndex}
+                />
+              </Pane>)
             );
           }
         }
@@ -400,17 +403,23 @@ class PolygonLayersControl extends PureComponent {
     {
       if(selectedLayers.includes(GroasisUtility.request.layer))
       {
+        let zIndex = ViewerUtility.polygonLayerZIndex[GroasisUtility.request.layer];
+
         let data = this.props.map.type === 'area' ? {type: 'FeatureCollection', features: [this.props.map.geoJson]} : this.props.map.geoJson;
-        leafletGeoJsonLayers.push(<GeoJSON
-          key={Math.random()}
-          data={data}
-          style={ViewerUtility.createGeoJsonLayerStyle('#87cef3', 3, null, ViewerUtility.polygonLayerZIndex[GroasisUtility.request.layer])}
-          name={GroasisUtility.request.layer}
-          /*onEachFeature={(feature, layer) => {layer.on({
-            click: () => {this.props.onWatchlistClick(feature)}
-          })}}*/
-          className='noClick'
-        />)
+        leafletGeoJsonLayers.push(
+          <Pane zIndex={zIndex} key={Math.random()} name={GroasisUtility.request.layer.replace(' ', '-').toLowerCase()}>
+            <GeoJSON
+              key={Math.random()}
+              data={data}
+              style={ViewerUtility.createGeoJsonLayerStyle('#87cef3', 3, null, zIndex)}
+              name={GroasisUtility.request.layer}
+              /*onEachFeature={(feature, layer) => {layer.on({
+                click: () => {this.props.onWatchlistClick(feature)}
+              })}}*/
+              className='noClick'
+            />
+          </Pane>
+        )
       }
 
       if(selectedLayers.includes(GroasisUtility.layers.polygon.plantingSites))
@@ -430,7 +439,7 @@ class PolygonLayersControl extends PureComponent {
   }
 
   markerReturn = (latlng, icon) => {
-    return L.marker(latlng, {icon: icon, pane: 'overlayPane'});
+    return L.marker(latlng, {icon: icon, pane: 'markerPane'});
   }
 
   onLayerChange = (e) => {

@@ -996,7 +996,6 @@ class SelectionPane extends PureComponent {
     let selectionPaneClass = 'selection-pane';
 
     let layer = element.feature.properties.layer;
-    console.log(layer, element.type);
 
     for (let property in elementProperties) {
       let propertyValue = elementProperties[property];

@@ -304,7 +304,7 @@ class FilterControl extends Component {
 
 		Promise.all(promises)
 			.then(results => {
-				let leafletElements = results.map(x => x.geoJsonElement);
+				let leafletElements = results.map(x => {if(x){return x.geoJsonElement} return null});
 				this.props.onLayersChange(leafletElements);
 
 				let countMessage = null;
@@ -578,7 +578,10 @@ class FilterControl extends Component {
 					/>
 				);
 
-				return result;
+				if(this.state.selectedLayers.length > 0)
+				{
+					return result;
+				}
 			});
 	}
 

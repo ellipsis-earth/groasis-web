@@ -85,7 +85,7 @@ class MultiplyControl extends PureComponent {
 	}
 
 	handleMouseUp = (e) => {
-		if (this.state.initialPosition && this.state.distance || e.last && e.start)
+		if ((this.state.initialPosition && this.state.distance) ||( e.last && e.start))
 		{
 			this.props.leafletMap.current.leafletElement.off('click', this.handleMouseUp);
   		this.props.leafletMap.current.leafletElement.off('mousemove', this.handleMouseMove);

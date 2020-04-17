@@ -4,7 +4,6 @@ import Collapse from '@material-ui/core/Collapse';
 import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import InputAdornment from '@material-ui/core/InputAdornment';
-import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -107,10 +106,8 @@ class TreeControl extends Component {
 		      			</ListItemSecondaryAction>
 		      		</ListItem>)
 						}
-						else
-						{
-							return;
-						}
+
+						return null;
   				})
     		}
     		</List>
@@ -197,7 +194,8 @@ class TreeInput extends Component {
 				        			{
 				        				return(<MenuItem key={inputId + '_menuItem_' + x.name} value={x.name}>{x.name}</MenuItem>)
 				        			}
-			        				return;
+
+			        				return null;
 				        		})
 				        	}
 				        </Select>

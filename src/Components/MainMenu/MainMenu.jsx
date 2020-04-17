@@ -63,7 +63,7 @@ export class MainMenu extends Component {
       }
     }
     catch (err) {
-      console.log(`Could not identify navkey from url: ${url}`);
+      console.error(`Could not identify navkey from url: ${url}`);
       console.error(err);
     }
   }
