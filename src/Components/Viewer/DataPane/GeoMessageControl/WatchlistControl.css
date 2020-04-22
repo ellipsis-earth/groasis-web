@@ -44,3 +44,8 @@ div.watchList h3
 	padding-right: 16px;
   min-width: 0.75em;
 }
+
+div.nestedWatchlist .MuiListItem-button
+{
+	padding-left: 32px;
+}

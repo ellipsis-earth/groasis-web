@@ -79,13 +79,6 @@ class WatchListControl extends PureComponent {
 }
 
 class WatchList extends PureComponent {
-  componentDidMount() {
-  }
-
-  componentDidUpdate(prevProps) {
-
-  }
-
   render() {
     let groasisMaps = this.props.groasisMaps;
     let areas = groasisMaps.areas;
@@ -112,7 +105,8 @@ class WatchList extends PureComponent {
                 <FontAwesomeIcon icon={faTree} style={{ color: 'green' }}/>
               </ListItemIcon>
               <ListItemText primary={z.properties.name} />
-              {this.props.map.accessLevel >= 900 && selectedPlantingSite ?
+              {
+                this.props.map.accessLevel >= 900 && selectedPlantingSite ?
                 <ListItemSecondaryAction>
                   <IconButton edge="end" aria-label="edit planting site" size='small' onClick={() => {this.props.onFeatureClick(ViewerUtility.plantingSiteElementType, z)}}>
                     <EditIcon />
@@ -121,11 +115,10 @@ class WatchList extends PureComponent {
               }
             </ListItem>);
         })
-        returnItem.push(<Collapse in={selected && plantingSites ? true : false} key={x.name + '_collapse'}>
-          <List component="div" disablePadding className='nestedWatchlist' dense={true}>
-            {plantingSitesElements}
-          </List>
-        </Collapse>);
+
+        returnItem.push(<List component="div" disablePadding className='nestedWatchlist' dense={true}>
+          {plantingSitesElements}
+        </List>);
       };
 
       return returnItem;

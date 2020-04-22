@@ -145,13 +145,13 @@ const GroasisUtility = {
 
             groasisAreas.push(areas[i]);
           }
-          else
+          /*else
           {
             if (areas[i].atlases.length !== 0)
             {
-              console.warn(areas[i]);
+              console.error(areas[i]);
             }
-          }
+          }*/
         }
 
         return {bounds: bounds, areas: groasisAreas, geoJson: {type: 'FeatureCollection', features: geoJsons}};
@@ -352,12 +352,12 @@ const GroasisUtility = {
       return Promise.resolve(map.plantingSites);
     }
 
-    let selectLayer = map.layers.polygon.find(x => x.id === '8c10c128-b989-43d8-ae9d-b0fd22e8bfa0')
+    let selectLayer = map.layers.polygon.find(x => x.name === GroasisUtility.layers.polygon.plantingSites)
 
     let body = {
       mapId: map.id,
       type: ViewerUtility.polygonLayerType,
-      layer: selectLayer.name,
+      layer: GroasisUtility.layers.polygon.plantingSites,
       xMin: map.xMin,
       xMax: map.xMax,
       yMin: map.yMin,
@@ -366,14 +366,20 @@ const GroasisUtility = {
 
     let leafletGeojsonLayerPromise = await ApiManager.post('/geometry/ids', body, user)
       .then(polygonIds => {
+        if(polygonIds.ids.length > 0)
+        {
+          body = {
+            mapId: map.id,
+            type: ViewerUtility.polygonLayerType,
+            elementIds: polygonIds.ids
+          };
 
-        body = {
-          mapId: map.id,
-          type: ViewerUtility.polygonLayerType,
-          elementIds: polygonIds.ids
-        };
-
-        return ApiManager.post('/geometry/get', body, user);
+          return ApiManager.post('/geometry/get', body, user);
+        }
+        else
+        {
+          return {type: 'FeatureCollection', count: 0, features: []}
+        }
       })
       .then(polygonsGeoJson => {
         let icon = ViewerUtility.returnMarker(`#${selectLayer.color}`, 2, 'RoomTwoTone')
