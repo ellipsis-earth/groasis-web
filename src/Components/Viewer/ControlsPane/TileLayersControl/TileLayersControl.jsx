@@ -94,8 +94,8 @@ const AVAILABLE_LAYERS = [
     type: 'WMS',
     mapType: null,
     stacking: false,
-    urlName: 'https://data.isric.org/geoserver/sg250m/wms?',
-    layerName: 'ORCDRC_M_sl1_250m',
+    urlName: 'https://maps.isric.org/mapserv?map=/map/soc.map',
+    layerName: 'soc_0-5cm_mean',
     displayName: GroasisUtility.layers.tile.organic + ' Map'
   },
   {
@@ -103,8 +103,8 @@ const AVAILABLE_LAYERS = [
     type: 'WMS',
     mapType: null,
     stacking: false,
-    urlName: 'https://data.isric.org/geoserver/sg250m/wms?',
-    layerName: 'CLYPPT_M_sl1_250m',
+    urlName: 'https://maps.isric.org/mapserv?map=/map/clay.map',
+    layerName: 'clay_0-5cm_mean',
     displayName: GroasisUtility.layers.tile.clay + ' Map'
   },
   {
@@ -112,8 +112,8 @@ const AVAILABLE_LAYERS = [
     type: 'WMS',
     mapType: null,
     stacking: false,
-    urlName: 'https://data.isric.org/geoserver/sg250m/wms?',
-    layerName: 'SNDPPT_M_sl1_250m',
+    urlName: 'https://maps.isric.org/mapserv?map=/map/sand.map',
+    layerName: 'sand_0-5cm_mean',
     displayName: GroasisUtility.layers.tile.sand + ' Map'
   },
   {
@@ -121,8 +121,8 @@ const AVAILABLE_LAYERS = [
     type: 'WMS',
     mapType: null,
     stacking: false,
-    urlName: 'https://data.isric.org/geoserver/sg250m/wms?',
-    layerName: 'CRFVOL_M_sl1_250m',
+    urlName: 'https://maps.isric.org/mapserv?map=/map/cfvo.map',
+    layerName: 'cfvo_0-5cm_mean',
     displayName: GroasisUtility.layers.tile.coarse + ' Map'
   },
   {
@@ -130,8 +130,8 @@ const AVAILABLE_LAYERS = [
     type: 'WMS',
     mapType: null,
     stacking: false,
-    urlName: 'https://data.isric.org/geoserver/sg250m/wms?',
-    layerName: 'PHIKCL_M_sl1_250m',
+    urlName: 'https://maps.isric.org/mapserv?map=/map/phh2o.map',
+    layerName: 'phh2o_0-5cm_mean',
     displayName: GroasisUtility.layers.tile.ph + ' Map'
   },
 ];

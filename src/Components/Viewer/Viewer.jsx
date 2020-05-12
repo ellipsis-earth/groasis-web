@@ -1089,6 +1089,7 @@ class Viewer extends PureComponent {
             selectedPlantingLine={this.state.selectedPlantingLine}
             leafletMap={this.leafletMap}
             updatePolygons={this.updatePolygons}
+            selectedLayers={this.state.selectedLayers}
           />
         </div>
 
