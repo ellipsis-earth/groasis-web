@@ -83,6 +83,11 @@ class SelectionPane extends PureComponent {
       {
         this.deletePlantingLineTrees();
       }
+      else if(this.props.element.feature.properties.layer === GroasisUtility.layers.polygon.plantingSites)
+      {
+        this.deletePlantingLines();
+        this.deletePlantingLineTrees('all');
+      }
 
       let body = {
         mapId: this.props.map.id,
@@ -651,10 +656,9 @@ class SelectionPane extends PureComponent {
     let user = this.props.user;
     let mapAccessLevel = map ? map.accessLevel : 0;
 
-    let firstRowButtons = [];
-    let secondRowButtons = [];
+    let buttons = [];
 
-    firstRowButtons.push(
+    buttons.push(
       <Button
         key='analyse'
         variant='contained'
@@ -671,7 +675,7 @@ class SelectionPane extends PureComponent {
     let elementProperties = { ...element.feature.properties };
 
     if (element.type === ViewerUtility.subatlasElementType) {
-      firstRowButtons = [
+      buttons = [
         <Button
           key='go'
           variant='contained'
@@ -686,7 +690,7 @@ class SelectionPane extends PureComponent {
       title = element.feature.properties[GroasisUtility.subatlasProperty].toUpperCase();
     }
     else if (element.type !== ViewerUtility.drawnPolygonLayerType && element.type !== ViewerUtility.treeElementType && element.type !== ViewerUtility.plantingSiteElementType) {
-      firstRowButtons.push((
+      buttons.push((
         <Button
           key='geoMessage'
           variant='outlined'
@@ -708,9 +712,9 @@ class SelectionPane extends PureComponent {
       if (elementProperties.type === ViewerUtility.wmsTileLayerType) {
         title = 'WMS tile';
         delete elementProperties.type;
-        firstRowButtons = [];
+        buttons = [];
 
-        firstRowButtons.push(
+        buttons.push(
           <Button
             key='annotate'
             variant='outlined'
@@ -736,9 +740,9 @@ class SelectionPane extends PureComponent {
       }
       else if (layer === GroasisUtility.layers.polygon.plantingLines) {
         title = 'Planting line';
-        firstRowButtons = [];
+        buttons = [];
 
-        firstRowButtons.push(<Button
+        buttons.push(<Button
           key='planTrees'
           variant='outlined'
           size='small'
@@ -750,7 +754,7 @@ class SelectionPane extends PureComponent {
           Plan Trees
         </Button>);
 
-        firstRowButtons.push(<Button
+        buttons.push(<Button
           key='multiply'
           variant='outlined'
           size='small'
@@ -762,7 +766,7 @@ class SelectionPane extends PureComponent {
           {ViewerUtility.dataPaneAction.multiply}
         </Button>);
 
-        secondRowButtons.push(
+        buttons.push(
         <Button
           key='deletePlantingLineTrees'
           variant='outlined'
@@ -779,7 +783,7 @@ class SelectionPane extends PureComponent {
         title = 'Planting Site';
       }
 
-      secondRowButtons.push(
+      buttons.push(
         <Button
           key='delete'
           variant='outlined'
@@ -796,7 +800,7 @@ class SelectionPane extends PureComponent {
       title = 'Tree';
 
       if (this.props.mode === ViewerUtility.viewerMode) {
-        firstRowButtons.push(
+        buttons.push(
           <Button
             key='gallery'
             variant='contained'
@@ -809,8 +813,8 @@ class SelectionPane extends PureComponent {
         );
       }
       else {
-        firstRowButtons = [];
-        firstRowButtons.push(<Button
+        buttons = [];
+        buttons.push(<Button
           key='edit'
           variant='outlined'
           size='small'
@@ -821,7 +825,7 @@ class SelectionPane extends PureComponent {
           {'EDIT'}
         </Button>);
 
-        secondRowButtons.push(
+        buttons.push(
           <Button
             key='delete'
             variant='outlined'
@@ -850,7 +854,7 @@ class SelectionPane extends PureComponent {
           (nonRestrictedLayer || mapAccessLevel >= ApiManager.accessLevels.addRestrictedPolygons);
       }
 
-      firstRowButtons.push(
+      buttons.push(
         <Button
           key='add'
           variant='outlined'
@@ -866,7 +870,7 @@ class SelectionPane extends PureComponent {
     else if (element.type === ViewerUtility.newTreeElementType) {
       title = 'Plant tree';
 
-      firstRowButtons = [
+      buttons = [
         <Button
           key='add'
           variant='contained'
@@ -883,7 +887,7 @@ class SelectionPane extends PureComponent {
     else if (element.type === ViewerUtility.ooiElementType) {
       title = 'New object of interest';
 
-      firstRowButtons = [
+      buttons = [
         <Button
           key='add'
           variant='contained'
@@ -900,7 +904,7 @@ class SelectionPane extends PureComponent {
     else if (element.type === ViewerUtility.newPlantingLineElementType) {
       title = 'New planting line';
 
-      firstRowButtons = [
+      buttons = [
         <Button
           key='add'
           variant='contained'
@@ -917,9 +921,9 @@ class SelectionPane extends PureComponent {
     else if (element.type === ViewerUtility.newPlantingSiteElementType)
     {
       title = 'New Planting Site';
-      firstRowButtons = [];
-      firstRowButtons.push(<TextField id="plantingSiteText" label="Planting Site Name" variant="outlined" className="plantingSite" key="plantingSiteButton" onChange={this.handleNameInput}/>)
-      firstRowButtons.push((
+      buttons = [];
+      buttons.push(<TextField id="plantingSiteText" label="Planting Site Name" variant="outlined" className="plantingSite" key="plantingSiteButton" onChange={this.handleNameInput}/>)
+      buttons.push((
         <Button
           color='primary'
           key={this.state.loading + '_plantingSite'}
@@ -937,9 +941,8 @@ class SelectionPane extends PureComponent {
     else if (element.type === ViewerUtility.plantingSiteElementType)
     {
       title = 'Planting Site';
-      firstRowButtons = [];
-      secondRowButtons = [];
-      firstRowButtons.push(<Button
+      buttons = [];
+      buttons.push(<Button
         key='edit'
         variant='outlined'
         size='small'
@@ -950,7 +953,7 @@ class SelectionPane extends PureComponent {
         {'EDIT'}
       </Button>);
 
-      firstRowButtons.push(<Button
+      buttons.push(<Button
         key='planTrees'
         variant='outlined'
         size='small'
@@ -962,7 +965,7 @@ class SelectionPane extends PureComponent {
         Plan Trees on all lines
       </Button>);
 
-      secondRowButtons.push(
+      buttons.push(
         <Button
           key='deletePlantingLineTrees'
           variant='outlined'
@@ -975,7 +978,7 @@ class SelectionPane extends PureComponent {
         </Button>
       );
 
-      secondRowButtons.push(
+      buttons.push(
         <Button
           key='deletePlantingLines'
           variant='outlined'
@@ -985,6 +988,19 @@ class SelectionPane extends PureComponent {
           disabled={!canEdit}
         >
           DELETE ALL LINES IN SITE
+        </Button>
+      );
+
+      buttons.push(
+        <Button
+          key='delete'
+          variant='outlined'
+          size='small'
+          className='selection-pane-button'
+          onClick={() => this.onElementActionClick(DELETE_CUSTOM_POLYGON_ACTION)}
+          disabled={!canEdit}
+        >
+          {'DELETE'}
         </Button>
       );
     }
@@ -1109,11 +1125,8 @@ class SelectionPane extends PureComponent {
             { this.state.loading ? <CircularProgress className='loading-spinner'/> : null}
           </CardContent>
           <CardActions className={'selection-pane-card-actions'}>
-            <div key='first_row_buttons'>
-              {firstRowButtons}
-            </div>
-            <div key='second_row_buttons' style={ { marginLeft: '0px' }}>
-              {secondRowButtons}
+            <div key='buttons'>
+              {buttons}
             </div>
           </CardActions>
         </Card>
