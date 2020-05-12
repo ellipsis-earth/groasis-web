@@ -116,7 +116,7 @@ class WatchList extends PureComponent {
             </ListItem>);
         })
 
-        returnItem.push(<List component="div" disablePadding className='nestedWatchlist' dense={true}>
+        returnItem.push(<List key={'list_' + x.name + plantingSitesElements.length} component="div" disablePadding className='nestedWatchlist' dense={true}>
           {plantingSitesElements}
         </List>);
       };

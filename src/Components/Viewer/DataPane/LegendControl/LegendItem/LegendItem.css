@@ -1,0 +1,36 @@
+.legendItemContainer .colorContainer
+{
+	margin: 5px 0;
+	display: flex;
+	height: 15px;
+	border-radius: 5px;
+	overflow: hidden;
+	box-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 1px 3px 0px rgba(0,0,0,0.12);
+}
+
+.legendItemContainer .colorContainer .step
+{
+	width: 100%;
+}
+
+.legendItemContainer .labelContainer
+{
+	display: flex;
+	margin-bottom: 15px;
+	justify-content: stretch;
+}
+
+.legendItemContainer .labelContainer div
+{
+	width: 100%;
+}
+
+.legendItemContainer .labelContainer div.middle
+{
+	text-align: center;
+}
+
+.legendItemContainer .labelContainer div.last
+{
+	text-align: right;
+}

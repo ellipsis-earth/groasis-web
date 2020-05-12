@@ -16,7 +16,7 @@ import 'leaflet-draw/dist/leaflet.draw.css';
 import './DataPane.css';
 import ViewerUtility from '../ViewerUtility';
 
-/*import LegendControl from './LegendControl/LegendControl';*/
+import LegendControl from './LegendControl/LegendControl';
 import AnalyseControl from './AnalyseControl/AnalyseControl';
 import CustomPolygonControl from './CustomPolygonControl/CustomPolygonControl';
 import GeoMessageControl from './GeoMessageControl/GeoMessageControl';
@@ -97,7 +97,7 @@ class DataPane extends PureComponent {
         idText = map.subatlas;
       }
 
-      homeElement = (
+      homeElement = [
         <WachtlistControl
           user={this.props.user}
           groasisMaps={this.props.groasisMaps}
@@ -110,8 +110,12 @@ class DataPane extends PureComponent {
           selectedPlantingSite={this.props.selectedPlantingSite}
           onFeatureClick={this.props.onFeatureClick}
           ref={this.watchlist}
+        />,
+        <LegendControl
+          selectedLayers={this.props.selectedLayers}
+          key='LegendControl'
         />
-      );
+      ];
     }
     else if (action === ViewerUtility.dataPaneAction.feed) {
       title = 'Watchlist';

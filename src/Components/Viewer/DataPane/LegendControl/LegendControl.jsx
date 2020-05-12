@@ -1,27 +1,23 @@
 import React, { PureComponent } from 'react';
 
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardActions,
-  Typography,
-  CircularProgress,
-  Button,
-  Select,
-  MenuItem,
-  Collapse,
-  IconButton,
-} from '@material-ui/core';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import SaveAlt from '@material-ui/icons/SaveAlt';
+import Card from '@material-ui/core/Card';
+import CardHeader from '@material-ui/core/CardHeader';
+import CardContent from '@material-ui/core/CardContent';
+import Typography from '@material-ui/core/Typography';
 
-import Utility from '../../../../Utility';
-import ViewerUtility from '../../ViewerUtility';
-import DataPaneUtility from '../DataPaneUtility';
+import LegendItem from './LegendItem/LegendItem';
+
+import GroasisUtility from '../../GroasisUtility';
 
 import './LegendControl.css';
-import ApiManager from '../../../../ApiManager';
+
+const LAYERS = {
+  [GroasisUtility.layers.tile.organic]: 'soc_0-5cm_mean',
+  [GroasisUtility.layers.tile.clay]: 'clay_0-5cm_mean',
+  [GroasisUtility.layers.tile.sand]: 'sand_0-5cm_mean',
+  [GroasisUtility.layers.tile.coarse]: 'cfvo_0-5cm_mean',
+  [GroasisUtility.layers.tile.ph]: 'phh2o_0-5cm_mean',
+}
 
 class LegendControl extends PureComponent {
 
@@ -29,110 +25,105 @@ class LegendControl extends PureComponent {
     super(props, context);
 
     this.state = {
+      layerData: {},
     };
   }
 
-  componentDidMount() {
-    if (this.props.map) {
-      this.createLegendElement();
-    }
+  async componentDidMount() {
+    this.getData();
   }
 
   componentDidUpdate(prevProps) {
-    if (!this.props.map) {
-      this.setState({ legend: null });
+    if(this.props.selectedLayers.image_tile.join('_') !== prevProps.selectedLayers.image_tile.join('_'))
+    {
+      this.getData();
     }
-    else if (prevProps.map !== this.props.map) {
-      this.createLegendElement();
+  }
+
+  getData = async () => {
+    let layers = this.props.selectedLayers.image_tile;
+    let dataPromises = [];
+
+    for (let i = 0; i < layers.length; i++) {
+      let url = this.getUrl(layers[i]);
+      if(!this.state.layerData[layers[i]] && url)
+      {
+        dataPromises.push(fetch(url, {
+          method: 'GET'
+        })
+        .then(result => {
+          if (result.status === 200 && result.ok)
+          {
+            return result.json()
+          }
+        }))
+      }
     }
+
+    let gottenData = await Promise.all(dataPromises)
+    .then(results => {
+      let returnData = {};
+      for (let i = 0; i < results.length; i++)
+      {
+        let x = results[i];
+        let name = this.getName(x.StyledLayerDescriptor.NamedLayer.Name);
+        let colors = x.StyledLayerDescriptor.NamedLayer.UserStyle.FeatureTypeStyle.Rule.RasterSymbolizer.ColorMap.ColorMapEntry;
+        returnData[name] = colors;
+      }
+
+      return returnData;
+    })
+    .catch(err => console.error(err));
+
+    let layerData = {...this.state.layerData, ...gottenData};
+
+    this.setState({layerData: layerData})
   }
 
   createLegendElement = () => {
 
-    let getTypes = (collection, property, filter) => {
-      let types = [];
+  }
 
-      for (let i = 0; i < collection.length; i++) {
-        let timestamp = collection[i];
+  getName = (type) => {
+    return Object.keys(LAYERS).find(key => LAYERS[key] === type)
+  }
 
-        let timestampTypes = timestamp;
-        if (property) {
-          timestampTypes = timestamp[property];
-        }
-
-        for (let x = 0; x < timestampTypes.length; x++) {
-          let type = timestampTypes[x];
-
-          if (filter && filter.includes(type.name)) {
-            continue;
-          }
-
-          if (!types.find(x => x.name === type.name)) {
-            types.push(type);
-          }
-        }
-      }
-
-      return types;
+  getUrl = (type) => {
+    if (LAYERS[type])
+    {
+      return 'https://maps.isric.org/sld/' + LAYERS[type] + '.json';
     }
-
-    let map = this.props.map.referenceMap;
-
-    let availableClasses = getTypes(map.classes, 'classes', [
-      ViewerUtility.specialClassName.outside_area, ViewerUtility.specialClassName.mask, ViewerUtility.specialClassName.noClass
-    ]);
-    let availableMeasurements = getTypes(map.measurements, 'measurements');
-    let availablePolygonLayers = map.layers.polygon;
-
-    let legendElements = [];
-
-    let createLegendLines = (collection) => {
-      for (let i = 0; i < collection.length; i++) {
-        let type = collection[i];
-        legendElements.push(
-          <div key={legendElements.length} className='legend-line'>
-            <span>{type.name}</span>
-            <span className='legend-label' style={{ backgroundColor: `#${type.color}`}}></span>
-          </div>
-        )
-      }
+    else
+    {
+      return null
     }
-
-    if (availableClasses.length > 0) {
-      legendElements.push(<div key='classes' className='legend-line legend-line-header'>{'Classes'}</div>)
-      createLegendLines(availableClasses);
-    }
-    if (availableMeasurements.length > 0) {
-      legendElements.push(<div key='measurements' className='legend-line legend-line-header'>{'Measurements'}</div>)
-      createLegendLines(availableMeasurements);
-    }
-    if (availablePolygonLayers.length > 0) {
-      legendElements.push(<div key='polygon_layers' className='legend-line legend-line-header'>{'Polygon layers'}</div>);
-      createLegendLines(availablePolygonLayers);
-    }
-
-    this.setState({ legend: legendElements });
   }
 
   render() {
-    if (this.props.home || !this.state.legend) {
-      return null;
+    let legendItems = [];
+
+    if(this.props.selectedLayers)
+    {
+      for (let i = 0; i < this.props.selectedLayers.image_tile.length; i++)
+      {
+        let selectedLayer = this.props.selectedLayers.image_tile[i];
+        if (this.state.layerData[selectedLayer])
+        {
+          legendItems.push(<LegendItem key={'legendItem_' + selectedLayer.replace(' ', '-')} selectedLayer={selectedLayer} colors={this.state.layerData[selectedLayer]} />);
+        }
+      }
     }
 
     return (
-      <Card className='data-pane-card'>
+      legendItems.length > 0 ? <Card className='data-pane-card'>
         <CardHeader
           className='material-card-header'
-          title={
-            <Typography variant="h6" component="h2" className='no-text-transform'>
-              {'Legend'}
-            </Typography>
-          }
+          title={<Typography variant="h6" component="h2" className='no-text-transform'>Legend</Typography>}
         />
         <CardContent className='legend-content'>
-          {this.state.legend}
+          {legendItems}
         </CardContent>
-      </Card>
+      </Card> : null
     )
   }
 }
