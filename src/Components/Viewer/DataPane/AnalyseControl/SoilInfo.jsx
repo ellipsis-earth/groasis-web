@@ -98,7 +98,20 @@ class SoilInfo extends PureComponent {
           let ignore = IGNORE_COLUMNS.find(y => x.includes(y));
 
           if (!ignore) {
-            data.formatted.push([x, data.parsed.data[0][x]]);
+            let parsedName = x;
+            if (x.includes('0.05'))
+            {
+              if (!x.includes('0.05'))
+              {
+                parsedName = x + 'm';
+              }
+            }
+            else if(x.includes('0m'))
+            {
+              parsedName = x.replace('0m', '0.00m')
+            }
+
+            data.formatted.push([parsedName, data.parsed.data[0][x]]);
           }
         });
 
