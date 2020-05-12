@@ -28,7 +28,7 @@ export class TimestampSelector extends PureComponent {
       let timestampReferenceMap = this.props.map[GroasisUtility.types.highRes];
 
       if (tileLayers.includes(GroasisUtility.layers.tile.lowRes) || tileLayers.includes(GroasisUtility.layers.tile.lowResCir)) {
-        timestampReferenceMap = this.props.map.maps.find(x => x.dataSources[0].id === "4c450c42-1bf6-11e9-96ea-f0038c0f0121");
+        timestampReferenceMap = this.props.map.maps.find(x => ["4c450c42-1bf6-11e9-96ea-f0038c0f0121", "48d31d14-8cdd-401e-84a0-42941ad19dd6"].includes(x.dataSources[0].id));
       }
 
 

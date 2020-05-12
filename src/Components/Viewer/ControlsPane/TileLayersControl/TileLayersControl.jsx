@@ -210,7 +210,7 @@ class TileLayersControl extends PureComponent {
     }
 
     if (differentMap || differentTimestamp || differentSelectedLayers) {
-      if (this.props.map.maps && this.props.map.maps.find(x => x.dataSources[0].id === "4c450c42-1bf6-11e9-96ea-f0038c0f0121"))
+      if (this.props.map.maps && this.props.map.maps.find(x => ["4c450c42-1bf6-11e9-96ea-f0038c0f0121", "48d31d14-8cdd-401e-84a0-42941ad19dd6"].includes(x.dataSources[0].id)))
       {
         this.lowRes = true;
       }
@@ -394,7 +394,7 @@ class TileLayersControl extends PureComponent {
 
           if (this.lowRes && (AVAILABLE_LAYERS[i].name === GroasisUtility.layers.tile.lowRes || AVAILABLE_LAYERS[i].name === GroasisUtility.layers.tile.lowResCir) && selectedLayers.includes(AVAILABLE_LAYERS[i].name))
           {
-            subMap = this.props.map.maps.find(x => x.dataSources[0].id === "4c450c42-1bf6-11e9-96ea-f0038c0f0121");
+            subMap = this.props.map.maps.find(x => ["4c450c42-1bf6-11e9-96ea-f0038c0f0121", "48d31d14-8cdd-401e-84a0-42941ad19dd6"].includes(x.dataSources[0].id));
           }
 
           if (subMap)

@@ -333,7 +333,7 @@ class FilterControl extends Component {
 		let bounds = this.props.leafletMapViewport.bounds;
 
 		let soilMap = this.props.map.maps.find(x => x.dataSources[0].id === "ce6650f0-91b8-481c-bc17-7a38f12658a1");
-		let lowResMap = this.props.map.maps.find(x => x.dataSources[0].id === "4c450c42-1bf6-11e9-96ea-f0038c0f0121");
+		let lowResMap = this.props.map.maps.find(x => ["4c450c42-1bf6-11e9-96ea-f0038c0f0121", "48d31d14-8cdd-401e-84a0-42941ad19dd6"].includes(x.dataSources[0].id));
 		let timestampNumber = lowResMap.timestamps[lowResMap.timestamps.length - 1].timestamp;
 
 		let body = {

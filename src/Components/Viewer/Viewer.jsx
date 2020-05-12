@@ -934,12 +934,12 @@ class Viewer extends PureComponent {
   calculateTimestamps = (map, selectedLayers) => {
     let lastTimestamp = 0;
 
-    if (this.props.mode === ViewerUtility.plannerMode || this.props.mode === ViewerUtility.identificationMode)
+    if (map.maps  && (this.props.mode === ViewerUtility.plannerMode || this.props.mode === ViewerUtility.identificationMode))
     {
-      let lowres = map.maps.find(x => x.dataSources[0].id === "4c450c42-1bf6-11e9-96ea-f0038c0f0121");
+      let lowres = map.maps.find(x => ["4c450c42-1bf6-11e9-96ea-f0038c0f0121", "48d31d14-8cdd-401e-84a0-42941ad19dd6"].includes(x.dataSources[0].id));
       lastTimestamp = lowres && lowres.timestamps ? lowres.timestamps.length - 1 : map.timestamps.length - 1;
     }
-    else
+    else if(map.timestamps)
     {
       lastTimestamp = map.timestamps.length - 1;
     }
