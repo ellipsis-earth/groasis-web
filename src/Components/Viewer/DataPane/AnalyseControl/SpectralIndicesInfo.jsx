@@ -47,25 +47,41 @@ class SpectralIndicesInfo extends PureComponent {
 
     let element = this.props.element;
 
-    let treefeature = {
-      type: 'Feature',
-      properties: {},
-      geometry: element.feature.originalGeometry ? element.feature.originalGeometry : element.feature.geometry
-    };
+    let body = {};
 
     this.map = this.props.map.maps.find(x => ["4c450c42-1bf6-11e9-96ea-f0038c0f0121", "48d31d14-8cdd-401e-84a0-42941ad19dd6"].includes(x.dataSources[0].id));
+    let url = '/data/timestamps';
 
-    let body = {
-      mapId: this.map.id,
-      dataType: ViewerUtility.dataType.meanMeasurement,
-      class: ViewerUtility.specialClassName.allClasses,
-      type: ViewerUtility.customPolygonTileLayerType,
-      element: treefeature
-    };
+    if (element.type === ViewerUtility.standardTileLayerType)
+    {
+      body = {
+        mapId: this.map.id,
+        dataType: ViewerUtility.dataType.meanMeasurement,
+        class: ViewerUtility.specialClassName.allClasses,
+        type: ViewerUtility.standardTileLayerType,
+        element: element.id,
+      };
+    }
+    else
+    {
+      let treefeature = {
+        type: 'Feature',
+        properties: {},
+        geometry: element.feature.originalGeometry ? element.feature.originalGeometry : element.feature.geometry
+      };
+
+      body = {
+        mapId: this.map.id,
+        dataType: ViewerUtility.dataType.meanMeasurement,
+        class: ViewerUtility.specialClassName.allClasses,
+        type: ViewerUtility.customPolygonTileLayerType,
+        element: treefeature
+      };
+    }
 
     let data = {};
 
-    ApiManager.post(`/data/timestamps`, body, this.props.user)
+    ApiManager.post(url, body, this.props.user)
       .then(result => {
         data.raw = result;
 

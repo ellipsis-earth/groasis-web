@@ -7,7 +7,7 @@ import Slider from '@material-ui/core/Slider';*/
 import ViewerUtility from '../../ViewerUtility';
 
 import SoilInfo from './SoilInfo';
-import HistoricWeatherInfo from './HistoricWeatherInfo';
+/*import HistoricWeatherInfo from './HistoricWeatherInfo';*/
 import WeatherInfo from './WeatherInfo';
 import ClassesInfo from './ClassesInfo';
 import SpectralIndicesInfo from './SpectralIndicesInfo';
@@ -107,7 +107,7 @@ class AnalyseControl extends PureComponent {
         </Card>*/}
 
         <SoilInfo {...generalProps} />
-        <HistoricWeatherInfo {...generalProps} />
+        {/*<HistoricWeatherInfo {...generalProps} />*/}
         <WeatherInfo {...generalProps} />
         {this.props.element.type === ViewerUtility.standardTileLayerType ? null : <ClassesInfo {...generalProps} />}
         <SpectralIndicesInfo {...generalProps} />

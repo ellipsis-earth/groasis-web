@@ -1,6 +1,8 @@
 import React, { PureComponent } from 'react';
 import { readAndCompressImage } from 'browser-image-resizer';
 
+import L from 'leaflet';
+import 'leaflet-draw';
 import moment from 'moment';
 
 import Button from '@material-ui/core/Button';
@@ -779,7 +781,7 @@ class SelectionPane extends PureComponent {
         </Button>
       );
       }
-      else if (layer === GroasisUtility.layers.polygon.plantingSite) {
+      else if (layer === GroasisUtility.layers.polygon.plantingSites) {
         title = 'Planting Site';
       }
 
@@ -1072,17 +1074,25 @@ class SelectionPane extends PureComponent {
     else if (element.type === ViewerUtility.newPlantingSiteElementType) {
       properties = null;
     }
+    else if (element.type === ViewerUtility.plantingSiteElementType)
+    {
+      let area = L.GeometryUtil.geodesicArea(L.polygon(element.feature.geometry.coordinates).getLatLngs()[0]);
+      properties.push(<div key={'area'}>
+        area: {Math.round(((area/1000000) + Number.EPSILON) * 1000) / 1000} km²
+      </div>);
+    }
 
     return (
       <div>
-        {this.state.annotate ?
-          /*<AnnotatePane
+        {
+          /*this.state.annotate ?
+          <AnnotatePane
             map={this.props.map.referenceMap}
             user={this.props.user}
             tileId={this.props.element.id}
             timestamp={this.props.timestampRange.end}
             onClose={this.onAnnotatePaneClose}
-          />*/null : null
+          /> : null*/
         }
         <Card className={selectionPaneClass}>
           <CardHeader

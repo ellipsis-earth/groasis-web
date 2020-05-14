@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import { Pane, GeoJSON } from 'react-leaflet';
 import L from 'leaflet';
+import MarkerClusterGroup from "react-leaflet-markercluster";
 
 import Card from '@material-ui/core/Card';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -20,6 +21,9 @@ import ViewerUtility from '../../ViewerUtility';
 import './PolygonLayersControl.css';
 
 import ApiManager from '../../../../ApiManager';
+
+import 'leaflet/dist/leaflet.css';
+import'react-leaflet-markercluster/dist/styles.min.css';
 
 const MAX_POLYGONS = 500;
 
@@ -135,8 +139,9 @@ class PolygonLayersControl extends PureComponent {
       if (checked && count !== undefined) {
         let className = '';
         let downloadButton = null;
+        let max_polygons = availableLayer.name === GroasisUtility.layers.polygon.trees ? MAX_POLYGONS * 2 : MAX_POLYGONS;
 
-        if (count > MAX_POLYGONS) {
+        if (count > max_polygons) {
           className = 'geometry-limit-exceeded';
         }
         else {
@@ -153,7 +158,7 @@ class PolygonLayersControl extends PureComponent {
         counter = (
           <span className='geometry-counter'>
             <span className={className}>{count}</span>
-            <span>/{MAX_POLYGONS}</span>
+            <span>/{max_polygons}</span>
             {downloadButton}
           </span>
         )
@@ -215,7 +220,7 @@ class PolygonLayersControl extends PureComponent {
             xMax: bounds.xMax,
             yMin: bounds.yMin,
             yMax: bounds.yMax,
-            limit: MAX_POLYGONS
+            limit: polygonLayer.name === GroasisUtility.layers.polygon.trees ? MAX_POLYGONS * 2 : MAX_POLYGONS
           };
 
           let polygonIds;
@@ -258,7 +263,7 @@ class PolygonLayersControl extends PureComponent {
 
           this.setState({ count: count });
 
-          if (!polygonIds || polygonIds.count === 0 || polygonIds.count > MAX_POLYGONS) {
+          if (!polygonIds || polygonIds.count === 0 || (polygonLayer.name === GroasisUtility.layers.polygon.trees && polygonIds.count > MAX_POLYGONS * 2) || polygonLayer.name !== GroasisUtility.layers.polygon.trees && polygonIds.count > MAX_POLYGONS) {
             this.layerGeoJsons[polygonLayer.name] = null;
             continue;
           }
@@ -346,16 +351,18 @@ class PolygonLayersControl extends PureComponent {
 
                 let zIndex = ViewerUtility.polygonLayerZIndex[polygonLayer.name] ? ViewerUtility.polygonLayerZIndex[polygonLayer.name] : ViewerUtility.polygonLayerZIndex.base + i;
               return (<Pane zIndex={zIndex} key={Math.random()} name={polygonLayer.name.replace(' ', '-').toLowerCase()}>
-                [<GeoJSON
-                  key={Math.random()}
-                  data={polygonsGeoJson}
-                  style={ViewerUtility.createGeoJsonLayerStyle(`#${polygonLayer.color}`, null, null, zIndex)}
-                  onEachFeature={onEachFeature}
-                  pointToLayer={(geoJsonPoint, latlng) => this.markerReturn(latlng, icon)}
-                  name={polygonLayer.name}
-                  zIndex={ViewerUtility.polygonLayerZIndex[polygonLayer.name]}
-                  className={!onEachFeature ? 'noClick' : ''}
-                />,
+                [<MarkerClusterGroup>
+                  <GeoJSON
+                    key={Math.random()}
+                    data={polygonsGeoJson}
+                    style={ViewerUtility.createGeoJsonLayerStyle(`#${polygonLayer.color}`, null, null, zIndex)}
+                    onEachFeature={onEachFeature}
+                    pointToLayer={(geoJsonPoint, latlng) => this.markerReturn(latlng, icon)}
+                    name={polygonLayer.name}
+                    zIndex={ViewerUtility.polygonLayerZIndex[polygonLayer.name]}
+                    className={!onEachFeature ? 'noClick' : ''}
+                  />
+                </MarkerClusterGroup>,
                 <GeoJSON
                   key={Math.random()}
                   data={linesCollection}

@@ -26,7 +26,10 @@ const IGNORE_COLUMNS = [
   'cloud_cover',
   'precipitation',
   'min temp',
-  'max temp'
+  'max temp',
+  'tileX',
+  'tileY',
+  'zoom',
 ];
 
 class AltitudeInfo extends PureComponent {
@@ -57,23 +60,44 @@ class AltitudeInfo extends PureComponent {
     this.setState({ loading: true });
 
     let element = this.props.element;
+    let body = {};
 
-    let treefeature = {
-      type: 'Feature',
-      properties: {},
-      geometry: element.feature.originalGeometry ? element.feature.originalGeometry : element.feature.geometry
-    };
+    let url = null;
 
-    let body = {
-      mapId: this.props.map.maps.find(x => x.dataSources[0].id === "bcf28bab-33e2-4259-a64f-466368efdc8d").id,
-      dataType: ViewerUtility.dataType.meanMeasurement,
-      type: ViewerUtility.customPolygonTileLayerType,
-      element: treefeature
-    };
+    if (element.type === ViewerUtility.standardTileLayerType)
+    {
+      body = {
+        mapId: this.props.map.maps.find(x => x.dataSources[0].id === "bcf28bab-33e2-4259-a64f-466368efdc8d").id,
+        dataType: ViewerUtility.dataType.meanMeasurement,
+        type: ViewerUtility.standardTileLayerType,
+        elementIds: [element.id],
+        timestamp: 0,
+      };
+
+      url = '/data/ids';
+    }
+    else
+    {
+      let treefeature = {
+        type: 'Feature',
+        properties: {},
+        geometry: element.feature.originalGeometry ? element.feature.originalGeometry : element.feature.geometry,
+      };
+
+      body = {
+        mapId: this.props.map.maps.find(x => x.dataSources[0].id === "bcf28bab-33e2-4259-a64f-466368efdc8d").id,
+        dataType: ViewerUtility.dataType.meanMeasurement,
+        type: ViewerUtility.customPolygonTileLayerType,
+        element: treefeature
+      };
+
+      url = '/data/timestamps';
+    }
+
 
     let data = {};
 
-    ApiManager.post(`/data/timestamps`, body, this.props.user)
+    ApiManager.post(url, body, this.props.user)
       .then(result => {
         data.raw = result;
 
@@ -97,8 +121,13 @@ class AltitudeInfo extends PureComponent {
         data.parsed.meta.fields.forEach(x => {
           let ignore = IGNORE_COLUMNS.find(y => x.includes(y));
 
-          if (!ignore) {
+          if (!ignore && x !== 'no data') {
             data.formatted.push([x, data.parsed.data[0][x]]);
+          }
+
+          if(x === 'no data')
+          {
+            data.formatted = [];
           }
         });
 
@@ -106,6 +135,7 @@ class AltitudeInfo extends PureComponent {
       })
       .catch(err => {
         alert('An error occurred while fetching data.');
+        console.error(err)
         this.setState({ data: null, loading: false });
       });
   }

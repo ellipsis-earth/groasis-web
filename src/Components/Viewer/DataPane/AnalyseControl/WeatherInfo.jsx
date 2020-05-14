@@ -46,25 +46,45 @@ class WeatherInfo extends PureComponent {
     this.setState({ loading: true });
 
     let element = this.props.element;
+    let body = {};
 
-    let treefeature = {
-      type: 'Feature',
-      properties: {},
-      geometry: element.feature.originalGeometry ? element.feature.originalGeometry : element.feature.geometry
-    };
+    let url = null;
 
     this.map = this.props.map.maps.find(x => x.dataSources[0].id === "ce6650f0-91b8-481c-bc17-7a38f12658a1");
 
-    let body = {
-      mapId: this.map.id,
-      dataType: ViewerUtility.dataType.meanMeasurement,
-      type: ViewerUtility.customPolygonTileLayerType,
-      element: treefeature
-    };
+    if (element.type === ViewerUtility.standardTileLayerType)
+    {
+      body = {
+        mapId: this.map.id,
+        dataType: ViewerUtility.dataType.meanMeasurement,
+        type: ViewerUtility.standardTileLayerType,
+        elementIds: [element.id],
+        timestamp: 0,
+      };
+
+      url = '/data/ids';
+    }
+    else
+    {
+      let treefeature = {
+        type: 'Feature',
+        properties: {},
+        geometry: element.feature.originalGeometry ? element.feature.originalGeometry : element.feature.geometry
+      };
+
+      let body = {
+        mapId: this.map.id,
+        dataType: ViewerUtility.dataType.meanMeasurement,
+        type: ViewerUtility.customPolygonTileLayerType,
+        element: treefeature
+      };
+
+      url = '/data/timestamps';
+    }
 
     let data = {};
 
-    ApiManager.post(`/data/timestamps`, body, this.props.user)
+    ApiManager.post(url, body, this.props.user)
       .then(result => {
         data.raw = result;
 

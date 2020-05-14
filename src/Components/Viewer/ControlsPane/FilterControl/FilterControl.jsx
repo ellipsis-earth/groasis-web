@@ -232,7 +232,17 @@ class FilterControl extends Component {
 							{ value: 1, 		label: 'Very Moist'}
 						],
 						text: 'Measured by NDVI'
-					}
+					},
+					{
+						title: 'Slope',
+						step: 1,
+						min: 0,
+						max: 90,
+						unit: '°',
+						category: 'altitude',
+						valueName: 'slope',
+						/*text: ''*/
+					},
 				]
 			},
 			{
@@ -326,7 +336,9 @@ class FilterControl extends Component {
 				}
 
 				this.setState({ geoJsonInfo: results, loading: false, count: countMessage});
-			});
+			})
+			.catch(error => {console.error(error)})
+			;
 	}
 
 	prepareStandardTilesLayer = async (map, timestampRange) => {
@@ -334,6 +346,7 @@ class FilterControl extends Component {
 
 		let soilMap = this.props.map.maps.find(x => x.dataSources[0].id === "ce6650f0-91b8-481c-bc17-7a38f12658a1");
 		let lowResMap = this.props.map.maps.find(x => ["4c450c42-1bf6-11e9-96ea-f0038c0f0121", "48d31d14-8cdd-401e-84a0-42941ad19dd6"].includes(x.dataSources[0].id));
+		let altitudeMap = this.props.map.maps.find(x => x.dataSources[0].id === "bcf28bab-33e2-4259-a64f-466368efdc8d")
 		let timestampNumber = lowResMap.timestamps[lowResMap.timestamps.length - 1].timestamp;
 
 		let body = {
@@ -381,18 +394,22 @@ class FilterControl extends Component {
 						if (filterDataKeys[i] === 'indices')
 						{
 							requestBody.mapId = lowResMap.id;
-							requestBody.timestamp = timestampNumber;
+							requestBody.timestamp = timestampNumber ? timestampNumber : 0;
 						}
 						else if (filterDataKeys[i] === 'soil')
 						{
 							requestBody.mapId = soilMap.id;
 							requestBody.timestamp = 0;
 						}
+						else if(filterDataKeys[i] === 'altitude')
+						{
+							requestBody.mapId = altitudeMap.id;
+							requestBody.timestamp = 0;
+						}
 
 
 						let filterData = await ApiManager.post('/data/ids', requestBody, this.props.user);
 						filterData = Papa.parse(filterData, {header: true, dynamicTyping: true}).data;
-
 						if(standardTileIds.ids.length > filterData.length)
 						{
 							for(let j = standardTileIds.count - 1; j >= 0; j--)
@@ -400,7 +417,7 @@ class FilterControl extends Component {
 								let filterNonData = filterData.find(x => x.tileX === standardTileIds.ids[j].tileX && x.tileY === standardTileIds.ids[j].tileY);
 								if (!filterNonData)
 								{
-									nonDataIds.push({tileX: standardTileIds.ids[j].tileX, tileY: standardTileIds.ids[j].tileY});
+									filteredIds.push({tileX: standardTileIds.ids[j].tileX, tileY: standardTileIds.ids[j].tileY});
 								}
 							}
 						}
@@ -467,7 +484,7 @@ class FilterControl extends Component {
 								{
 									if (this.state.filterData[category][key].checked && this.state.filterData[category][key].value)
 									{
-										if(filterData[j] && (filterData[j]['organic content g/kg 0m'] < this.state.filterData[category][key].value[0] || filterData[j]['organic content g/kg 0m'] > this.state.filterData[category][key].value[1]))
+										if(filterData[j] && filterData[j]['organic content g/kg 0m'] && (filterData[j]['organic content g/kg 0m'] < this.state.filterData[category][key].value[0] || filterData[j]['organic content g/kg 0m'] > this.state.filterData[category][key].value[1]))
 										{
 											filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
 											delete filterData[j];
@@ -478,7 +495,7 @@ class FilterControl extends Component {
 								{
 									if (this.state.filterData[category][key].checked && this.state.filterData[category][key].value)
 									{
-										if(filterData[j] && (filterData[j]['clay content mass percentage 0m'] < this.state.filterData[category][key].value[0] || filterData[j]['clay content mass percentage 0m'] > this.state.filterData[category][key].value[1]))
+										if(filterData[j] && filterData[j]['clay content mass percentage 0m'] && (filterData[j]['clay content mass percentage 0m'] < this.state.filterData[category][key].value[0] || filterData[j]['clay content mass percentage 0m'] > this.state.filterData[category][key].value[1]))
 										{
 											filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
 											delete filterData[j];
@@ -489,7 +506,7 @@ class FilterControl extends Component {
 								{
 									if (this.state.filterData[category][key].checked && this.state.filterData[category][key].value)
 									{
-										if(filterData[j] && (filterData[j]['sand content mass percentage 0m'] < this.state.filterData[category][key].value[0] || filterData[j]['sand content mass percentage 0m'] > this.state.filterData[category][key].value[1]))
+										if(filterData[j] && filterData[j]['sand content mass percentage 0m'] && (filterData[j]['sand content mass percentage 0m'] < this.state.filterData[category][key].value[0] || filterData[j]['sand content mass percentage 0m'] > this.state.filterData[category][key].value[1]))
 										{
 											filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
 											delete filterData[j];
@@ -500,7 +517,7 @@ class FilterControl extends Component {
 								{
 									if (this.state.filterData[category][key].checked && this.state.filterData[category][key].value)
 									{
-										if(filterData[j] && (filterData[j]['PH 0m'] < this.state.filterData[category][key].value[0] || filterData[j]['PH 0m'] > this.state.filterData[category][key].value[1]))
+										if(filterData[j] && filterData[j]['PH 0m'] && (filterData[j]['PH 0m'] < this.state.filterData[category][key].value[0] || filterData[j]['PH 0m'] > this.state.filterData[category][key].value[1]))
 										{
 											filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
 											delete filterData[j];
@@ -511,7 +528,18 @@ class FilterControl extends Component {
 								{
 									if (this.state.filterData[category][key].checked && this.state.filterData[category][key].value)
 									{
-										if(filterData[j] && (filterData[j]['ndvi'] < this.state.filterData[category][key].value[0] || filterData[j]['ndvi'] > this.state.filterData[category][key].value[1]))
+										if(filterData[j] && filterData[j]['ndvi'] && (filterData[j]['ndvi'] < this.state.filterData[category][key].value[0] || filterData[j]['ndvi'] > this.state.filterData[category][key].value[1]))
+										{
+											filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
+											delete filterData[j];
+										}
+									}
+								}
+								else if (key === 'slope')
+								{
+									if (this.state.filterData[category][key].checked && this.state.filterData[category][key].value)
+									{
+										if(filterData[j] && ((Math.asin(filterData[j]['slope']) * 180 / Math.PI) < this.state.filterData[category][key].value[0] || (Math.asin(filterData[j]['slope']) * 180 / Math.PI) > this.state.filterData[category][key].value[1] || !(Math.asin(filterData[j]['slope']) * 180 / Math.PI) || !filterData[j]['slope']))
 										{
 											filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
 											delete filterData[j];
@@ -525,7 +553,7 @@ class FilterControl extends Component {
 						{
 							for (let j = standardTileIds.ids.length - 1; j >= 0; j--)
 							{
-								if (standardTileIds.ids[j] && filteredIds[k].tileX === standardTileIds.ids[j].tileX && filteredIds[k].tileY === standardTileIds.ids[j].tileY)
+								if ((standardTileIds.ids[j] && filteredIds[k].tileX === standardTileIds.ids[j].tileX && filteredIds[k].tileY === standardTileIds.ids[j].tileY) || !standardTileIds.ids[j].tileX)
 								{
 									standardTileIds.count = standardTileIds.count - 1;
 									standardTileIds.ids.splice(j, 1);
@@ -549,7 +577,7 @@ class FilterControl extends Component {
 
 				result = {
 					name: STANDARD_TILE_LAYER_DISPLAY_NAME,
-					count: standardTileIds.count,
+					count: standardTileIds.count ? standardTileIds.count : 0,
 					bounds: bounds,
 					geoJson: null,
 					geoJsonElement: null
@@ -818,23 +846,25 @@ class FilterInput extends Component {
 	      />
 	    </ListItemIcon>
 	    <ListItemText id={labelId} primary={form.title} className='filterInputText'/>
-	    <ListItemSecondaryAction>
-		    <Tooltip
-		    	TransitionComponent={Zoom}
-		    	title={form.text}
-		    	placement="right"
-		    	leaveDelay={500}
-		    	interactive
-		    	arrow
-		    	open={this.state.tooltipOpen}
-		    	onClose={() => {this.setState({tooltipOpen: false})}}
-		    	onClick={() => {this.setState({tooltipOpen: !this.state.tooltipOpen})}}
-	    	>
-				  <IconButton edge="end" aria-label="filter information">
-		        <InfoIcon />
-		      </IconButton>
-				</Tooltip>
-	    </ListItemSecondaryAction>
+	    {
+	    	form.text ? <ListItemSecondaryAction>
+  		    <Tooltip
+  		    	TransitionComponent={Zoom}
+  		    	title={form.text}
+  		    	placement="right"
+  		    	leaveDelay={500}
+  		    	interactive
+  		    	arrow
+  		    	open={this.state.tooltipOpen}
+  		    	onClose={() => {this.setState({tooltipOpen: false})}}
+  		    	onClick={() => {this.setState({tooltipOpen: !this.state.tooltipOpen})}}
+  	    	>
+  				  <IconButton edge="end" aria-label="filter information">
+  		        <InfoIcon />
+  		      </IconButton>
+  				</Tooltip>
+  	    </ListItemSecondaryAction> : null
+  	  }
     </ListItem>,
     <Collapse in={this.state.checked} key={form.title + 'collapse'} className='filterInputCollapse'>
 			<Slider
