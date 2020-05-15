@@ -19,6 +19,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import './MapControl.css';
+import GroasisUtility from '../GroasisUtility';
 import ViewerUtility from '../ViewerUtility';
 
 export class MapControl extends PureComponent {
@@ -108,10 +109,19 @@ export class MapControl extends PureComponent {
     this.setState({ drawControl: d, drawMode: ViewerUtility.newPlantingLineElementType });
   }
 
-  onShapeDraw = (e) => {
+  onShapeDraw = async (e) => {
     let layer = e.layer;
 
     let geoJson = layer.toGeoJSON();
+    console.log(e);
+
+    if(e.layerType === "polyline")
+    {
+      let plantingSite = this.props.map.plantingSites.find(x => x.props.data.features[0] && x.props.data.features[0].properties.id === this.props.selectedPlantingSite)
+
+      geoJson = await GroasisUtility.clippingUtil(geoJson.geometry.coordinates, plantingSite);
+    }
+
     geoJson.properties.id = Math.random();
     geoJson.properties[ViewerUtility.selection.specialProperty.type] = this.state.drawMode;
 

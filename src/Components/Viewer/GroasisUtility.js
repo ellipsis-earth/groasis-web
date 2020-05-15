@@ -1,6 +1,8 @@
 import React from 'react';
 import { GeoJSON } from 'react-leaflet';
-/*import L from 'leaflet';*/
+import L from 'leaflet';
+
+import * as clipperLib from "js-angusj-clipper/web";
 
 import ApiManager from '../../ApiManager';
 import ViewerUtility from './ViewerUtility';
@@ -462,7 +464,105 @@ const GroasisUtility = {
     };
 
     return treeGeoJson;
-  }
+  },
+
+  getMaxDec: (input, max = 0) => {
+    let multiplyAmount = max;
+
+    for (let i = 0; i < input.length; i++) {
+      for(let j = 0; j < 2; j++)
+      {
+        let decs = input[i][j].toString().split('.')[1];
+        let length = decs.length;
+        if (length > multiplyAmount)
+        {
+          multiplyAmount = length;
+        }
+      }
+    }
+
+    return multiplyAmount;
+  },
+
+  mapToMaxDec: (input, multiplyAmount) => {
+    if (typeof input === 'object')
+    {
+      let obj = {};
+      for (let i = 0; i < input.length; i++) {
+        let returnValue = GroasisUtility.mapToMaxDec(input[i], multiplyAmount);
+
+        if(typeof returnValue !== 'object')
+        {
+          if(i === 0)
+          {
+            obj.x = parseInt(returnValue);
+          }
+          else
+          {
+            obj.y = parseInt(returnValue);
+            input = obj;
+          }
+        }
+        else
+        {
+          input[i] = returnValue;
+        }
+      }
+    }
+    else
+    {
+      return input * multiplyAmount;
+    }
+
+    return input;
+  },
+
+  clippingUtil: async (inputLine, plantingSite) => {
+    const clipper = await clipperLib.loadNativeClipperLibInstanceAsync(
+      clipperLib.NativeClipperLibRequestedFormat.WasmWithAsmJsFallback
+    );
+
+    let plantingSiteCoordinates = JSON.parse(JSON.stringify(plantingSite.props.data.features[0].geometry.coordinates[0]));
+    let multiplyAmount = GroasisUtility.getMaxDec(plantingSiteCoordinates);
+
+    let elementPolygon = JSON.parse(JSON.stringify(inputLine));
+    multiplyAmount = GroasisUtility.getMaxDec(elementPolygon, multiplyAmount);
+    multiplyAmount = multiplyAmount > 12 ? 12 : multiplyAmount;
+    multiplyAmount = Math.pow(10, multiplyAmount);
+
+    let line = GroasisUtility.mapToMaxDec(elementPolygon, multiplyAmount);
+    let lineLength = line.length;
+    for (let i = line.length - 1; i >= 0; i--)
+    {
+      let returnValue = line[i].y.toString();
+      let addValue = parseInt(returnValue.substr(returnValue.length - 1, returnValue.length - 0)) + 1;
+
+      returnValue = addValue <= 9 ? returnValue.substr(0, returnValue.length - 1) + (addValue).toString() : returnValue.substr(0, returnValue.length - 2) + (addValue).toString()
+      line.push({x: line[i].x, y: parseInt(returnValue)})
+    }
+
+    let clip = GroasisUtility.mapToMaxDec(plantingSiteCoordinates, multiplyAmount);
+
+    clip.slice(0, clip.length - 2)
+
+    let polyResult = clipper.clipToPaths({
+      clipType: clipperLib.ClipType.Intersection,
+      subjectInputs: [{ data: line, closed: true }],
+      clipInputs: [{ data: clip }],
+      subjectFillType: clipperLib.PolyFillType.EvenOdd
+    });
+
+    if(polyResult.length > 0)
+    {
+      let remappedResult = polyResult[0].map(coordinate => [coordinate.y/multiplyAmount, coordinate.x/multiplyAmount]);
+      if(remappedResult[lineLength - 1] === remappedResult[lineLength])
+      {
+       remappedResult.splice(0, lineLength);
+      }
+
+      return L.polyline(remappedResult).toGeoJSON();
+    }
+  },
 
 }
 

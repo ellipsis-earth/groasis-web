@@ -121,39 +121,43 @@ class MultiplyControl extends PureComponent {
 	createLines = (e, initialPosition = this.state.initialPosition) => {
 		let lines = [];
 
-		let mouseDistance = e.latlng.distanceTo(initialPosition);
-		let amount = Math.floor(mouseDistance / this.state.distance);
-				amount = amount > MAX_LINES ? MAX_LINES : amount;
-
-		let addAmount = {lat: (e.latlng.lat - initialPosition.lat) / amount, lng: (e.latlng.lng - initialPosition.lng) / amount}
-
-		let coordinates = this.props.element.feature.geometry.coordinates;
-
-		for (let i = 1; i < amount + 1; i++)
+		if(e.latlng)
 		{
-			let line = [];
-			for (var j = 0; j < coordinates.length; j++)
+			let mouseDistance = e.latlng.distanceTo(initialPosition);
+			let amount = Math.floor(mouseDistance / this.state.distance);
+					amount = amount > MAX_LINES ? MAX_LINES : amount;
+
+			let addAmount = {lat: (e.latlng.lat - initialPosition.lat) / amount, lng: (e.latlng.lng - initialPosition.lng) / amount}
+
+			let coordinates = this.props.element.feature.geometry.coordinates;
+
+			for (let i = 1; i < amount + 1; i++)
 			{
-				line.push([coordinates[j][0] + (i * addAmount.lng), coordinates[j][1] + (i * addAmount.lat)])
+				let line = [];
+				for (var j = 0; j < coordinates.length; j++)
+				{
+					line.push([coordinates[j][0] + (i * addAmount.lng), coordinates[j][1] + (i * addAmount.lat)])
+				}
+
+				lines.push({
+					"type" : "Feature",
+					properties: this.props.element.feature.properties,
+					geometry: {type: "LineString", coordinates: line}});
 			}
 
-			lines.push({
-				"type" : "Feature",
-				properties: this.props.element.feature.properties,
-				geometry: {type: "LineString", coordinates: line}});
+			this.setState({amount: Math.floor(mouseDistance / this.state.distance)});
+
+			return {
+				"type" : "FeatureCollection",
+				"features" : lines
+			};
 		}
-
-		this.setState({amount: Math.floor(mouseDistance / this.state.distance)});
-
-		return {
-			"type" : "FeatureCollection",
-			"features" : lines
-		};
 	}
 
 	confirm = () => {
-		this.setState({loading: true}, () => {
+		this.setState({loading: true}, async () => {
 			let lines = this.state.lines;
+			let plantingSite = this.props.map.plantingSites.find(x => x.props.data.features[0] && x.props.data.features[0].properties.id === this.props.selectedPlantingSite)
 			let feature = {type: 'Feature', properties: {'Planting site id': this.props.selectedPlantingSite}}
 
 	    let body = {
@@ -167,7 +171,16 @@ class MultiplyControl extends PureComponent {
 
 			for (let i = 0; i < lines.features.length; i++)
 			{
-				body.feature.geometry = lines.features[i].geometry;
+				let clippedLine = await GroasisUtility.clippingUtil(lines.features[i].geometry.coordinates, plantingSite);
+
+				if (clippedLine && clippedLine.geometry)
+				{
+					body.feature.geometry = clippedLine.geometry;
+				}
+				else
+				{
+					continue;
+				}
 
 				promises.push(ApiManager.post('/geometry/add', body, this.props.user)
 		      .catch(err => {
@@ -175,6 +188,7 @@ class MultiplyControl extends PureComponent {
 		      })
 	      );
 			}
+
 
 			Promise.all(promises)
 			.then(() => {

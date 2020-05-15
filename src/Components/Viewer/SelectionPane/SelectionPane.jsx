@@ -778,8 +778,7 @@ class SelectionPane extends PureComponent {
           disabled={!canEdit}
         >
           {'DELETE ALL TREES ON LINE'}
-        </Button>
-      );
+        </Button>);
       }
       else if (layer === GroasisUtility.layers.polygon.plantingSites) {
         title = 'Planting Site';
