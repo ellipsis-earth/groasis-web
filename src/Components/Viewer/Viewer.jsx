@@ -931,6 +931,11 @@ class Viewer extends PureComponent {
     }
   }
 
+  checkDataPaneIsLoading = () => {
+    let status = this.dataPane.current.plantControl.current ? this.dataPane.current.plantControl.current.state.loading : false;
+    return status;
+  }
+
   calculateTimestamps = (map, selectedLayers) => {
     let lastTimestamp = 0;
 
@@ -1030,6 +1035,7 @@ class Viewer extends PureComponent {
               deselectPlantingObjects={this.deselectPlantingObjects}
               selectedPlantingSite={this.state.selectedPlantingSite}
               selectedPlantingLine={this.state.selectedPlantingLine}
+              checkDataPaneIsLoading={this.checkDataPaneIsLoading}
             />
             <Map
               center={DEFAULT_VIEWPORT.center}

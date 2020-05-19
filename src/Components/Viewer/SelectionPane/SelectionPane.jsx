@@ -155,7 +155,11 @@ class SelectionPane extends PureComponent {
     })
   }
 
-  deletePlantingLineTrees = (type) => {
+  timeoutFunc = function (ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  deletePlantingLineTrees = async (type) => {
     this.setState({ loading: true }, () => {
       let body = {
         mapId: this.props.map.id,
@@ -173,36 +177,54 @@ class SelectionPane extends PureComponent {
       }
 
       ApiManager.post('/geometry/ids', body, this.props.user)
-        .then(ids => {
+        .then(async ids => {
           let deletePromises = [];
+          let deleteResults = [];
+          let limit = 500;
 
-          for (let i = 0; i < ids.ids.length; i++) {
-            let body = {
-              mapId: this.props.map.id,
-              polygonId: ids.ids[i]
-            };
+          for(let i = 0; i < Math.ceil(ids.ids.length/limit); i++)
+          {
+            for(let j = 0 + (i * limit); j < ((i + 1) * limit); j++)
+            {
+              if (ids.ids[j])
+              {
+                let body = {
+                  mapId: this.props.map.id,
+                  polygonId: ids.ids[j]
+                };
 
-            deletePromises.push(ApiManager.post('/geometry/delete', body, this.props.user).catch(err => {console.error(err)}))
+                deletePromises.push(ApiManager.post('/geometry/delete', body, this.props.user).catch(err => {console.error(err)}))
+              }
+            }
+
+            deletePromises.push(this.timeoutFunc(1000));
+
+            let newResults = await Promise.all(deletePromises)
+            .then(async results => {return results;})
+            .catch(error => {console.error(error)});
+
+            deleteResults.push(newResults);
+
+            deletePromises = [];
           }
 
-          Promise.all(deletePromises)
-          .then(() => {
-            this.props.onDeletePolygon();
-            this.setState({loading: false });
-          })
-          .catch(err => {console.error(err); this.setState({loading: false });});
-        })
-        .catch(err => {
-          console.error(err);
-          this.setState({ loading: false });
-        });
+          this.props.onDeletePolygon();
+          this.setState({loading: false });
+      });
     });
   }
 
   onCloseClick = () => {
-    this.props.onDeselect();
+    if(!this.props.checkDataPaneIsLoading())
+    {
+      this.props.onDeselect();
 
-    this.setState({ isOpen: false, error: {species: false, date: false} });
+      this.setState({ isOpen: false, error: {species: false, date: false} });
+    }
+    else
+    {
+      alert('data pane is still loading')
+    }
   }
 
   onElementActionClick = (action, extra) => {
@@ -600,13 +622,14 @@ class SelectionPane extends PureComponent {
                   this.props.map.plantingSites = await GroasisUtility.getPlantingSites(this.props.map, this.props.user, this.props.onPlantingSiteClick, true);
                   this.setState({loading: false}, () => {
                     this.props.onDeletePolygon();
+                    this.props.onDeselect();
                     this.onCloseClick();
                   })
                 }
 
               })
               .catch(err => {
-                alert(JSON.stringify(err));
+                /*alert(JSON.stringify(err));*/
                 console.error(err);
                 this.setState({loading: false})
               })
@@ -615,7 +638,7 @@ class SelectionPane extends PureComponent {
           trackFunc();
         })
         .catch(err => {
-          alert(JSON.stringify(err));
+          /*alert(JSON.stringify(err));*/
           console.error(err);
           this.setState({loading: false})
         });
@@ -1122,6 +1145,7 @@ class SelectionPane extends PureComponent {
                 <IconButton
                   onClick={this.onCloseClick}
                   aria-label='Close'
+                  disabled={this.state.loading}
                 >
                   <ClearIcon />
                 </IconButton>

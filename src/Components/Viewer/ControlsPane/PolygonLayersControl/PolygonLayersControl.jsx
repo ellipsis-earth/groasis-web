@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Pane, GeoJSON } from 'react-leaflet';
+import { Pane, GeoJSON, Marker } from 'react-leaflet';
 import L from 'leaflet';
 import MarkerClusterGroup from "react-leaflet-markercluster";
 
@@ -84,8 +84,9 @@ class PolygonLayersControl extends PureComponent {
     let differentMode = prevProps.mode !== this.props.mode;
     let differentPlantingSite = this.props.selectedPlantingSite !== prevProps.selectedPlantingSite;
     let differentPlantingLine = this.props.selectedPlantingLine !== prevProps.selectedPlantingLine;
+    let changedPlantingSites = prevProps.map && this.props.map && prevProps.map.plantingSites && this.props.map.plantingSites && this.props.map.plantingSites.props.data.features.length !== prevProps.map.plantingSites.props.data.features.length;
 
-    if (differentMap || differentTimestamp || differentBounds || differentSelectedLayers || differentMode || differentPlantingSite || differentPlantingLine) {
+    if (differentMap || differentTimestamp || differentBounds || differentSelectedLayers || differentMode || differentPlantingSite || differentPlantingLine || changedPlantingSites) {
       let availableLayers = this.props.map.layers ? this.props.map.layers.polygon : [];
       if(this.props.mode === ViewerUtility.identificationMode && this.props.map.type !== 'area')
       {
@@ -263,9 +264,63 @@ class PolygonLayersControl extends PureComponent {
 
           this.setState({ count: count });
 
-          if (!polygonIds || polygonIds.count === 0 || (polygonLayer.name === GroasisUtility.layers.polygon.trees && polygonIds.count > MAX_POLYGONS * 2) || polygonLayer.name !== GroasisUtility.layers.polygon.trees && polygonIds.count > MAX_POLYGONS) {
-            this.layerGeoJsons[polygonLayer.name] = null;
-            continue;
+          if (!polygonIds || polygonIds.count === 0 || (polygonLayer.name === GroasisUtility.layers.polygon.trees && polygonIds.count > MAX_POLYGONS * 2) || polygonLayer.name !== GroasisUtility.layers.polygon.trees && polygonIds.count > MAX_POLYGONS)
+          {
+            if(polygonLayer.name === GroasisUtility.layers.polygon.trees && polygonIds.count > MAX_POLYGONS * 2)
+            {
+              let plantingSite = this.props.map.plantingSites.props.data.features.find(x => parseInt(x.id) === this.props.selectedPlantingSite);
+
+              let plantingSiteCenter = L.polygon(plantingSite.geometry.coordinates).getBounds().getCenter();
+              let b = this.props.leafletMapViewport.bounds;
+              let screenBounds = L.latLngBounds([{lat: b.xMin, lng: b.yMin}, {lat: b.xMax, lng: b.yMax}]);
+
+              let coords = screenBounds.contains(plantingSiteCenter) ? [plantingSiteCenter.lat, plantingSiteCenter.lng] : this.props.leafletMapViewport.center;
+
+              let markerCollection = {
+                type: 'FeatureCollection',
+                features: []
+              };
+
+              for (let m = 0; m < polygonIds.count; m++) {
+                markerCollection.features.push({
+                  type: 'Feature',
+                  geometry: {
+                    type: 'Point',
+                    coordinates: coords
+                  },
+                  properties: {},
+                })
+              }
+
+              let zIndex = ViewerUtility.polygonLayerZIndex[polygonLayer.name] ? ViewerUtility.polygonLayerZIndex[polygonLayer.name] : ViewerUtility.polygonLayerZIndex.base + i;
+              promises.push(Promise.resolve(<Pane zIndex={zIndex} key={Math.random()} name={polygonLayer.name.replace(' ', '-').toLowerCase()}>
+                <MarkerClusterGroup
+                  showCoverageOnHover={false}
+                  spiderfyOnMaxZoom={false}
+                  zoomToBoundsOnClick={false}
+                >
+                  <GeoJSON
+                    key={Math.random()}
+                    data={markerCollection}
+                    style={ViewerUtility.createGeoJsonLayerStyle(`#${polygonLayer.color}`, 3, null, zIndex)}
+                    name={polygonLayer.name}
+                    zIndex={ViewerUtility.polygonLayerZIndex[polygonLayer.name]}
+                  />
+                </MarkerClusterGroup>
+              </Pane>));
+
+              this.layerGeoJsons[polygonLayer.name] = {
+                geoJson: markerCollection,
+                bounds: bounds
+              };
+
+              continue;
+            }
+            else
+            {
+              this.layerGeoJsons[polygonLayer.name] = null;
+              continue;
+            }
           }
 
           body = {

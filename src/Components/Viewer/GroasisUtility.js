@@ -386,7 +386,7 @@ const GroasisUtility = {
       .then(polygonsGeoJson => {
         let icon = ViewerUtility.returnMarker(`#${selectLayer.color}`, 2, 'RoomTwoTone')
 
-        let linesCollection = {
+        /*let linesCollection = {
           type: 'FeatureCollection',
           count: 0,
           features: []
@@ -404,27 +404,17 @@ const GroasisUtility = {
             polygonsGeoJson.count = polygonsGeoJson.count - 1;
             polygonsGeoJson.features.splice(i,1);
           }
-        }
+        }*/
 
-        return (
-          [<GeoJSON
-            key={Math.random()}
-            data={polygonsGeoJson}
-            style={ViewerUtility.createGeoJsonLayerStyle(`#${selectLayer.color}`)}
-            zIndex={ViewerUtility.polygonLayerZIndex[GroasisUtility.layers.polygon.plantingSites]}
-            onEachFeature={(feature, layer) => {layer.on({ click: () => onPlantingSiteClick(feature) })}}
-            pointToLayer={(geoJsonPoint, latlng) => this.markerReturn(latlng, icon)}
-            type='plantingSite'
-          />,
-          <GeoJSON
-            key={Math.random()}
-            data={linesCollection}
-            style={ViewerUtility.createGeoJsonLayerStyle(`#${selectLayer.color}`, 3)}
-            zIndex={ViewerUtility.polygonLayerZIndex[GroasisUtility.layers.polygon.plantingSites]}
-            onEachFeature={(feature, layer) => {layer.on({ click: () => onPlantingSiteClick(feature) })}}
-          />]
-        );
-
+        return (<GeoJSON
+          key={Math.random()}
+          data={polygonsGeoJson}
+          style={ViewerUtility.createGeoJsonLayerStyle(`#${selectLayer.color}`)}
+          zIndex={ViewerUtility.polygonLayerZIndex[GroasisUtility.layers.polygon.plantingSites]}
+          onEachFeature={(feature, layer) => {layer.on({ click: () => onPlantingSiteClick(feature) })}}
+          pointToLayer={(geoJsonPoint, latlng) => this.markerReturn(latlng, icon)}
+          type='plantingSite'
+        />);
       })
       .then(geoJsons => {
         map.plantingSitesLoaded = true;
@@ -522,7 +512,7 @@ const GroasisUtility = {
       clipperLib.NativeClipperLibRequestedFormat.WasmWithAsmJsFallback
     );
 
-    let plantingSiteCoordinates = JSON.parse(JSON.stringify(plantingSite.props.data.features[0].geometry.coordinates[0]));
+    let plantingSiteCoordinates = JSON.parse(JSON.stringify(plantingSite.geometry.coordinates[0]));
     let multiplyAmount = GroasisUtility.getMaxDec(plantingSiteCoordinates);
 
     let elementPolygon = JSON.parse(JSON.stringify(inputLine));

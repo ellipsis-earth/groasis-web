@@ -1,9 +1,27 @@
-.plantControl
+.plantControl .data-pane-title-card
+{
+	display: flex;
+}
+
+.plantControl .data-pane-title-card .data-pane-title-header
+{
+	width: 100%;
+	padding: 0 25px;
+}
+
+.plantControl .data-pane-card
 {
 	margin-top: 1rem;
 }
 
-.plantControl p
+.plantControl .data-pane-title-card .data-pane-title-header h2.data-pane-title
+{
+	margin: 0;
+	width: initial;
+	text-align: left;
+}
+
+.plantControl .data-pane-card p
 {
 	font-size: 75%;
 	hyphens: auto;
@@ -13,12 +31,12 @@
 	margin: 6px 0px;
 }
 
-.plantControl p+p
+.plantControl .data-pane-card p+p
 {
 	margin-top: 12px;
 }
 
-.plantControl label
+.plantControl .data-pane-card label
 {
 	hyphens: auto;
 	width: 100%;
@@ -26,34 +44,33 @@
   transition: color 200ms cubic-bezier(0.0, 0, 0.2, 1) 0ms,transform 200ms cubic-bezier(0.0, 0, 0.2, 1) 0ms, width 200ms cubic-bezier(0.0, 0, 0.2, 1);
 }
 
-.plantControl label[data-shrink="false"]
+.plantControl .data-pane-card label[data-shrink="false"]
 {
 	margin-right: 8px;
 }
 
-.plantControl label[data-shrink="true"]
+.plantControl .data-pane-card label[data-shrink="true"]
 {
 	width: 125%;
 }
 
-.plantControl .distanceInput
+.plantControl .data-pane-card .distanceInput
 {
 	margin-bottom: 2rem;
 }
 
-.plantControl button.plantButton
+.plantControl .data-pane-card button.plantButton
 {
 	margin: 1rem auto;
 	margin-top: 0;
 }
 
-.plantControl .MuiCardContent-root
+.plantControl .data-pane-card .MuiCardContent-root
 {
-	padding-top: 0;
 	padding-bottom: 8px;
 }
 
-.plantControl .red
+.plantControl .data-pane-card .red
 {
 	color: red;
 	font-weight: 700;

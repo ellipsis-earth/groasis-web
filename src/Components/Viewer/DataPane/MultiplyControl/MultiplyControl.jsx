@@ -157,7 +157,7 @@ class MultiplyControl extends PureComponent {
 	confirm = () => {
 		this.setState({loading: true}, async () => {
 			let lines = this.state.lines;
-			let plantingSite = this.props.map.plantingSites.find(x => x.props.data.features[0] && x.props.data.features[0].properties.id === this.props.selectedPlantingSite)
+			let plantingSite = this.props.map.plantingSites.props.data.features.find(x => parseInt(x.id) === this.props.selectedPlantingSite)
 			let feature = {type: 'Feature', properties: {'Planting site id': this.props.selectedPlantingSite}}
 
 	    let body = {

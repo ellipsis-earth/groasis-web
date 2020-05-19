@@ -9,10 +9,11 @@ import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import CardHeader from '@material-ui/core/CardHeader';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 
 import CheckIcon from '@material-ui/icons/Check';
-
+import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 
 import TreeControl from './TreeControl/TreeControl';
 
@@ -43,6 +44,7 @@ class PlanControl extends Component {
 
   componentWillUnmount() {
      this._ismounted = false;
+     clearTimeout(this.timeoutVar)
   }
 
 	setSelectedTrees = (selectedTrees) => {
@@ -202,8 +204,7 @@ class PlanControl extends Component {
         .then(trackingInfo => {
           if (!trackingInfo.added)
           {
-            this.props.updatePolygons();
-            setTimeout(trackFunc, 1000);
+            this.timeoutVar = setTimeout(trackFunc, 1000);
             return;
           }
           else
@@ -228,12 +229,63 @@ class PlanControl extends Component {
     trackFunc();
   }
 
+  timeoutFunc = function (ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
   confirmTrees = async () => {
     let treeFeatures = await this.planTrees();
 
-  	let treePromises = [];
+    console.log(treeFeatures.length);
 
-  	for (let i = 0; i < treeFeatures.length; i++) {
+    let treeAddResults = [];
+  	let treePromises = [];
+    let limit = 500;
+
+    for(let i = 0; i < Math.ceil(treeFeatures.length/limit); i++)
+    {
+      for (let j = 0 + (i * limit); j < ((i + 1) * limit); j++) {
+        if (treeFeatures[j])
+        {
+          let body = {
+            mapId: this.props.map.id,
+            timestamp: 0,
+            layer: GroasisUtility.layers.polygon.trees,
+            feature: GroasisUtility.markerToTreePolygon(treeFeatures[j])
+          };
+
+          treePromises.push(ApiManager.post('/geometry/add', body, this.props.user)
+          .catch(err => {console.error(err)}));
+        }
+      }
+
+      treePromises.push(this.timeoutFunc(1000));
+
+      let newResults = await Promise.all(treePromises)
+      .then(async results => {
+        if(i === (Math.ceil(treeFeatures.length/limit) - 1))
+        {
+          this.trackAdd(results[results.length - 2].trackingId)
+        }
+
+        return results;
+      })
+      .catch(error => {console.error(error)});
+
+      treeAddResults.push(newResults);
+
+      treePromises = [];
+    }
+
+    console.log(treeAddResults);
+
+  	/*for (let i = 0; i < treeFeatures.length; i++) {
+      if (i % limit === 0 && treePromises.length > 0)
+      {
+        promisesArray.push(treePromises);
+        treePromises = [];
+      }
+
   		let body = {
 	      mapId: this.props.map.id,
 	      timestamp: 0,
@@ -241,31 +293,75 @@ class PlanControl extends Component {
 	      feature: GroasisUtility.markerToTreePolygon(treeFeatures[i])
 	    };
 
-	    treePromises.push(ApiManager.post('/geometry/add', body, this.props.user)
+      treePromises.push(ApiManager.post('/geometry/add', body, this.props.user)
       .catch(err => {console.error(err)}));
   	}
 
-  	Promise.all(treePromises)
-  	.then(trackingInfo => {
-  		this.trackAdd(trackingInfo[trackingInfo.length - 1].trackingId)
-    })
-    .catch(err => {console.error(err)})
+    if (treePromises.length > 0)
+    {
+      promisesArray.push(treePromises);
+    }
+
+
+    //console.log(promisesArray)
+
+    for (let i = 0; i < promisesArray.length; i++)
+    {
+      await Promise.all(promisesArray[i])
+      .then(async results => {
+        return results;
+      })
+    }
+
+    let results = await promisesArray;
+    this.trackAdd(results[results.length - 1].trackingId)*/
+
+
+    /*if (treePromises.length > limit)
+    {
+      let choppedPromises = [];
+      for (let i = - 1; i < treePromises.length; i = i + limit) {
+        treePromises.splice((i + 1), (i + limit))
+      }
+    }
+    else
+    {
+    	Promise.all(treePromises)
+    	.then(trackingInfo => {
+    		this.trackAdd(trackingInfo[trackingInfo.length - 1].trackingId)
+      })
+      .catch(err => {console.error(err)})
+    }*/
+
   }
 
 	render = () => {
-		return (
-	  	<Card className='data-pane-card plantControl'>
-		  	<CardHeader
-			  	title={
-			  		<Typography
-		          variant="h6"
-		          component="h2"
-		          className='no-text-transform data-pane-title'
-		        >
-		          Automatic Planning
-		        </Typography>
-					}
-		  	/>
+		return (<div className='plantControl'>
+      <Card className='data-pane-title-card'>
+        <CardActions>
+          <IconButton
+            className='data-pane-title-actions-button'
+            aria-label='Home'
+            disabled={this.state.loading}
+            onClick={this.props.setHome}
+          >
+            <KeyboardArrowLeft />
+          </IconButton>
+        </CardActions>
+        <CardHeader
+          className='data-pane-title-header'
+          title={
+            <Typography
+              variant="h6"
+              component="h2"
+              className='no-text-transform data-pane-title'
+            >
+              Automatic Planning
+            </Typography>
+          }
+        />
+      </Card>
+	  	<Card className='data-pane-card'>
 		  	<CardContent>
 		  		<TreeControl
 		  			layer={this.props.layer}
@@ -291,7 +387,7 @@ class PlanControl extends Component {
 		      </Button>
 				</CardActions>
 			</Card>
-    )
+    </div>)
 	}
 }
 

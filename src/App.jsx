@@ -168,7 +168,7 @@ class App extends Component {
             <div className={contentClassName}>
               <div ref={this.topItemRef}></div>
               <Viewer
-                key={this.state.user ? this.state.user.name : 'default'}
+                key={'viewer_' + this.state.user ? this.state.user.name : 'default'}
                 user={this.state.user}
                 mode={this.state.mode}
                 scrollToBottom={this.scrollToBottom}

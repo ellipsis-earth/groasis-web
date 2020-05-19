@@ -117,29 +117,32 @@ export class MapControl extends PureComponent {
 
     if(e.layerType === "polyline")
     {
-      let plantingSite = this.props.map.plantingSites.find(x => x.props.data.features[0] && x.props.data.features[0].properties.id === this.props.selectedPlantingSite)
+      let plantingSite = this.props.map.plantingSites.props.data.features.find(x => parseInt(x.id) === this.props.selectedPlantingSite)
 
       geoJson = await GroasisUtility.clippingUtil(geoJson.geometry.coordinates, plantingSite);
     }
 
-    geoJson.properties.id = Math.random();
-    geoJson.properties[ViewerUtility.selection.specialProperty.type] = this.state.drawMode;
+    if(geoJson)
+    {
+      geoJson.properties.id = Math.random();
+      geoJson.properties[ViewerUtility.selection.specialProperty.type] = this.state.drawMode;
 
-    let icon = ViewerUtility.returnMarker('#3388ff', 2, 'RoomTwoTone');
+      let icon = ViewerUtility.returnMarker('#3388ff', 2, 'RoomTwoTone');
 
-    let drawnGeometryElement = (
-      <GeoJSON
-        key={Math.random()}
-        data={geoJson}
-        zIndex={ViewerUtility.drawnPolygonLayerZIndex}
-        onEachFeature={(_, layer) => layer.on({
-          click: () => this.props.onSelectFeature(this.state.drawMode ? this.state.drawMode : ViewerUtility.drawnPolygonLayerType, geoJson, false)
-        })}
-        pointToLayer={(geoJsonPoint, latlng) => ViewerUtility.createMarker(latlng, icon)}
-      />
-    );
+      let drawnGeometryElement = (
+        <GeoJSON
+          key={Math.random()}
+          data={geoJson}
+          zIndex={ViewerUtility.drawnPolygonLayerZIndex}
+          onEachFeature={(_, layer) => layer.on({
+            click: () => this.props.onSelectFeature(this.state.drawMode ? this.state.drawMode : ViewerUtility.drawnPolygonLayerType, geoJson, false)
+          })}
+          pointToLayer={(geoJsonPoint, latlng) => ViewerUtility.createMarker(latlng, icon)}
+        />
+      );
 
-    this.props.onDrawGeometry(geoJson, drawnGeometryElement);
+      this.props.onDrawGeometry(geoJson, drawnGeometryElement);
+    }
 
     this.setState({ drawControl: null });
   }

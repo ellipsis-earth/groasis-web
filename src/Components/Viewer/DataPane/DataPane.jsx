@@ -220,6 +220,7 @@ class DataPane extends PureComponent {
           updatePolygons={this.props.updatePolygons}
           onDeselect={this.props.onDeselect}
           ref={this.plantControl}
+          setHome={this.goToHome}
         />
       );
     }
@@ -236,7 +237,8 @@ class DataPane extends PureComponent {
 
     return (
       <div className={dataPaneClassName} style={style}>
-        <Card className='data-pane-title-card'>
+      {
+        action != ViewerUtility.dataPaneAction.planTrees ? <Card className='data-pane-title-card'>
           <CardActions className={actionsClassName}>
             {
               !home || action ?
@@ -271,7 +273,8 @@ class DataPane extends PureComponent {
                 </Button> : null
             }
           />
-        </Card>
+        </Card> : null
+      }
         {homeElement}
         {actionControl}
       </div>

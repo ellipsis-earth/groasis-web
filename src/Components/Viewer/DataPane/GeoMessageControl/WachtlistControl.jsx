@@ -28,8 +28,16 @@ class WatchListControl extends PureComponent {
 
     this.state = {
       watchlists: [],
-      count: 0,
+      count: this.props.map && this.props.map.plantingSites && this.props.map.plantingSites.props.data.features.length ? this.props.map.plantingSites.props.data.features.length : -1,
     };
+  }
+
+  componentDidUpdate = (prevProps) => {
+    let newCount = this.props.map && this.props.map.plantingSites && this.props.map.plantingSites.props && this.props.map.plantingSites.props.data.features.length ? this.props.map.plantingSites.props.data.features.length : -1
+    if (newCount !== this.state.count)
+    {
+      this.setState({count: newCount});
+    }
   }
 
   prepareWatchlist = (mode = 'normal', data) => {
@@ -70,8 +78,8 @@ class WatchListControl extends PureComponent {
             </Typography>
           }
         />
-        <CardContent className='data-pane-card-content' key={this.props.groasisMaps.areas.length}>
-          {watchlist && watchlist.length > 0 ? watchlist : message}
+        <CardContent className='data-pane-card-content' key={'watchlist_' + this.props.groasisMaps.areas.length + '_' + this.state.count}>
+          {watchlist ? watchlist : message}
         </CardContent>
       </Card>
     );
@@ -87,10 +95,12 @@ class WatchList extends PureComponent {
       return null;
     }
 
+    if(this.props.map && this.props.map.plantingSites && this.props.map.plantingSites.props){console.log(this.props.map.plantingSites.props.data.features)}
+
     let elements = areas.map(x => {
       let returnItem = [];
       let selected = this.props.map && x.id === this.props.map.id;
-      let plantingSites = selected && this.props.map.plantingSites ? this.props.map.plantingSites.find(y => y.props.type === 'plantingSite').props.data.features : false;
+      let plantingSites = selected && this.props.map.plantingSites && this.props.map.plantingSites.props ? this.props.map.plantingSites.props.data.features : false;
 
       returnItem.push(<ListItem key={x.name + '_' + selected} button selected={selected} onClick={() => this.props.onWatchlistClick({properties: {mapId: x.id}})}>
           <ListItemText primary={x.name} />
@@ -124,11 +134,16 @@ class WatchList extends PureComponent {
       return returnItem;
     });
 
-    return (
-      <List>
-        {elements}
-      </List>
-    )
+    if (elements.length > 0)
+    {
+      return (
+        <List>
+          {elements}
+        </List>
+      )
+    }
+
+    return null;
   }
 
 }
