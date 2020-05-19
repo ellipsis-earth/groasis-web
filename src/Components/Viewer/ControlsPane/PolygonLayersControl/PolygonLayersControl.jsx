@@ -298,6 +298,7 @@ class PolygonLayersControl extends PureComponent {
                   showCoverageOnHover={false}
                   spiderfyOnMaxZoom={false}
                   zoomToBoundsOnClick={false}
+                  onClick={() => {this.props.leafletMap.current.leafletElement.zoomIn(1)}}
                 >
                   <GeoJSON
                     key={Math.random()}

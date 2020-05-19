@@ -986,6 +986,7 @@ class Viewer extends PureComponent {
         <div className='viewer-main-container'>
           <ControlsPane
             ref={this.controlsPane}
+            leafletMap={this.leafletMap}
             user={this.props.user}
             isOpen={this.state.panes.includes(CONTROL_PANE_NAME)}
             leafletMapViewport={this.state.leafletMapViewport}
