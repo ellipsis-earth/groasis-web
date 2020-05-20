@@ -186,10 +186,13 @@ class PolygonLayersControl extends PureComponent {
         </div>
       )
 
-      options.push(option);
+      if (availableLayer.name !== GroasisUtility.request.layer)
+      {
+        options.push(option);
+      }
     }
 
-    return options;
+    return options.length > 0 ? options : null;
   }
 
   prepareLayers = async (availableLayers) => {
@@ -298,6 +301,7 @@ class PolygonLayersControl extends PureComponent {
                   showCoverageOnHover={false}
                   spiderfyOnMaxZoom={false}
                   zoomToBoundsOnClick={false}
+                  singleMarkerMode
                   onClick={() => {this.props.leafletMap.current.leafletElement.zoomIn(1)}}
                 >
                   <GeoJSON
@@ -407,7 +411,10 @@ class PolygonLayersControl extends PureComponent {
 
                 let zIndex = ViewerUtility.polygonLayerZIndex[polygonLayer.name] ? ViewerUtility.polygonLayerZIndex[polygonLayer.name] : ViewerUtility.polygonLayerZIndex.base + i;
               return (<Pane zIndex={zIndex} key={Math.random()} name={polygonLayer.name.replace(' ', '-').toLowerCase()}>
-                [<MarkerClusterGroup>
+                [<MarkerClusterGroup
+                  maxClusterRadius={30}
+                  disableClusteringAtZoom={17}
+                >
                   <GeoJSON
                     key={Math.random()}
                     data={polygonsGeoJson}
@@ -552,8 +559,10 @@ class PolygonLayersControl extends PureComponent {
       return null;
     }
 
+    let checkboxes = this.createLayerCheckboxes();
+
     return (
-      <Card className='layers-control'>
+      checkboxes ? <Card className='layers-control'>
         <CardHeader
           className='material-card-header'
           title={
@@ -576,10 +585,10 @@ class PolygonLayersControl extends PureComponent {
           <CardContent
             className={'card-content'}
           >
-            {this.createLayerCheckboxes()}
+            {checkboxes}
           </CardContent>
         </Collapse>
-      </Card>
+      </Card> : null
     );
   }
 }

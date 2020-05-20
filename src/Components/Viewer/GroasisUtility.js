@@ -522,34 +522,73 @@ const GroasisUtility = {
 
     let line = GroasisUtility.mapToMaxDec(elementPolygon, multiplyAmount);
     let lineLength = line.length;
-    for (let i = line.length - 1; i >= 0; i--)
+    /*for (let i = line.length - 1; i >= 0; i--)
     {
       let returnValue = line[i].y.toString();
       let addValue = parseInt(returnValue.substr(returnValue.length - 1, returnValue.length - 0)) + 1;
 
       returnValue = addValue <= 9 ? returnValue.substr(0, returnValue.length - 1) + (addValue).toString() : returnValue.substr(0, returnValue.length - 2) + (addValue).toString()
-      line.push({x: line[i].x, y: parseInt(returnValue)})
-    }
+      line.push({x: parseInt(line[i].x), y: parseInt(returnValue)})
+    }*/
 
     let clip = GroasisUtility.mapToMaxDec(plantingSiteCoordinates, multiplyAmount);
 
-    clip.slice(0, clip.length - 2)
+    /*clip.slice(0, clip.length - 2)
 
-    let polyResult = clipper.clipToPaths({
+    let clipResult = clipper.clipToPaths({
       clipType: clipperLib.ClipType.Intersection,
       subjectInputs: [{ data: line, closed: true }],
       clipInputs: [{ data: clip }],
       subjectFillType: clipperLib.PolyFillType.EvenOdd
-    });
+    });*/
 
-    if(polyResult.length > 0)
+   /* console.log(clipResult);
+
+    let polyResult = clipper.cleanPolygons([clipResult], parseInt(1.1415 * multiplyAmount, 10));
+
+    console.log(polyResult, parseInt(1.1415 * multiplyAmount, 10));*/
+
+    /*if(clipResult.length > 0)
     {
-      let remappedResult = polyResult[0].map(coordinate => [coordinate.y/multiplyAmount, coordinate.x/multiplyAmount]);
-      if(remappedResult[lineLength - 1] === remappedResult[lineLength])
+      let remappedResult = clipResult[0].map(coordinate => [coordinate.y/multiplyAmount, coordinate.x/multiplyAmount]);
+      if(remappedResult[lineLength - 1] === remappedResult[lineLength] || remappedResult[0] === remappedResult[remappedResult.length - 1])
       {
        remappedResult.splice(0, lineLength);
       }
 
+      if (remappedResult.length > lineLength)
+      {
+       remappedResult.splice(1, lineLength);
+      }
+
+      console.log(clipResult[0].map(coordinate => [coordinate.y/multiplyAmount, coordinate.x/multiplyAmount]));
+      console.log(remappedResult)
+
+      return L.polyline(remappedResult).toGeoJSON();
+    }*/
+
+    /*if (clipResult.length > 0)
+    {
+      let remappedResult = clipResult[0].map(coordinate => L.point(coordinate.x/multiplyAmount, coordinate.y/multiplyAmount));
+      let simplified = L.LineUtil.simplify(remappedResult, 0.1);
+      let lineMap = [];
+      simplified.forEach(s => {lineMap.push(L.latLng([s.y, s.x]))})
+      console.log(lineMap);
+      console.log(JSON.stringify(L.polyline(lineMap).toGeoJSON()));
+      return L.polyline(lineMap).toGeoJSON();
+    }*/
+
+    let clipResult = clipper.clipToPolyTree({
+      clipType: clipperLib.ClipType.Intersection,
+      subjectInputs: [{ data: line, closed: false }],
+      clipInputs: [{ data: clip }],
+      subjectFillType: clipperLib.PolyFillType.EvenOdd
+    });
+
+
+    if (clipResult.childs[0] && clipResult.childs[0].contour.length > 0)
+    {
+      let remappedResult = clipResult.childs[0].contour.map(coordinate => L.latLng(coordinate.y/multiplyAmount, coordinate.x/multiplyAmount));
       return L.polyline(remappedResult).toGeoJSON();
     }
   },

@@ -17,6 +17,7 @@ import TextField from '@material-ui/core/TextField';
 import CheckIcon from '@material-ui/icons/Check';
 import ClearIcon from '@material-ui/icons/Clear';
 import DeleteIcon from '@material-ui/icons/Delete';
+import EditIcon from '@material-ui/icons/Edit';
 
 import './TreeControl.css';
 
@@ -27,6 +28,7 @@ class TreeControl extends Component {
     this.state = {
     	add: false,
     	listLength: 0,
+      edit: -1,
     }
   }
 
@@ -38,13 +40,25 @@ class TreeControl extends Component {
   }
 
   handleAdd = () => {
-  	this.setState({add: !this.state.add})
+    this.setState({add: !this.state.add})
   }
 
-  handleConfirm = (input) => {
-  	this.setState({add: !this.state.add}, () => {
+  handleEdit = (i) => {
+  	this.setState({add: true, edit: i})
+  }
+
+  handleConfirm = (input, edit) => {
+  	this.setState({add: !this.state.add, edit: -1}, () => {
   		let selectedTrees = this.props.selectedTrees;
-  		selectedTrees.push(input);
+      if (edit >= 0)
+      {
+        selectedTrees[edit] = input;
+      }
+      else
+      {
+  		  selectedTrees.push(input);
+      }
+
 	  	this.props.setSelectedTrees(selectedTrees);
   	})
   }
@@ -54,7 +68,7 @@ class TreeControl extends Component {
   }
 
   handleDeny = () => {
-  	this.setState({add: false})
+  	this.setState({add: false, edit: -1})
   }
 
  	handleDistanceChange = (e) => {
@@ -85,7 +99,9 @@ class TreeControl extends Component {
     				<ListSubheader component="div" color='primary'>
     					<Grid container spacing={3}>
       					<Grid item xs>Selected Trees</Grid>
-      					<Grid item xs className='ratioSubheader'>Ratio</Grid>
+                {
+                 this.props.selectedTrees.length > 1 ? <Grid item xs className='ratioSubheader'>Ratio</Grid> : null
+                }
       				</Grid>
 		        </ListSubheader>
 		      }
@@ -97,10 +113,17 @@ class TreeControl extends Component {
 	    				return (<ListItem key={'treeItem_' + x.name + i}>
 		      			<ListItemText primary={<Grid container spacing={3}>
 		      					<Grid item xs>{x.name}</Grid>
-		      					<Grid item xs className='ratioItem'>{x.ratio}</Grid>
+		      					{
+                       this.props.selectedTrees.length > 1 ? <Grid item xs className='ratioItem'>{x.ratio}</Grid> : null
+                    }
 		      				</Grid>}/>
 		      			<ListItemSecondaryAction>
-		      				<IconButton edge='end' onClick={() => {this.handleDelete(i)}}>
+                  {
+                    this.props.selectedTrees.length > 1 ? <IconButton size='small' onClick={() => {this.handleEdit(i)}}>
+                      <EditIcon />
+                    </IconButton> : null
+                  }
+		      				<IconButton size='small' edge='end' onClick={() => {this.handleDelete(i)}}>
 		      					<DeleteIcon />
 		      				</IconButton>
 		      			</ListItemSecondaryAction>
@@ -117,6 +140,7 @@ class TreeControl extends Component {
 						selectedTrees={this.props.selectedTrees}
 						handleConfirm={this.handleConfirm}
 						handleDeny={this.handleDeny}
+            edit={this.state.edit}
 						key={'treeInputComponent' + this.props.selectedTrees.length}
 					/>
     		</Collapse>
@@ -142,6 +166,13 @@ class TreeInput extends Component {
     };
   }
 
+  componentDidUpdate = (prevProps) => {
+    if (prevProps.edit !== this.props.edit && this.props.edit >= 0)
+    {
+      this.setState({name: this.props.selectedTrees[this.props.edit].name, ratio: this.props.selectedTrees[this.props.edit].ratio})
+    }
+  }
+
   handleTreeChange = (e) => {
   	this.setState({name: e.target.value});
   }
@@ -161,7 +192,14 @@ class TreeInput extends Component {
   handleConfirm = () => {
   	if (this.state.name !== '' && this.state.ratio !== '')
   	{
-	  	this.props.handleConfirm(this.state);
+      if(this.props.edit >= 0)
+      {
+        this.props.handleConfirm(this.state, this.props.edit);
+      }
+      else
+	  	{
+        this.props.handleConfirm(this.state);
+      }
 	  	this.handleDeny();
   	}
   }
@@ -190,7 +228,7 @@ class TreeInput extends Component {
 				        >
 				        	{
 				        		this.props.availableTrees.map(x => {
-				        			if(!this.props.selectedTrees.find(y => y.name === x.name))
+				        			if(!this.props.selectedTrees.find(y => y.name === x.name) || (this.props.edit >= 0 && this.props.selectedTrees[this.props.edit].name === x.name))
 				        			{
 				        				return(<MenuItem key={inputId + '_menuItem_' + x.name} value={x.name}>{x.name}</MenuItem>)
 				        			}
@@ -201,17 +239,19 @@ class TreeInput extends Component {
 				        </Select>
 				      </FormControl>
   					</Grid>
-  					<Grid item xs>
-  						<TextField
-		    				fullWidth
-		    				type="number"
-		    				InputLabelProps={{shrink: true}}
-		    				InputProps={{inputProps: {min: 1, max: 100, step: 1}}}
-			          className='ratioInput'
-			          value={this.state.ratio}
-			          onChange={this.handleRatioChange}
-		    			/>
-  					</Grid>
+  					{
+              this.props.edit >= 0 ? <Grid item xs>
+                <TextField
+                  fullWidth
+                  type="number"
+                  InputLabelProps={{shrink: true}}
+                  InputProps={{inputProps: {min: 1, max: 100, step: 1}}}
+                  className='ratioInput'
+                  value={this.state.ratio}
+                  onChange={this.handleRatioChange}
+                />
+              </Grid> : null
+            }
   				</Grid>
 		  	</ListItem>
 		  	<ListItem className='treeAddHandlingButtonsContainer' key={'buttons' + inputId}>

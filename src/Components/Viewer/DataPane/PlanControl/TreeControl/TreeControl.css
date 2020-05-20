@@ -54,3 +54,13 @@ ul.treeControl
 {
 	text-align: center;
 }
+
+.treeControl .MuiListItemSecondaryAction-root
+{
+	right: 0;
+}
+
+.treeControl .MuiListItem-secondaryAction
+{
+  padding-right: 62px;
+}
