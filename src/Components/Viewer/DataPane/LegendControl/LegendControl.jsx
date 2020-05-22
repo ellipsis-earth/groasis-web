@@ -68,7 +68,8 @@ class LegendControl extends PureComponent {
         let x = results[i];
         let name = this.getName(x.StyledLayerDescriptor.NamedLayer.Name);
         let colors = x.StyledLayerDescriptor.NamedLayer.UserStyle.FeatureTypeStyle.Rule.RasterSymbolizer.ColorMap.ColorMapEntry;
-        returnData[name] = colors;
+        let unit = x.StyledLayerDescriptor.NamedLayer.UserStyle.FeatureTypeStyle.Rule.RasterSymbolizer.Geometry.PropertyName.split(' - ')[0];
+        returnData[name] = {colors: colors, unit: unit};
       }
 
       return returnData;
@@ -109,7 +110,7 @@ class LegendControl extends PureComponent {
         let selectedLayer = this.props.selectedLayers.image_tile[i];
         if (this.state.layerData[selectedLayer])
         {
-          legendItems.push(<LegendItem key={'legendItem_' + selectedLayer.replace(' ', '-')} selectedLayer={selectedLayer} colors={this.state.layerData[selectedLayer]} />);
+          legendItems.push(<LegendItem key={'legendItem_' + selectedLayer.replace(' ', '-')} selectedLayer={selectedLayer} colors={this.state.layerData[selectedLayer].colors} unit={this.state.layerData[selectedLayer].unit}/>);
         }
       }
     }

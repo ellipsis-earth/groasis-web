@@ -1,7 +1,5 @@
 import React, { PureComponent} from 'react';
-import {
-  Chip
-} from '@material-ui/core';
+import Chip from '@material-ui/core/Chip';
 
 import ViewerUtility from './../ViewerUtility';
 
@@ -29,11 +27,12 @@ export class MapHeader extends PureComponent {
 
   render() {
     let groasisMap = this.props.map;
-    let type = groasisMap ? 'flyTo' : null;
+    let type = null;
 
     let text = 'Select an area of interest';
-    if (groasisMap && groasisMap.subatlas) {
-      text = groasisMap.subatlas.toUpperCase();
+    if (groasisMap && groasisMap.name) {
+      text = groasisMap.name;
+      type = 'flyTo';
     }
     else if (this.props.mode === ViewerUtility.identificationMode)
     {
@@ -44,7 +43,7 @@ export class MapHeader extends PureComponent {
       }
       else
       {
-        text = 'Draw a polygon';
+        text = 'Select an identification zone';
       }
     }
 

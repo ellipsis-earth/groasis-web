@@ -8,7 +8,7 @@ import './LegendItem.css';
 class LegendItem extends React.Component {
 	render = () => {
 		return <div className='legendItemContainer'>
-			<Typography>{this.props.selectedLayer}</Typography>
+			<Typography>{this.props.selectedLayer}  ({this.props.unit.split('(')[1]}</Typography>
 			<div className='colorContainer'>
 			{
 				this.props.colors.map(step => {
