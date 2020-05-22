@@ -49,6 +49,8 @@ class App extends Component {
       accountOpen: false,
       mode: -1,
     };
+
+    this.timeoutVar = null;
   }
 
   componentDidMount() {
@@ -56,6 +58,11 @@ class App extends Component {
 
     window.addEventListener("message", this.receiveMessage, false);
     return this.retrieveUser();
+  }
+
+  componentWillUnmount() {
+     clearTimeout(this.timeoutVar);
+     this.timeoutVar = null;
   }
 
   receiveMessage = (event) => {
@@ -125,13 +132,30 @@ class App extends Component {
     this.setState({ user: null });
   }
 
+  timeFunc = (cb, duration = 1000) => {
+    this.timeoutVar = setTimeout(cb, duration)
+  }
+
   onModeChange = (mode, cb) => {
     if (this.viewer.current)
     {
       this.viewer.current.mapControl.current.onStopDraw();
     }
 
-    this.setState({ mode: mode }, cb);
+    if (this.state.mode === -1 && mode === ViewerUtility.identificationMode && !this.viewer.current.state.groasisMaps)
+    {
+      if(!this.timeoutVar)
+      {
+        this.timeFunc(() => {this.onModeChange(mode, cb)}, 250);
+      }
+    }
+    else
+    {
+      clearTimeout(this.timeoutVar);
+      this.timeoutVar = null;
+
+      this.setState({ mode: mode }, cb);
+    }
   }
 
   openAccounts = (open = !this.state.accountOpen) => {
