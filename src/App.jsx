@@ -180,75 +180,72 @@ class App extends Component {
     return (
       <div className='App' onClick={this.closeMenu}>
         <ThemeProvider theme={theme}>
-            {
-              <MainMenu
-                user={this.state.user}
-                mode={this.state.mode}
-                onModeChange={this.onModeChange}
-                scrollToBottom={this.scrollToBottom}
-                openAccounts={this.openAccounts}
-              />
-            }
-            <div className={contentClassName}>
-              <div ref={this.topItemRef}></div>
-              <Viewer
-                key={'viewer_' + this.state.user ? this.state.user.name : 'default'}
-                user={this.state.user}
-                mode={this.state.mode}
-                scrollToBottom={this.scrollToBottom}
-                onModeChange={this.onModeChange}
-                openAccounts={this.openAccounts}
-                ref={this.viewer}
-              />
-              <div className={this.state.accountOpen ? 'account' : 'hidden'}>
-                <iframe src={this.accountsUrl} id='account' title="account"/>
-              </div>
-              <div className={this.state.mode === -1 ? 'modeSelector' : 'hidden'}>
-                <div className='buttonContainer'>
-                  <Card id='identification' onClick={() => {this.onModeChange(ViewerUtility.identificationMode)}}>
-                    <h1>Identification &amp; Planning</h1>
-                    <p>
-                      Identify high potential locations and plan your reforestation projects using satellite imagery and other maps.
-                    </p>
-                  </Card>
-
-                  <Card id='planting'  className='disabled' onClick={() => {this.onModeChange(ViewerUtility.plantMode)}}>
-                    <h1>
-                      Coming soon
-                    </h1>
-                    <h1>Organization &amp; Implementation</h1>
-                    <p>
-                      Implement drawn up plans, using already planned planting lines and trees locations.
-                    </p>
-                  </Card>
-
-                  <Card id='monitoring'  className='disabled' onClick={() => {this.onModeChange(ViewerUtility.plantMode)}}>
-                    <h1>
-                      Coming soon
-                    </h1>
-                    <h1>Growth &amp; Monitoring</h1>
-                    <p>
-                      Keep track of growth, and growing conditions of individual trees in projects.
-                    </p>
-                  </Card>
-
-                  <Card id='learning' className='disabled' onClick={() => {this.onModeChange(ViewerUtility.viewerMode)}}>
-                    <h1>
-                      Coming soon
-                    </h1>
-                    <h1>Learning &amp; Improvements</h1>
-                    <p>
-                      Gain insight in your success rate and learn from your old projects.
-                    </p>
-                  </Card>
-                </div>
-              </div>
-              <div ref={this.bottomItemRef}></div>
+          <MainMenu
+            user={this.state.user}
+            mode={this.state.mode}
+            onModeChange={this.onModeChange}
+            scrollToBottom={this.scrollToBottom}
+            openAccounts={this.openAccounts}
+          />
+          <div className={contentClassName}>
+            <div ref={this.topItemRef}></div>
+            <Viewer
+              key={'viewer_' + (this.state.user && this.state.user.username ? this.state.user.username : 'default')}
+              user={this.state.user}
+              mode={this.state.mode}
+              scrollToBottom={this.scrollToBottom}
+              onModeChange={this.onModeChange}
+              openAccounts={this.openAccounts}
+              ref={this.viewer}
+            />
+            <div className={this.state.accountOpen ? 'account' : 'hidden'}>
+              <iframe src={this.accountsUrl} id='account' title="account"/>
             </div>
+            <div className={this.state.mode === -1 ? 'modeSelector' : 'hidden'}>
+              <div className='buttonContainer'>
+                <Card id='identification' onClick={() => {this.onModeChange(ViewerUtility.identificationMode)}}>
+                  <h1>Identification &amp; Planning</h1>
+                  <p>
+                    Identify high potential locations and plan your reforestation projects using satellite imagery and other maps.
+                  </p>
+                </Card>
+
+                <Card id='planting'  className='disabled' onClick={() => {this.onModeChange(ViewerUtility.plantMode)}}>
+                  <h1>
+                    Coming soon
+                  </h1>
+                  <h1>Organization &amp; Implementation</h1>
+                  <p>
+                    Implement drawn up plans, using already planned planting lines and trees locations.
+                  </p>
+                </Card>
+
+                <Card id='monitoring'  className='disabled' onClick={() => {this.onModeChange(ViewerUtility.plantMode)}}>
+                  <h1>
+                    Coming soon
+                  </h1>
+                  <h1>Growth &amp; Monitoring</h1>
+                  <p>
+                    Keep track of growth, and growing conditions of individual trees in projects.
+                  </p>
+                </Card>
+
+                <Card id='learning' className='disabled' onClick={() => {this.onModeChange(ViewerUtility.viewerMode)}}>
+                  <h1>
+                    Coming soon
+                  </h1>
+                  <h1>Learning &amp; Improvements</h1>
+                  <p>
+                    Gain insight in your success rate and learn from your old projects.
+                  </p>
+                </Card>
+              </div>
+            </div>
+            <div ref={this.bottomItemRef}></div>
+          </div>
         </ThemeProvider>
       </div>
     );
-
   }
 
 }
