@@ -242,7 +242,7 @@ class CustomPolygonControl extends PureComponent {
 
       for (let i = 0; i < selectedLayer.properties.length; i++) {
         let property = selectedLayer.properties[i];
-        if(property === 'Species')
+        if(property.toLowerCase() === 'species')
         {
           let options = GroasisUtility.species.map(x => {return <MenuItem key={x} value={x}>{x}</MenuItem>})
           inputs.push(<Select
