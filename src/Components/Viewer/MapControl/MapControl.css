@@ -2,11 +2,13 @@
   position: absolute;
   left: 10px;
   top: 10px;
-  width: 30px;
+  width: 32px;
   height: auto;
   background-color: #ffffff;
-  outline: #b0b0b0 solid 2px;
+  border: #b0b0b0 solid 1px;
   z-index: 500;
+  border-radius: 2.5px;
+  box-shadow: 2px 2px 2px 0px #00000040;
 }
 
 .map-control .nav-item:not(:last-of-type) {
