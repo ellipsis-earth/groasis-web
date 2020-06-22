@@ -60,6 +60,11 @@ svg.download-geometry-button-icon {
   margin-top: 5px;
 }
 
+.controls-pane .MuiCard-root+.MuiCard-root
+{
+  margin-top: 12px;
+}
+
 @media only screen and (max-width: 1250px) {
   .geometry-counter {
     display: block;

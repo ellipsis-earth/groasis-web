@@ -18,6 +18,7 @@ div.data-pane-card-content {
 div.data-pane-title-card {
   height: auto;
   min-height: 55px;
+  position: relative;
 }
 
 div.data-pane-title-card+div.data-pane-card, div.data-pane-card+div.data-pane-card

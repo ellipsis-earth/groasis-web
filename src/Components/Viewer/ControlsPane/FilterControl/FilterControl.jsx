@@ -337,8 +337,10 @@ class FilterControl extends Component {
 
 				this.setState({ geoJsonInfo: results, loading: false, count: countMessage});
 			})
-			.catch(error => {console.error(error)})
-			;
+			.catch(error => {
+				console.error(error)
+				this.setState({loading: false});
+			});
 	}
 
 	prepareStandardTilesLayer = async (map, timestampRange) => {
@@ -425,10 +427,12 @@ class FilterControl extends Component {
 						let category = filterDataKeys[i];
 						let keys = Object.keys(filterData[0]);
 
+
 						for (let j = filterData.length - 1; j >= 0; j--)
 						{
 							for(let key in this.state.filterData[category])
 							{
+								console.log(filterData[j], this.state.filterData[category][key])
 								if (key === 'precipitation' && filterData[j])
 								{
 									let precipitationKeys = keys.filter(x => x.includes('precipitation'));
@@ -484,7 +488,7 @@ class FilterControl extends Component {
 								{
 									if (this.state.filterData[category][key].checked && this.state.filterData[category][key].value)
 									{
-										if(filterData[j] && filterData[j]['organic content g/kg 0m'] && (filterData[j]['organic content g/kg 0m'] < this.state.filterData[category][key].value[0] || filterData[j]['organic content g/kg 0m'] > this.state.filterData[category][key].value[1]))
+										if(filterData[j] && filterData[j]['organic content 0m'] && (filterData[j]['organic content 0m'] < this.state.filterData[category][key].value[0] || filterData[j]['organic content 0m'] > this.state.filterData[category][key].value[1]))
 										{
 											filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
 											delete filterData[j];
@@ -495,7 +499,7 @@ class FilterControl extends Component {
 								{
 									if (this.state.filterData[category][key].checked && this.state.filterData[category][key].value)
 									{
-										if(filterData[j] && filterData[j]['clay content mass percentage 0m'] && (filterData[j]['clay content mass percentage 0m'] < this.state.filterData[category][key].value[0] || filterData[j]['clay content mass percentage 0m'] > this.state.filterData[category][key].value[1]))
+										if(filterData[j] && filterData[j]['clay content 0m'] && (filterData[j]['clay content 0m'] < this.state.filterData[category][key].value[0] || filterData[j]['clay content 0m'] > this.state.filterData[category][key].value[1]))
 										{
 											filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
 											delete filterData[j];
@@ -506,7 +510,7 @@ class FilterControl extends Component {
 								{
 									if (this.state.filterData[category][key].checked && this.state.filterData[category][key].value)
 									{
-										if(filterData[j] && filterData[j]['sand content mass percentage 0m'] && (filterData[j]['sand content mass percentage 0m'] < this.state.filterData[category][key].value[0] || filterData[j]['sand content mass percentage 0m'] > this.state.filterData[category][key].value[1]))
+										if(filterData[j] && filterData[j]['sand content 0m'] && (filterData[j]['sand content 0m'] < this.state.filterData[category][key].value[0] || filterData[j]['sand content 0m'] > this.state.filterData[category][key].value[1]))
 										{
 											filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
 											delete filterData[j];
