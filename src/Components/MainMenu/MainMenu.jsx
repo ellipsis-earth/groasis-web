@@ -180,12 +180,12 @@ export class MainMenu extends Component {
               </RadioGroup>*/}
               {this.props.mode !== -1 ? <Button color='primary' variant='outlined' onClick={() => {this.props.onModeChange(-1)}}>{modeText}</Button> : null}
             </NavItem>
-            <NavItem>
+            <NavItem id='calculationModel'>
               <Button startIcon={<DownloadIcon />} variant='outlined' onClick={() => {window.open('https://public.ellipsis-earth.com/GroasisCalculationModel.xls')}} color='primary'>
                 Calculation Model
               </Button>
             </NavItem>
-            <NavItem>
+            <NavItem id='login'>
               <Button variant='outlined' onClick={this.onOpenAccounts} color='primary'>
                 {this.props.user ? this.props.user.username : 'Login'}
               </Button>

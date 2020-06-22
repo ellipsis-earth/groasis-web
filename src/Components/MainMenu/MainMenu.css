@@ -107,13 +107,14 @@ nav .modeSwitch label
 }
 
 @media only screen and (max-width : 768px) {
-  .main-menu {
+  nav.main-menu {
     padding-left: 20px;
     padding-right: 20px;
   }
 
   .main-menu .nav-item {
     margin: 0px;
+    padding: 0.33em 0;
   }
 
   .main-menu .nav-item a {
@@ -122,5 +123,26 @@ nav .modeSwitch label
 
   .main-menu .nav-item a button {
     width: 100%;
+  }
+}
+
+@media only screen and (max-width : 588px)
+{
+  .main-menu .nav-item#calculationModel
+  {
+    display: none;
+  }
+}
+
+@media only screen and (max-width : 375px)
+{
+  .main-menu .nav-item button
+  {
+    font-size: 10px;
+  }
+
+  nav.main-menu
+  {
+    padding-right: 10px;
   }
 }

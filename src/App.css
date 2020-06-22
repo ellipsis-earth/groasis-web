@@ -278,6 +278,11 @@ button.MuiTab-root {
   min-width: 0px;
 }
 
+.account
+{
+  overflow: hidden;
+}
+
 .account, .modeSelector
 {
   display: block;
