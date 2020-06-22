@@ -18,21 +18,24 @@ export class TabMenu extends Component {
 		return (
 			<div className='viewer-menu'>
 				<Button
-					variant='contained'
+					variant='text'
+					color='primary'
 					onClick={() => this.props.openPane(this.props.CONTROL_PANE_NAME, true)}
 					className={this.state.control ? 'menuButton active' : 'menuButton'}
 				>
 					Control
 				</Button>
 				<Button
-					variant='contained'
+					variant='text'
+					color='primary'
 					onClick={() => this.props.openPane(this.props.MAP_PANE_NAME, true)}
 					className={this.state.map ? 'menuButton active' : 'menuButton'}
 				>
 					Map
 				</Button>
 				<Button
-					variant='contained'
+					variant='text'
+					color='primary'
 					onClick={() => this.props.openPane(this.props.DATA_PANE_NAME, true)}
 					className={this.state.data ? 'menuButton active' : 'menuButton'}
 				>

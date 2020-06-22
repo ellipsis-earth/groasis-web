@@ -9,18 +9,9 @@
   padding: 0px;
   border-radius: 0px;
   box-shadow: none;
-  border-bottom: 3px solid transparent;
-  background-color: white;
-  transition: all 0.5s ease-out;
 }
 
 .viewer-menu button.menuButton.active
 {
-	color: #87cef3;
-	border-color: #87cef3;
-}
-
-.viewer-menu button.menuButton .MuiTouchRipple-root
-{
-	color: #87cef3;
+  border-bottom: 3px solid;
 }
