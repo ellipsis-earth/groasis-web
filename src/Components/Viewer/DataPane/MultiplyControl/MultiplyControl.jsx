@@ -105,7 +105,7 @@ class MultiplyControl extends PureComponent {
         key={Math.random()}
         data={lines}
         style={ViewerUtility.createGeoJsonLayerStyle('#87cef3', 3)}
-        name={'Lines'}
+        name='Lines'
         zIndex={1011}
       />
 
@@ -124,14 +124,14 @@ class MultiplyControl extends PureComponent {
 		if(e.latlng)
 		{
 			let mouseDistance = e.latlng.distanceTo(initialPosition);
-			let amount = Math.floor(mouseDistance / this.state.distance);
-					amount = amount > MAX_LINES ? MAX_LINES : amount;
+			let amount = mouseDistance / this.state.distance;
+					amount = Math.floor(amount) > MAX_LINES ? MAX_LINES : amount;
 
 			let addAmount = {lat: (e.latlng.lat - initialPosition.lat) / amount, lng: (e.latlng.lng - initialPosition.lng) / amount}
 
 			let coordinates = this.props.element.feature.geometry.coordinates;
 
-			for (let i = 1; i < amount + 1; i++)
+			for (let i = 1; i < Math.floor(amount) + 1; i++)
 			{
 				let line = [];
 				for (var j = 0; j < coordinates.length; j++)
@@ -141,8 +141,8 @@ class MultiplyControl extends PureComponent {
 
 				lines.push({
 					"type" : "Feature",
-					properties: this.props.element.feature.properties,
-					geometry: {type: "LineString", coordinates: line}});
+					"properties": this.props.element.feature.properties,
+					"geometry": {"type": "LineString", "coordinates": line}});
 			}
 
 			this.setState({amount: Math.floor(mouseDistance / this.state.distance)});
@@ -158,7 +158,7 @@ class MultiplyControl extends PureComponent {
 		this.setState({loading: true}, async () => {
 			let lines = this.state.lines;
 			let plantingSite = this.props.map.plantingSites.props.data.features.find(x => parseInt(x.id) === this.props.selectedPlantingSite)
-			let feature = {type: 'Feature', properties: {'Planting site id': this.props.selectedPlantingSite}}
+			let feature = {"type": "Feature", "properties": {"Planting site id": this.props.selectedPlantingSite, "Multiply Distance": this.state.distance}}
 
 	    let body = {
 	      mapId: this.props.map.id,
