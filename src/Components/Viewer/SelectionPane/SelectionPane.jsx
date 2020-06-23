@@ -11,6 +11,11 @@ import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import CardHeader from '@material-ui/core/CardHeader';
 import CircularProgress  from '@material-ui/core/CircularProgress';
+import Dialog  from '@material-ui/core/Dialog';
+import DialogActions  from '@material-ui/core/DialogActions';
+import DialogContent  from '@material-ui/core/DialogContent';
+import DialogContentText  from '@material-ui/core/DialogContentText';
+import DialogTitle  from '@material-ui/core/DialogTitle';
 import IconButton from '@material-ui/core/IconButton';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
@@ -59,6 +64,7 @@ class SelectionPane extends PureComponent {
       name: null,
     };
 
+    this.deleteDialog = React.createRef();
   }
 
   componentDidUpdate(prevProps) {
@@ -80,7 +86,8 @@ class SelectionPane extends PureComponent {
   }
 
   deleteCustomPolygon = () => {
-    this.setState({ loading: true }, () => {
+    let cb = () => {
+      console.log(this.props.element)
       if(this.props.element.feature.properties.layer === GroasisUtility.layers.polygon.plantingLines)
       {
         this.deletePlantingLineTrees();
@@ -88,7 +95,7 @@ class SelectionPane extends PureComponent {
       else if(this.props.element.feature.properties.layer === GroasisUtility.layers.polygon.plantingSites)
       {
         this.deletePlantingLines();
-        this.deletePlantingLineTrees('all');
+        this.deletePlantingLineTrees('all')
       }
 
       let body = {
@@ -97,26 +104,28 @@ class SelectionPane extends PureComponent {
       };
 
       ApiManager.post('/geometry/delete', body, this.props.user)
-        .then(async () => {
-          if(this.props.element.feature.properties.layer === GroasisUtility.layers.polygon.plantingSites)
-          {
-            this.props.map.plantingSites = await GroasisUtility.getPlantingSites(this.props.map, this.props.user, this.props.onPlantingSiteClick, true);
-            this.props.onDeletePolygon('modeSwitch', ViewerUtility.identificationMode);
-          }
-          else
-          {
-            this.props.onDeletePolygon();
-          }
+      .then(async () => {
+        if(this.props.element.feature.properties.layer === GroasisUtility.layers.polygon.plantingSites)
+        {
+          this.props.map.plantingSites = await GroasisUtility.getPlantingSites(this.props.map, this.props.user, this.props.onPlantingSiteClick, true);
+          this.props.onDeletePolygon('modeSwitch', ViewerUtility.identificationMode);
+        }
+        else
+        {
+          this.props.onDeletePolygon();
+        }
 
-          this.props.onDeselect();
+        this.props.onDeselect();
 
-          this.setState({ isOpen: false, loading: false });
-        })
-        .catch(err => {
-          console.error(err);
-          this.setState({ loading: false });
-        });
-    });
+        this.setState({ isOpen: false, loading: false });
+      })
+      .catch(err => {
+        console.error(err);
+        this.setState({ loading: false });
+      });
+    }
+
+    this.setState({ loading: true }, this.deleteDialog.current.setCb(cb));
   }
 
   deletePlantingLines = () => {
@@ -687,7 +696,6 @@ class SelectionPane extends PureComponent {
       <Button
         key='analyse'
         variant='contained'
-        color='primary'
         size='small'
         className='selection-pane-button'
         onClick={() => this.onElementActionClick(ViewerUtility.dataPaneAction.analyse)}
@@ -704,7 +712,6 @@ class SelectionPane extends PureComponent {
         <Button
           key='go'
           variant='contained'
-          color='primary'
           size='small'
           className='selection-pane-button selection-pane-button-single'
           onClick={() => this.props.onSelectMap(element.feature.properties[GroasisUtility.subatlasProperty])}
@@ -771,24 +778,22 @@ class SelectionPane extends PureComponent {
           key='planTrees'
           variant='outlined'
           size='small'
-          color='primary'
           className='selection-pane-button'
           onClick={() => this.onElementActionClick(ViewerUtility.dataPaneAction.planTrees)}
           disabled={!canEdit}
         >
-          Plan Trees
+          Plan Trees on line
         </Button>);
 
         buttons.push(<Button
           key='multiply'
           variant='outlined'
           size='small'
-          color='primary'
           className='selection-pane-button'
           onClick={() => this.onElementActionClick(ViewerUtility.dataPaneAction.multiply)}
           disabled={!canEdit}
         >
-          {ViewerUtility.dataPaneAction.multiply}
+          {ViewerUtility.dataPaneAction.multiply} line
         </Button>);
 
         buttons.push(
@@ -802,23 +807,23 @@ class SelectionPane extends PureComponent {
         >
           {'DELETE ALL TREES ON LINE'}
         </Button>);
+
+        buttons.push(
+          <Button
+            key='delete'
+            variant='outlined'
+            size='small'
+            className='selection-pane-button'
+            onClick={() => this.onElementActionClick(DELETE_CUSTOM_POLYGON_ACTION)}
+            disabled={!canEdit}
+          >
+            {'DELETE PLANTING LINE'}
+          </Button>
+        );
       }
       else if (layer === GroasisUtility.layers.polygon.plantingSites) {
         title = 'Planting Site';
       }
-
-      buttons.push(
-        <Button
-          key='delete'
-          variant='outlined'
-          size='small'
-          className='selection-pane-button'
-          onClick={() => this.onElementActionClick(DELETE_CUSTOM_POLYGON_ACTION)}
-          disabled={!canEdit}
-        >
-          {'DELETE'}
-        </Button>
-      );
     }
     else if (element.type === ViewerUtility.treeElementType) {
       title = 'Tree';
@@ -846,7 +851,7 @@ class SelectionPane extends PureComponent {
           onClick={() => this.onElementActionClick(ViewerUtility.dataPaneAction.editCustomPolygon)}
           disabled={!canEdit}
         >
-          {'EDIT'}
+          {'EDIT SPECIES'}
         </Button>);
 
         buttons.push(
@@ -858,7 +863,7 @@ class SelectionPane extends PureComponent {
             onClick={() => this.onElementActionClick(DELETE_CUSTOM_POLYGON_ACTION)}
             disabled={!user || mapAccessLevel < ApiManager.accessLevels.alterOrDeleteCustomPolygons}
           >
-            {'DELETE'}
+            {'DELETE TREE'}
           </Button>
         );
       }
@@ -898,7 +903,6 @@ class SelectionPane extends PureComponent {
         <Button
           key='add'
           variant='contained'
-          color='primary'
           size='small'
           className='selection-pane-button selection-pane-button-single'
           onClick={this.onPlantTree}
@@ -915,7 +919,6 @@ class SelectionPane extends PureComponent {
         <Button
           key='add'
           variant='contained'
-          color='primary'
           size='small'
           className='selection-pane-button selection-pane-button-single'
           onClick={this.onAddGeometry}
@@ -932,7 +935,6 @@ class SelectionPane extends PureComponent {
         <Button
           key='add'
           variant='contained'
-          color='primary'
           size='small'
           className='selection-pane-button selection-pane-button-single'
           onClick={this.onAddGeometry}
@@ -949,7 +951,6 @@ class SelectionPane extends PureComponent {
       buttons.push(<TextField id="plantingSiteText" label="Planting Site Name" variant="outlined" className="plantingSite" key="plantingSiteButton" onChange={this.handleNameInput}/>)
       buttons.push((
         <Button
-          color='primary'
           key={this.state.loading + '_plantingSite'}
           variant='contained'
           size='small'
@@ -974,19 +975,18 @@ class SelectionPane extends PureComponent {
         onClick={() => this.onElementActionClick(ViewerUtility.dataPaneAction.editCustomPolygon)}
         disabled={!canEdit}
       >
-        {'EDIT'}
+        {'EDIT PLANTING SITE NAME'}
       </Button>);
 
       buttons.push(<Button
         key='planTrees'
         variant='outlined'
         size='small'
-        color='primary'
         className='selection-pane-button'
         onClick={() => this.onElementActionClick(ViewerUtility.dataPaneAction.planTrees)}
         disabled={!canEdit}
       >
-        Plan Trees on all lines
+        PLAN TREES ON ALL LINES
       </Button>);
 
       buttons.push(
@@ -1024,7 +1024,7 @@ class SelectionPane extends PureComponent {
           onClick={() => this.onElementActionClick(DELETE_CUSTOM_POLYGON_ACTION)}
           disabled={!canEdit}
         >
-          {'DELETE'}
+          {'DELETE PLANTING SITE'}
         </Button>
       );
     }
@@ -1066,7 +1066,7 @@ class SelectionPane extends PureComponent {
 
 
       if (element.type === ViewerUtility.treeElementType || element.type === ViewerUtility.plantingSiteElementType || layer === GroasisUtility.layers.polygon.plantingLines) {
-        if (property !== 'name' && property !== 'id' && property !== 'user' && property !== 'Species') {
+        if (property !== 'name' && property !== 'id' && property !== 'user' && property !== 'Species' && property !== 'Multiply Distance') {
           continue;
         }
       }
@@ -1074,7 +1074,7 @@ class SelectionPane extends PureComponent {
       if (elementProperties.hasOwnProperty(property)) {
         let e = (
           <div key={property}>
-            {`${property}: ${propertyValue}`}
+            <b>{ViewerUtility.capitalize(property)}</b>: {propertyValue}
           </div>
         );
 
@@ -1100,12 +1100,22 @@ class SelectionPane extends PureComponent {
     {
       let area = L.GeometryUtil.geodesicArea(L.polygon(element.feature.geometry.coordinates).getLatLngs()[0]);
       properties.push(<div key={'area'}>
-        area: {Math.round(((area/1000000) + Number.EPSILON) * 1000) / 1000} km²
+        <b>Area:</b> {Math.round(((area/10000) + Number.EPSILON) * 1000) / 1000} hectares / {Math.round(((area/10000 * 2.47105382) + Number.EPSILON) * 1000) / 1000} acres
       </div>);
+    }
+    else if (layer === GroasisUtility.layers.polygon.plantingLines)
+    {
+      let length = ViewerUtility.getLineLength(element.feature.geometry.coordinates);
+      if (length)
+      {
+        properties.push(<div key={'length'}>
+          <b>Length:</b> {Math.round(length * 100 + Number.EPSILON) / 100} m
+        </div>);
+      }
     }
 
     return (
-      <div>
+      <React.Fragment>
         {
           /*this.state.annotate ?
           <AnnotatePane
@@ -1163,9 +1173,60 @@ class SelectionPane extends PureComponent {
             </div>
           </CardActions>
         </Card>
-      </div>
+        <DeleteDialog ref={this.deleteDialog}/>
+      </React.Fragment>
     );
   }
 }
 
 export default SelectionPane;
+
+class DeleteDialog extends PureComponent {
+  constructor(props, context) {
+    super(props, context);
+
+    this.state = {
+      open: false,
+      cb: null
+    };
+
+  }
+
+  dialogChange = (cb = null) => {
+    if (cb && this.state.cb)
+    {
+      this.setState({open: false}, this.state.cb);
+    }
+    else
+    {
+      this.setState({open: !this.state.dialogOpen});
+    }
+  }
+
+  setCb = (cb) => {
+    this.setState({cb: cb, open: true})
+  }
+
+  render() {
+    return(<Dialog
+      open={this.state.open}
+      onClose={this.dialogChange}
+    >
+      <DialogTitle>Delete item</DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          You are about to delete an item.
+          Deleting is a irreversible process.
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={this.dialogChange}>
+          Cancel
+        </Button>
+        <Button onClick={() => this.dialogChange(true)} autoFocus>
+          Delete
+        </Button>
+      </DialogActions>
+    </Dialog>)
+  }
+}

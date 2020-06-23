@@ -240,8 +240,25 @@ const ViewerUtility = {
 
   isPrivateProperty: 'isPrivate',
 
+  capitalize: (str, lower = false) => {
+    return (lower ? str.toLowerCase() : str).replace(/(?:^|\s|["'([{])+\S/g, match => match.toUpperCase());
+  },
 
+  getLineLength: (coordinates = null) => {
+    if(coordinates)
+    {
+      let distance = 0;
 
+      for (let i = 0; i < coordinates.length - 1; i++)
+      {
+        distance = distance + L.latLng(coordinates[i]).distanceTo(L.latLng(coordinates[i + 1]));
+      }
+
+      return distance;
+    }
+
+    return null;
+  }
 }
 
 export default ViewerUtility;
