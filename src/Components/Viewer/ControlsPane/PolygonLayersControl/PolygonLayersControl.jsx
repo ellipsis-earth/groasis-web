@@ -273,53 +273,56 @@ class PolygonLayersControl extends PureComponent {
             {
               let plantingSite = this.props.map.plantingSites.props.data.features.find(x => parseInt(x.id) === this.props.selectedPlantingSite);
 
-              let plantingSiteCenter = L.polygon(plantingSite.geometry.coordinates).getBounds().getCenter();
-              let b = this.props.leafletMapViewport.bounds;
-              let screenBounds = L.latLngBounds([{lat: b.xMin, lng: b.yMin}, {lat: b.xMax, lng: b.yMax}]);
+              if(plantingSite)
+              {
+                let plantingSiteCenter = L.polygon(plantingSite.geometry.coordinates).getBounds().getCenter();
+                let b = this.props.leafletMapViewport.bounds;
+                let screenBounds = L.latLngBounds([{lat: b.xMin, lng: b.yMin}, {lat: b.xMax, lng: b.yMax}]);
 
-              let coords = screenBounds.contains(plantingSiteCenter) ? [plantingSiteCenter.lat, plantingSiteCenter.lng] : this.props.leafletMapViewport.center;
+                let coords = screenBounds.contains(plantingSiteCenter) ? [plantingSiteCenter.lat, plantingSiteCenter.lng] : this.props.leafletMapViewport.center;
 
-              let markerCollection = {
-                type: 'FeatureCollection',
-                features: []
-              };
+                let markerCollection = {
+                  type: 'FeatureCollection',
+                  features: []
+                };
 
-              for (let m = 0; m < polygonIds.count; m++) {
-                markerCollection.features.push({
-                  type: 'Feature',
-                  geometry: {
-                    type: 'Point',
-                    coordinates: coords
-                  },
-                  properties: {},
-                })
+                for (let m = 0; m < polygonIds.count; m++) {
+                  markerCollection.features.push({
+                    type: 'Feature',
+                    geometry: {
+                      type: 'Point',
+                      coordinates: coords
+                    },
+                    properties: {},
+                  })
+                }
+
+                let zIndex = ViewerUtility.polygonLayerZIndex[polygonLayer.name] ? ViewerUtility.polygonLayerZIndex[polygonLayer.name] : ViewerUtility.polygonLayerZIndex.base + i;
+                promises.push(Promise.resolve(<Pane zIndex={zIndex} key={Math.random()} name={polygonLayer.name.replace(' ', '-').toLowerCase()}>
+                  <MarkerClusterGroup
+                    showCoverageOnHover={false}
+                    spiderfyOnMaxZoom={false}
+                    zoomToBoundsOnClick={false}
+                    singleMarkerMode
+                    onClick={() => {this.props.leafletMap.current.leafletElement.zoomIn(1)}}
+                  >
+                    <GeoJSON
+                      key={Math.random()}
+                      data={markerCollection}
+                      style={ViewerUtility.createGeoJsonLayerStyle(`#${polygonLayer.color}`, 3, null, zIndex)}
+                      name={polygonLayer.name}
+                      zIndex={ViewerUtility.polygonLayerZIndex[polygonLayer.name]}
+                    />
+                  </MarkerClusterGroup>
+                </Pane>));
+
+                this.layerGeoJsons[polygonLayer.name] = {
+                  geoJson: markerCollection,
+                  bounds: bounds
+                };
+
+                continue;
               }
-
-              let zIndex = ViewerUtility.polygonLayerZIndex[polygonLayer.name] ? ViewerUtility.polygonLayerZIndex[polygonLayer.name] : ViewerUtility.polygonLayerZIndex.base + i;
-              promises.push(Promise.resolve(<Pane zIndex={zIndex} key={Math.random()} name={polygonLayer.name.replace(' ', '-').toLowerCase()}>
-                <MarkerClusterGroup
-                  showCoverageOnHover={false}
-                  spiderfyOnMaxZoom={false}
-                  zoomToBoundsOnClick={false}
-                  singleMarkerMode
-                  onClick={() => {this.props.leafletMap.current.leafletElement.zoomIn(1)}}
-                >
-                  <GeoJSON
-                    key={Math.random()}
-                    data={markerCollection}
-                    style={ViewerUtility.createGeoJsonLayerStyle(`#${polygonLayer.color}`, 3, null, zIndex)}
-                    name={polygonLayer.name}
-                    zIndex={ViewerUtility.polygonLayerZIndex[polygonLayer.name]}
-                  />
-                </MarkerClusterGroup>
-              </Pane>));
-
-              this.layerGeoJsons[polygonLayer.name] = {
-                geoJson: markerCollection,
-                bounds: bounds
-              };
-
-              continue;
             }
             else
             {
