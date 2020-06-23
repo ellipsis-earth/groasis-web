@@ -146,50 +146,62 @@ export class MainMenu extends Component {
         >
           <Navbar.Brand>
             <a href='/' className='main-menu-logo-item noselect' onClick={(e) => {e.preventDefault(); this.props.onModeChange(-1); this.onOpenAccounts(false)}}>
-              <img className='main-menu-logo' src='/images/logos/groasis-tree-atlas-logo.svg' alt='Groasis Tree Altas'/>
+              <img className='main-menu-logo' src='/images/logos/groasis-earth-observation-logo.svg' alt='Groasis Earth Observation'/>
             </a>
           </Navbar.Brand>
-            <NavItem className='modeSwitch'>
-{/*              <RadioGroup
-                aria-label="mode"
-                name="mode"
-                value={this.props.mode}
-                onChange={this.onModeToggle}
-                row={this.state.width <= 767 ? false : true}
-                className="modeSwitch"
-                key={this.state.expanded}
+          <NavItem className='modeSwitch'>
+          {
+          /*<RadioGroup
+              aria-label="mode"
+              name="mode"
+              value={this.props.mode}
+              onChange={this.onModeToggle}
+              row={this.state.width <= 767 ? false : true}
+              className="modeSwitch"
+              key={this.state.expanded}
+            >
+              <FormControlLabel
+                value={0}
+                control={<Radio color="primary" />}
+                label="Plan"
+                labelPlacement="end"
+              />
+              <FormControlLabel
+                value={1}
+                control={<Radio color="primary" />}
+                label="Plant"
+                labelPlacement="end"
+              />
+              <FormControlLabel
+                value={2}
+                control={<Radio color="primary" />}
+                label="View"
+                labelPlacement="end"
+              />
+            </RadioGroup>*/
+          }
+          {
+            this.props.mode !== -1
+            ? <Button
+                color='primary'
+                variant='outlined'
+                onClick={() => {this.props.onModeChange(-1)}}
               >
-                <FormControlLabel
-                  value={0}
-                  control={<Radio color="primary" />}
-                  label="Plan"
-                  labelPlacement="end"
-                />
-                <FormControlLabel
-                  value={1}
-                  control={<Radio color="primary" />}
-                  label="Plant"
-                  labelPlacement="end"
-                />
-                <FormControlLabel
-                  value={2}
-                  control={<Radio color="primary" />}
-                  label="View"
-                  labelPlacement="end"
-                />
-              </RadioGroup>*/}
-              {this.props.mode !== -1 ? <Button color='primary' variant='outlined' onClick={() => {this.props.onModeChange(-1)}}>{modeText}</Button> : null}
-            </NavItem>
-            <NavItem id='calculationModel'>
-              <Button startIcon={<DownloadIcon />} variant='outlined' onClick={() => {window.open('https://public.ellipsis-earth.com/GroasisCalculationModel.xls')}} color='primary'>
-                Calculation Model
+                {modeText}
               </Button>
-            </NavItem>
-            <NavItem id='login'>
-              <Button variant='outlined' onClick={this.onOpenAccounts} color='primary'>
-                {this.props.user ? this.props.user.username : 'Login'}
-              </Button>
-            </NavItem>
+            : null
+          }
+          </NavItem>
+          <NavItem id='calculationModel'>
+            <Button startIcon={<DownloadIcon />} variant='outlined' onClick={() => {window.open('https://public.ellipsis-earth.com/GroasisCalculationModel.xls')}} color='primary'>
+              Calculation Model
+            </Button>
+          </NavItem>
+          <NavItem id='login'>
+            <Button variant='outlined' onClick={this.onOpenAccounts} color='primary'>
+              {this.props.user ? this.props.user.username : 'Login'}
+            </Button>
+          </NavItem>
         </Navbar>
       </div>
     )
