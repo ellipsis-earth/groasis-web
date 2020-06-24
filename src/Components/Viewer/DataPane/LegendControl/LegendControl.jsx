@@ -12,6 +12,7 @@ import GroasisUtility from '../../GroasisUtility';
 import './LegendControl.css';
 
 const LAYERS = {
+  [GroasisUtility.layers.tile.soilClasses]: 'MostProbable',
   [GroasisUtility.layers.tile.organic]: 'soc_0-5cm_mean',
   [GroasisUtility.layers.tile.clay]: 'clay_0-5cm_mean',
   [GroasisUtility.layers.tile.sand]: 'sand_0-5cm_mean',

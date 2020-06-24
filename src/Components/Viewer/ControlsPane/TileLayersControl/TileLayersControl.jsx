@@ -90,6 +90,15 @@ const AVAILABLE_LAYERS = [
     displayName: 'Infrared'
   },
   {
+    name: GroasisUtility.layers.tile.soilClasses,
+    type: 'WMS',
+    mapType: null,
+    stacking: false,
+    urlName: 'https://maps.isric.org/mapserv?map=/map/wrb.map',
+    layerName: 'MostProbable',
+    displayName: GroasisUtility.layers.tile.soilClasses + ' Map'
+  },
+  {
     name: GroasisUtility.layers.tile.organic,
     type: 'WMS',
     mapType: null,
@@ -233,6 +242,7 @@ class TileLayersControl extends PureComponent {
       availableLayers = [AVAILABLE_LAYERS[0],
         AVAILABLE_LAYERS[1],
         AVAILABLE_LAYERS[2],
+        AVAILABLE_LAYERS[AVAILABLE_LAYERS.length - 6],
         AVAILABLE_LAYERS[AVAILABLE_LAYERS.length - 5],
         AVAILABLE_LAYERS[AVAILABLE_LAYERS.length - 4],
         AVAILABLE_LAYERS[AVAILABLE_LAYERS.length - 3],

@@ -62,13 +62,13 @@ const GroasisUtility = {
       sand: 'Sand Content',
       coarse: 'Coarse Content',
       ph: 'PH',
-
+      soilClasses: 'Soil Classes'
     },
     polygon: {
+      plantingSites: 'Planting sites',
+      plantingLines: 'Planting lines',
       trees: 'Trees',
       /*objectOfInterest: 'Objects of interest',*/
-      plantingLines: 'Planting lines',
-      plantingSites: 'Planting sites',
     }
   },
 
