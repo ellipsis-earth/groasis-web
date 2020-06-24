@@ -695,7 +695,7 @@ class SelectionPane extends PureComponent {
     buttons.push(
       <Button
         key='analyse'
-        variant='contained'
+        variant='outlined'
         size='small'
         className='selection-pane-button'
         onClick={() => this.onElementActionClick(ViewerUtility.dataPaneAction.analyse)}
@@ -711,7 +711,7 @@ class SelectionPane extends PureComponent {
       buttons = [
         <Button
           key='go'
-          variant='contained'
+          variant='outlined'
           size='small'
           className='selection-pane-button selection-pane-button-single'
           onClick={() => this.props.onSelectMap(element.feature.properties[GroasisUtility.subatlasProperty])}
@@ -832,7 +832,7 @@ class SelectionPane extends PureComponent {
         buttons.push(
           <Button
             key='gallery'
-            variant='contained'
+            variant='outlined'
             size='small'
             className='selection-pane-button'
             onClick={() => this.onElementActionClick(ViewerUtility.dataPaneAction.geoMessage)}
@@ -902,7 +902,7 @@ class SelectionPane extends PureComponent {
       buttons = [
         <Button
           key='add'
-          variant='contained'
+          variant='outlined'
           size='small'
           className='selection-pane-button selection-pane-button-single'
           onClick={this.onPlantTree}
@@ -918,7 +918,7 @@ class SelectionPane extends PureComponent {
       buttons = [
         <Button
           key='add'
-          variant='contained'
+          variant='outlined'
           size='small'
           className='selection-pane-button selection-pane-button-single'
           onClick={this.onAddGeometry}
@@ -934,7 +934,7 @@ class SelectionPane extends PureComponent {
       buttons = [
         <Button
           key='add'
-          variant='contained'
+          variant='outlined'
           size='small'
           className='selection-pane-button selection-pane-button-single'
           onClick={this.onAddGeometry}
@@ -952,7 +952,7 @@ class SelectionPane extends PureComponent {
       buttons.push((
         <Button
           key={this.state.loading + '_plantingSite'}
-          variant='contained'
+          variant='outlined'
           size='small'
           className="selection-pane-button selection-pane-button-single plantingSite"
           onClick={() => this.onAddPlantingSite()}
