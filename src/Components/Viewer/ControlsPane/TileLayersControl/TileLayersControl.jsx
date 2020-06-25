@@ -382,7 +382,7 @@ class TileLayersControl extends PureComponent {
     let map = this.props.map;
     let timestampRange = this.props.timestampRange;
 
-    if (!map || !timestampRange || this.props.mode === ViewerUtility.identificationMode) {
+    if (!map || !timestampRange || this.props.mode === ViewerUtility.identificationMode ||  this.props.mode === ViewerUtility.plannerMode) {
       for (let i = 3; i < AVAILABLE_LAYERS.length; i++) {
         let timestampStart = AVAILABLE_LAYERS[i].stacking ? timestampRange.start : timestampRange.end;
         let timestampEnd = timestampRange.end;
@@ -401,7 +401,6 @@ class TileLayersControl extends PureComponent {
         else
         {
           let subMap = null;
-
           if (this.lowRes && (AVAILABLE_LAYERS[i].name === GroasisUtility.layers.tile.lowRes || AVAILABLE_LAYERS[i].name === GroasisUtility.layers.tile.lowResCir) && selectedLayers.includes(AVAILABLE_LAYERS[i].name))
           {
             subMap = this.props.map.maps.find(x => ["4c450c42-1bf6-11e9-96ea-f0038c0f0121", "48d31d14-8cdd-401e-84a0-42941ad19dd6"].includes(x.dataSources[0].id));
