@@ -23,30 +23,38 @@ export class TimestampSelector extends PureComponent {
     let diffMap = this.props.map !== prevProps.map && this.props.map;
     let diffLayers = this.props.selectedLayers !== prevProps.selectedLayers;
 
-    if ((diffMap || diffLayers) && this.props.map) {
-      let tileLayers = this.props.selectedLayers[ViewerUtility.tileLayerType];
-      let timestampReferenceMap = this.props.map[GroasisUtility.types.highRes];
+    let tileLayers = this.props.selectedLayers[ViewerUtility.tileLayerType];
 
-      if (tileLayers.includes(GroasisUtility.layers.tile.lowRes) || tileLayers.includes(GroasisUtility.layers.tile.lowResCir)) {
-        timestampReferenceMap = this.props.map.maps.find(x => ["4c450c42-1bf6-11e9-96ea-f0038c0f0121", "48d31d14-8cdd-401e-84a0-42941ad19dd6"].includes(x.dataSources[0].id));
-      }
+    let timestampReferenceMap = null;
+
+    if (tileLayers.includes(GroasisUtility.layers.tile.lowRes) || tileLayers.includes(GroasisUtility.layers.tile.lowResCir)) {
+      timestampReferenceMap = this.props.map.maps.find(x => ["4c450c42-1bf6-11e9-96ea-f0038c0f0121", "48d31d14-8cdd-401e-84a0-42941ad19dd6"].includes(x.dataSources[0].id));
+    }
 
 
-      if (this.state.timestampReferenceMap !== timestampReferenceMap && timestampReferenceMap) {
-        let timestamps = timestampReferenceMap.timestamps;
-        let lastTimestamp = timestamps.length - 1;
+    if (this.state.timestampReferenceMap !== timestampReferenceMap && timestampReferenceMap) {
+      let timestamps = timestampReferenceMap.timestamps;
+      let lastTimestamp = timestamps.length - 1;
 
-        let dateFormat = 'YYYY-MM-DD';
+      let dateFormat = 'YYYY-MM-DD';
 
-        let dates = timestamps.map(x => moment(x.dateTo).format(dateFormat));
+      let dates = timestamps.map(x => moment(x.dateTo).format(dateFormat));
 
-        this.setState({
-          timestampReferenceMap: timestampReferenceMap,
-          start: lastTimestamp,
-          end: lastTimestamp,
-          dates: dates
-        });
-      }
+      this.setState({
+        timestampReferenceMap: timestampReferenceMap,
+        start: lastTimestamp,
+        end: lastTimestamp,
+        dates: dates
+      });
+    }
+    else if ((prevProps.selectedLayers[ViewerUtility.tileLayerType].includes(GroasisUtility.layers.tile.lowRes) || prevProps.selectedLayers[ViewerUtility.tileLayerType].includes(GroasisUtility.layers.tile.lowResCir)) && (!tileLayers.includes(GroasisUtility.layers.tile.lowRes) && !tileLayers.includes(GroasisUtility.layers.tile.lowResCir))) {
+      this.setState({
+        range: false,
+        start: 0,
+        end: 0,
+        dates: [0],
+        timestampReferenceMap: null,
+      });
     }
   }
 
@@ -91,7 +99,7 @@ export class TimestampSelector extends PureComponent {
   }
 
   render() {
-    if (!this.props.map || (this.props.mode === ViewerUtility.identificationMode && this.state.dates.length <= 2)) {
+    if (!this.props.map || (this.props.mode === ViewerUtility.identificationMode && this.state.dates.length < 2) || this.state.dates.length < 2) {
       return null;
     }
 
@@ -116,9 +124,8 @@ export class TimestampSelector extends PureComponent {
     return (
       <div className='timestamp-selector'>
         <div>
-          {'Timestamps'} (
-          <input type='checkbox' id='timestamp-range' onChange={this.onRangeToggleChange} checked={this.state.range}/>
-          {'Range'});
+          Timestamps
+          <React.Fragment> (<input type='checkbox' id='timestamp-range' onChange={this.onRangeToggleChange} checked={this.state.range}/> Range)</React.Fragment>
         </div>
         <Slider
           value={sliderValue}
