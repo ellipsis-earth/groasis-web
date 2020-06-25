@@ -570,7 +570,7 @@ class PolygonLayersControl extends PureComponent {
           className='material-card-header'
           title={
             <Typography gutterBottom variant="h6" component="h2">
-              {'Polygons'}
+              {'Areas'}
             </Typography>
           }
           action={
