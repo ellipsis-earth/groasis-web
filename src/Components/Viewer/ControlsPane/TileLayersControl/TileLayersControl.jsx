@@ -31,7 +31,7 @@ const AVAILABLE_LAYERS = [
     mapType: null,
     stacking: false,
     urlName: null,
-    displayName: 'Satellite layer'
+    displayName: 'Satellite Layer'
   },
   {
     name: GroasisUtility.layers.tile.road,
@@ -39,7 +39,7 @@ const AVAILABLE_LAYERS = [
     mapType: null,
     stacking: false,
     urlName: null,
-    displayName: 'Road layer'
+    displayName: 'Road Layer'
   },
   {
     name: GroasisUtility.layers.tile.terrain,
@@ -47,7 +47,7 @@ const AVAILABLE_LAYERS = [
     mapType: null,
     stacking: false,
     urlName: null,
-    displayName: 'Terrain layer'
+    displayName: 'Terrain Layer'
   },
   {
     name: GroasisUtility.layers.tile.highRes,
@@ -79,7 +79,7 @@ const AVAILABLE_LAYERS = [
     mapType: GroasisUtility.types.lowRes,
     stacking: true,
     urlName: 'rgb',
-    displayName: 'Natural color'
+    displayName: 'Natural Color'
   },
   {
     name: GroasisUtility.layers.tile.lowResCir,
