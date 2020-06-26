@@ -244,15 +244,22 @@ class CustomPolygonControl extends PureComponent {
         let property = selectedLayer.properties[i];
         if(property.toLowerCase() === 'species')
         {
-          let options = GroasisUtility.species.map(x => {return <MenuItem key={x} value={x}>{x}</MenuItem>})
-          inputs.push(<Select
-            key='species-selector'
-            className='selector'
-            onChange={(e) => this.onPropertyValueChange(e, property)}
-            value={this.state.propertyValues[property]}
-          >
-            {options}
-          </Select>)
+          let options = this.props.map.info && this.props.map.info.trees && this.props.map.info.trees.length > 0 ? this.props.map.info.trees.map(x => {return <MenuItem key={x.name} value={x.name}>{x.name}</MenuItem>}) : null;
+          if (options)
+          {
+            inputs.push(<Select
+              key='species-selector'
+              className='selector'
+              onChange={(e) => this.onPropertyValueChange(e, property)}
+              value={this.state.propertyValues[property]}
+            >
+              {options}
+            </Select>)
+          }
+          else
+          {
+            inputs.push(<Typography>Add trees in the Datapane</Typography>)
+          }
         }
         else
         {

@@ -17,6 +17,7 @@ import './DataPane.css';
 import ViewerUtility from '../ViewerUtility';
 
 import LegendControl from './LegendControl/LegendControl';
+import TreeTypeControl from './TreeTypeControl/TreeTypeControl';
 import AnalyseControl from './AnalyseControl/AnalyseControl';
 import CustomPolygonControl from './CustomPolygonControl/CustomPolygonControl';
 import GeoMessageControl from './GeoMessageControl/GeoMessageControl';
@@ -110,6 +111,11 @@ class DataPane extends PureComponent {
           selectedPlantingSite={this.props.selectedPlantingSite}
           onFeatureClick={this.props.onFeatureClick}
           ref={this.watchlist}
+        />,
+        <TreeTypeControl
+          key='TreeTypeControl'
+          map={this.props.map}
+          user={this.props.user}
         />,
         <LegendControl
           selectedLayers={this.props.selectedLayers}

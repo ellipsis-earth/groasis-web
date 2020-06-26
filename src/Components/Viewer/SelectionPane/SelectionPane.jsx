@@ -542,58 +542,65 @@ class SelectionPane extends PureComponent {
   }
 
   renderNewTreeInputs = () => {
-    return (
-      <div className='selection-input' key={this.state.error}>
-        <Autocomplete
-          id='species-select'
-          key={this.state.error.species}
-          className='selection-input-text'
-          options={GroasisUtility.species}
-          style={{ width: '100%' }}
-          renderInput={params => (
-            <TextField {...params} label='Species' variant='outlined' required error={this.state.error.species}/>
-          )}
-          value={this.state.newTreeProps.species}
-          onChange={(e, newValue) => {
-            let newTreeProps = {
-              ...this.state.newTreeProps
-            };
-
-            newTreeProps.species = newValue;
-
-            this.setState({ newTreeProps: newTreeProps });
-          }}
-        />
-        {/*<MuiPickersUtilsProvider utils={DateFnsUtils}>
-          <KeyboardDatePicker
-            id='planting-date-picker'
-            disableToolbar
-            variant='inline'
-            format='yyyy-MM-dd'
-            margin='normal'
-            label='Planting date'
-            value={this.state.newTreeProps.plantingDate}
-            onChange={(date) => {
+    if (this.props.map && this.props.map.info && this.props.map.info.trees && this.props.map.info.trees.length > 0)
+    {
+      return (
+        <div className='selection-input' key={this.state.error}>
+          <Autocomplete
+            id='species-select'
+            key={this.state.error.species}
+            className='selection-input-text'
+            options={this.props.map.info.trees.map(tree => tree.name)}
+            style={{ width: '100%' }}
+            renderInput={params => (
+              <TextField {...params} label='Species' variant='outlined' required error={this.state.error.species}/>
+            )}
+            value={this.state.newTreeProps.species}
+            onChange={(e, newValue) => {
               let newTreeProps = {
                 ...this.state.newTreeProps
               };
 
-              newTreeProps.plantingDate = moment(date).format('YYYY-MM-DD');
+              newTreeProps.species = newValue;
 
               this.setState({ newTreeProps: newTreeProps });
             }}
           />
-        </MuiPickersUtilsProvider>
-        <div className='geomessage-upload-image-label'>
-          Upload photo
+          {/*<MuiPickersUtilsProvider utils={DateFnsUtils}>
+            <KeyboardDatePicker
+              id='planting-date-picker'
+              disableToolbar
+              variant='inline'
+              format='yyyy-MM-dd'
+              margin='normal'
+              label='Planting date'
+              value={this.state.newTreeProps.plantingDate}
+              onChange={(date) => {
+                let newTreeProps = {
+                  ...this.state.newTreeProps
+                };
+
+                newTreeProps.plantingDate = moment(date).format('YYYY-MM-DD');
+
+                this.setState({ newTreeProps: newTreeProps });
+              }}
+            />
+          </MuiPickersUtilsProvider>
+          <div className='geomessage-upload-image-label'>
+            Upload photo
+          </div>
+          <input
+            type='file'
+            accept='image/*'
+            onChange={this.onImageChange}
+          />*/}
         </div>
-        <input
-          type='file'
-          accept='image/*'
-          onChange={this.onImageChange}
-        />*/}
-      </div>
-    )
+      )
+    }
+    else
+    {
+      return <div className='selection-input'>Add trees in the Datapane</div>
+    }
   }
 
   onAddPlantingSite = () => {
@@ -906,7 +913,7 @@ class SelectionPane extends PureComponent {
           size='small'
           className='selection-pane-button selection-pane-button-single'
           onClick={this.onPlantTree}
-          disabled={!user || mapAccessLevel < ApiManager.accessLevels.addPolygons || this.state.loading}
+          disabled={!user || mapAccessLevel < ApiManager.accessLevels.addPolygons || this.state.loading || (this.props.map && this.props.map.info && !this.props.map.info.trees || this.props.map.info.trees.length === 0)}
         >
           {'PLANT'}
         </Button>

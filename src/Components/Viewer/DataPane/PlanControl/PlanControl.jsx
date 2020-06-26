@@ -28,7 +28,7 @@ class PlanControl extends Component {
     super(props, context);
 
     this.state = {
-    	availableTrees: GroasisUtility.species.map(x => {return {name: x}}),
+    	availableTrees: this.props.map && this.props.map.info && this.props.map.info.trees ? this.props.map.info.trees : [],
     	selectedTrees: [],
     	distance: '',
 
@@ -363,15 +363,19 @@ class PlanControl extends Component {
       </Card>
 	  	<Card className='data-pane-card'>
 		  	<CardContent>
-		  		<TreeControl
-		  			layer={this.props.layer}
-		  			availableTrees={this.state.availableTrees}
-		  			selectedTrees={this.state.selectedTrees}
-		  			distance={this.state.distance}
-		  			setSelectedTrees={this.setSelectedTrees}
-		  			setDistance={this.setDistance}
-		  			ref={this.treeControl}
-		  		/>
+        {
+          this.state.availableTrees.length > 0
+          ? <TreeControl
+            layer={this.props.layer}
+            availableTrees={this.state.availableTrees}
+            selectedTrees={this.state.selectedTrees}
+            distance={this.state.distance}
+            setSelectedTrees={this.setSelectedTrees}
+            setDistance={this.setDistance}
+            ref={this.treeControl}
+          />
+          : <Typography>Add Tree Species First</Typography>
+        }
 				</CardContent>
 				<CardActions>
 					<Button
@@ -381,7 +385,7 @@ class PlanControl extends Component {
 		        startIcon={this.state.loading ? <CircularProgress size='20px' /> : <CheckIcon />}
 		        className='plantButton'
 		        onClick={() => {this.setState({loading: true}, this.confirmTrees)}}
-		        disabled={this.state.distance === '' || this.state.selectedTrees.length === 0 || this.state.loading}
+		        disabled={this.state.distance === '' || this.state.selectedTrees.length === 0 || this.state.loading || this.state.availableTrees.length === 0}
 		      >
 		        Plan Trees
 		      </Button>
