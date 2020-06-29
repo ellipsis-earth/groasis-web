@@ -2,9 +2,8 @@
   margin-top: 18px;
 }
 
-.layers-control {
+.layers-control, .filter-control{
   text-align: left;
-  font-size: 12pt;
 }
 
 .layer-checkboxes {

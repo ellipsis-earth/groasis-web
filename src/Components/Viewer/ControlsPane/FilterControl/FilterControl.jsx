@@ -18,6 +18,7 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
+import ListSubheader from '@material-ui/core/ListSubheader';
 import Slider from '@material-ui/core/Slider';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
@@ -690,7 +691,7 @@ class FilterControl extends Component {
 		}
 
 		return (
-			<Card className='layers-control filter-control'>
+			<Card className='filter-control'>
 				<CardHeader
 					className='material-card-header'
 					title={
@@ -711,42 +712,51 @@ class FilterControl extends Component {
 				/>
 				<Collapse in={this.state.expanded}>
 					<CardContent className={'card-content'}>
-						<FormControlLabel
-							className='showTiles'
-							control={
-								<Checkbox
-									disabled={this.state.loading}
-									checked={this.state.selectedLayers.includes(STANDARD_TILES_LAYER)}
-									onChange={this.handleChange}
-									value="filter"
-									color="primary"
-								/>
-							}
-							label="Show Tiles"
-						/>
+			      <List dense disablePadding>
+							<ListItem
+				        button
+				        dense
+				        name="filter"
+				        value="filter"
+				        onClick={this.handleChange}
+				        key={'filterControlShowTiles'}
+			      	>
+				        <ListItemIcon>
+				          <Checkbox
+				            color='primary'
+				            checked={this.state.selectedLayers.includes(STANDARD_TILES_LAYER)}
+				            disabled={this.state.loading}
+				            edge="start"
+				            disableRipple
+				          />
+				        </ListItemIcon>
+				        <ListItemText primary='Show Tiles'/>
+				      </ListItem>
 						{this.state.loading ? <CircularProgress size={20} /> : null}
 						{
 							this.state.filterForm.map(x => {
 								let open = this.state.open.includes(x.name)
-
-								return(<div className='filterFormItem' key={x.name + "_gridContainer"}>
-					       <Grid
-					      	color='primary'
-					      	className='filterSubtitle'
-					      	container
-					      	direction="row"
-								  justify="space-between"
-								  alignItems="center"
+								return(<React.Fragment key={'filterList_' + x.name}>
+					       <ListItem
+								  button
+								  dense
+								  disableGutters
 								  onClick={() => {this.changeOpen(x.name)}}
 				      	>
-					      	<Grid item><h3>{x.name}</h3></Grid>
-					      	<Grid item><IconButton size="small" color='secondary'> {open ? <ExpandLessIcon /> : <ExpandMoreIcon />}</IconButton></Grid>
-					    	</Grid>
-					    	<Collapse in={this.state.open.includes(x.name)} className='filterFormItemCollapse'>
-						    	{x.inputs}
-					    	</Collapse>
-				    	</div>)})
-						}
+				      		<ListItemText primary={<ListSubheader component={Typography} color='primary'>{ViewerUtility.capitalize(x.name)}</ListSubheader>}/>
+				      		<ListItemSecondaryAction>
+				      			<IconButton edge="end" color='secondary' onClick={() => {this.changeOpen(x.name)}}>
+				      				{open ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+			      				</IconButton>
+				      		</ListItemSecondaryAction>
+					    	</ListItem>
+					    	<ListItem dense disableGutters>
+						    	<Collapse in={this.state.open.includes(x.name)} className='filterFormItemCollapse'>
+							    	{x.inputs}
+						    	</Collapse>
+					    	</ListItem>
+				    	</React.Fragment>)})}
+			      </List>     
 						<div className='button_count'>
 							<Button
 								key={'submit' + this.state.loading}

@@ -1,3 +1,8 @@
+.filter-control
+{
+	line-height: 0;
+}
+
 .filter-control .showTiles
 {
 	width: 100%;
@@ -19,31 +24,9 @@
 	transform: translateX(-66%) translateY(7.5px) rotate(-45deg);
 }
 
-.filter-control .MuiSlider-markLabel.MuiSlider-markLabelActive
-{
-	color: #87cef3;
-}
-
-.filter-control .filterInputContainer
-{
-	width: inherit;
-	display: inherit;
-	justify-content: inherit;
-	align-items: inherit;
-}
-
-.filter-control .filterFormItem
-{
-	margin: 0.5rem 0;
-}
-
-.filter-control .filterFormItemCollapse .MuiListItemIcon-root
-{
-	min-width: 32px;
-}
-
 .filter-control .button_count
 {
+	font-size: 1rem;
 	margin-top: 1.5rem;
 }
 
@@ -60,53 +43,6 @@
 	text-align: center;
 }
 
-.filter-control .card-content
-{
-	margin-top: -0.35em;
-}
-
-.filter-control .filterSubtitle
-{
-	line-height: 0;
-	cursor: pointer;
-}
-
-.filter-control .filterSubtitle h3
-{
-	margin: 0;
-	padding: 0;
-  text-transform: capitalize;
-	line-height: 2rem;
-}
-
-.filter-control p
-{
-	font-size: 0.88rem;
-	margin: 0;
-	hyphens: auto;
-}
-
-.filter-control .filterFormItemCollapse
-{
-	margin: 0 -16px;
-}
-
-.filter-control .FilterInput
-{
-	margin-right: 0;
-	margin-bottom: 1rem;
-}
-
-.controls-pane .filter-control .MuiFormControlLabel-root .MuiFormControlLabel-label
-{
-	margin-top: 7px;
-}
-
-.filter-control .filterInputCollapse
-{
-	margin: 0 16px;
-}
-
 .MuiTooltip-tooltip.MuiTooltip-tooltipPlacementRight
 {
 	padding: 12px 16px;
@@ -114,10 +50,25 @@
 	font-size: 75%;
 }
 
-.filter-control .filterInputText span
+.filter-control .MuiCollapse-container
 {
-	font-size: 1rem;
-	hyphens: auto;
+	width: 100%;
+}
+
+.filter-control .MuiListItemText-root
+{
+	margin: 0;
+}
+
+.filter-control .MuiListItem-dense
+{
+	padding-top: 0px;
+	padding-bottom: 0px;
+}
+
+.filter-control .MuiListSubheader-root
+{
+	line-height: 42px;
 }
 
 /*.filter-control .FilterInput .MuiCollapse-container

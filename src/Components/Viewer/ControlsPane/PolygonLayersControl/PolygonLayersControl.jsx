@@ -10,6 +10,11 @@ import CardContent from '@material-ui/core/CardContent';
 import Collapse from '@material-ui/core/Collapse';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import IconButton from '@material-ui/core/IconButton';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import ListItemText from '@material-ui/core/ListItemText';
 import Typography from '@material-ui/core/Typography';
 
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
@@ -137,9 +142,9 @@ class PolygonLayersControl extends PureComponent {
 
       let counter = null;
       let count = this.state.count[availableLayer.name];
+      let downloadButton = null;
       if (checked && count !== undefined) {
         let className = '';
-        let downloadButton = null;
         let max_polygons = availableLayer.name === GroasisUtility.layers.polygon.trees ? MAX_POLYGONS * 2 : MAX_POLYGONS;
 
         if (count > max_polygons) {
@@ -148,42 +153,50 @@ class PolygonLayersControl extends PureComponent {
         else {
           downloadButton = (
             <IconButton
-              className='download-geometry-button'
+              edge="end"
+              size='small'
+              /*className='download-geometry-button'*/
               onClick={() => this.onDownload(availableLayer.name)}
             >
-              <SaveAlt className='download-geometry-button-icon'/>
+              <SaveAlt /*className='download-geometry-button-icon'*//>
             </IconButton>
           );
         }
 
         counter = (
-          <span className='geometry-counter'>
+          <span /*className='geometry-counter'*/>
             <span className={className}>{count}</span>
             <span>/{max_polygons}</span>
-            {downloadButton}
           </span>
         )
       }
 
       let option = (
-        <div key={availableLayer.name} className='layer-checkboxes'>
-          <FormControlLabel
-            margin='dense'
-            control={
-              <Checkbox
-                key={availableLayer.name}
-                classes={{ root: 'layers-control-checkbox' }}
-                color='primary'
-                value={availableLayer.name}
-                name={availableLayer.name}
-                onChange={this.onLayerChange}
-                checked={checked}
-              />
-            }
-            label={availableLayer.name}
-          />
-          {counter}
-        </div>
+        <ListItem
+          button
+          dense
+          value={availableLayer.name}
+          onClick={this.onLayerChange}
+          key={'polygonLayerControlListItem_'+availableLayer.name}
+          alignItems={counter ? 'flex-start' : 'center'}
+        >
+          <ListItemIcon>
+            <Checkbox
+              key={availableLayer.name}
+              color='primary'
+              checked={checked}
+              edge="start"
+            />
+          </ListItemIcon>
+          <ListItemText primary={ViewerUtility.capitalize(availableLayer.name)} secondary={counter}/>
+          {
+            downloadButton
+            ? <ListItemSecondaryAction>
+                {downloadButton}
+              </ListItemSecondaryAction>
+            : null
+          }
+        </ListItem>
       )
 
       if (availableLayer.name !== GroasisUtility.request.layer)
@@ -588,7 +601,9 @@ class PolygonLayersControl extends PureComponent {
           <CardContent
             className={'card-content'}
           >
-            {checkboxes}
+            <List dense disablePadding>
+              {checkboxes}
+            </List>
           </CardContent>
         </Collapse>
       </Card> : null

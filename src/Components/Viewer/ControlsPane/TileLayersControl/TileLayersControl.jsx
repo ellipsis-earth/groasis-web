@@ -8,6 +8,11 @@ import CardContent from '@material-ui/core/CardContent';
 import Collapse from '@material-ui/core/Collapse';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import IconButton from '@material-ui/core/IconButton';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import ListSubheader from '@material-ui/core/ListSubheader';
 import Radio from '@material-ui/core/Radio';
 import Typography from '@material-ui/core/Typography';
 
@@ -265,37 +270,36 @@ class TileLayersControl extends PureComponent {
       let availableLayer = availableLayers[i];
       let checked = selectedLayers.find(x => x === availableLayer.name) ? true : false;
 
-      let label = null;
       if (this.props.mode === ViewerUtility.identificationMode || this.props.mode === ViewerUtility.plannerMode)
       {
         if (i === 0) {
-          label = (<h3 className='baseLayerHeader'>Base layers</h3>);
+          options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Base Layers</ListSubheader>);
         }
         else if (i === 3) {
-          label = (<h3>Soil layers</h3>);
+          options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Soil Layers</ListSubheader>);
         }
         else if(this.lowRes && i === availableLayers.length - 2)
         {
-          label = (<h3>Low resolution layers</h3>);
+          options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Low Resolution Layers</ListSubheader>);
         }
       }
       else
       {
         if (i === 0) {
-          label = (<h3 className='baseLayerHeader'>Base layers</h3>);
+          options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Base Layers</ListSubheader>);
         }
         else if (i === 3) {
-          label = (<h3>High resolution layers</h3>);
+          options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>High Resolution Layers</ListSubheader>);
         }
         else if (i === 5)
         {
-          label = (<h3>Classification</h3>);
+          options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Classification</ListSubheader>);
         }
         else if (i === 6) {
-          label = (<h3>Low resolution layers</h3>);
+          options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Low Resolution Layers</ListSubheader>);
         }
         else if (i === 8) {
-          label = (<h3>Soil layers</h3>);
+          options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Soil Layers</ListSubheader>);
         }
       }
 
@@ -314,49 +318,45 @@ class TileLayersControl extends PureComponent {
 
       if (availableLayer.type === 'radio')
       {
-        option = (
-          <div key={availableLayer.name}>
-            {label}
-            <FormControlLabel
-              margin='dense'
-              control={
-                <Radio
-                  key={availableLayer.name}
-                  classes={{ root: 'layers-control-checkbox' }}
-                  color="primary"
-                  value={availableLayer.name}
-                  name={availableLayer.name}
-                  onChange={this.onRadioChange}
-                  checked={checked}
-                />
-              }
-              label={availableLayer.displayName}
+        option = (<ListItem
+          button
+          dense
+          name={availableLayer.name}
+          value={availableLayer.name}
+          onClick={this.onRadioChange}
+          key={'tileLayerControlListItem_'+availableLayer.name}
+        >
+          <ListItemIcon>
+            <Radio
+              color='primary'
+              checked={checked}
+              edge="start"
+              disableRipple
             />
-          </div>
-        )
+          </ListItemIcon>
+          <ListItemText primary={ViewerUtility.capitalize(availableLayer.name)}/>
+        </ListItem>)
       }
       else
       {
-        option = (
-          <div key={availableLayer.name}>
-            {label}
-            <FormControlLabel
-              margin='dense'
-              control={
-                <Checkbox
-                  key={availableLayer.name}
-                  classes={{ root: 'layers-control-checkbox' }}
-                  color='primary'
-                  value={availableLayer.name}
-                  name={availableLayer.name}
-                  onChange={this.onLayerChange}
-                  checked={checked}
-                />
-              }
-              label={availableLayer.displayName}
+        option = (<ListItem
+          button
+          dense
+          name={availableLayer.name}
+          value={availableLayer.name}
+          onClick={this.onLayerChange}
+          key={'tileLayerControlListItem_'+availableLayer.name}
+        >
+          <ListItemIcon>
+            <Checkbox
+              color='primary'
+              checked={checked}
+              edge="start"
+              disableRipple
             />
-          </div>
-        )
+          </ListItemIcon>
+          <ListItemText primary={ViewerUtility.capitalize(availableLayer.name)}/>
+        </ListItem>)
       }
 
       options.push(option);
@@ -633,7 +633,9 @@ class TileLayersControl extends PureComponent {
           <CardContent
             className={'card-content'}
           >
-            {this.renderCheckboxes()}
+            <List dense disablePadding>
+              {this.renderCheckboxes()}
+            </List>
           </CardContent>
         </Collapse>
       </Card>
