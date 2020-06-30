@@ -321,9 +321,7 @@ class TileLayersControl extends PureComponent {
         option = (<ListItem
           button
           dense
-          name={availableLayer.name}
-          value={availableLayer.name}
-          onClick={this.onRadioChange}
+          onClick={() => this.onRadioChange(availableLayer.name)}
           key={'tileLayerControlListItem_'+availableLayer.name}
         >
           <ListItemIcon>
@@ -342,9 +340,7 @@ class TileLayersControl extends PureComponent {
         option = (<ListItem
           button
           dense
-          name={availableLayer.name}
-          value={availableLayer.name}
-          onClick={this.onLayerChange}
+          onClick={() => this.onLayerChange(availableLayer.name, !checked)}
           key={'tileLayerControlListItem_'+availableLayer.name}
         >
           <ListItemIcon>
@@ -503,9 +499,7 @@ class TileLayersControl extends PureComponent {
     this.props.onLayersChange(layerElements);
   }
 
-  onRadioChange = (e) => {
-    let layerName = e.target.value;
-
+  onRadioChange = (layerName) => {
     let layerChanges = [];
 
     let selectedLayers = this.props.selectedLayers[ViewerUtility.tileLayerType];
@@ -520,8 +514,7 @@ class TileLayersControl extends PureComponent {
         pushObj.add = false;
         layerChanges.push(pushObj);
       }
-
-      if(layerName === AVAILABLE_LAYERS[i].name)
+      else if(layerName === AVAILABLE_LAYERS[i].name)
       {
         pushObj.name = AVAILABLE_LAYERS[i].name;
         pushObj.add = true;
@@ -533,10 +526,7 @@ class TileLayersControl extends PureComponent {
     this.props.onSelectedLayersChange(ViewerUtility.tileLayerType, layerChanges, false);
   }
 
-  onLayerChange = (e) => {
-    let layerName = e.target.value;
-    let checked = e.target.checked;
-
+  onLayerChange = (layerName, checked) => {
     let layerChanges = [{
       name: layerName,
       add: checked

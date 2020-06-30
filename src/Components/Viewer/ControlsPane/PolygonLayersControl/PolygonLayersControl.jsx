@@ -175,14 +175,12 @@ class PolygonLayersControl extends PureComponent {
         <ListItem
           button
           dense
-          value={availableLayer.name}
-          onClick={this.onLayerChange}
+          onClick={() => this.onLayerChange(availableLayer.name, !checked)}
           key={'polygonLayerControlListItem_'+availableLayer.name}
           alignItems={counter ? 'flex-start' : 'center'}
         >
           <ListItemIcon>
             <Checkbox
-              key={availableLayer.name}
               color='primary'
               checked={checked}
               edge="start"
@@ -528,10 +526,7 @@ class PolygonLayersControl extends PureComponent {
     return L.marker(latlng, {icon: icon, pane: 'markerPane'});
   }
 
-  onLayerChange = (e) => {
-    let layerName = e.target.value;
-    let checked = e.target.checked;
-
+  onLayerChange = (layerName, checked) => {
     let layerChanges = [{
       name: layerName,
       add: checked
