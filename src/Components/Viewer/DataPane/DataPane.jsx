@@ -112,14 +112,14 @@ class DataPane extends PureComponent {
           onFeatureClick={this.props.onFeatureClick}
           ref={this.watchlist}
         />,
+        <LegendControl
+          selectedLayers={this.props.selectedLayers}
+          key='LegendControl'
+        />,
         <TreeTypeControl
           key='TreeTypeControl'
           map={this.props.map}
           user={this.props.user}
-        />,
-        <LegendControl
-          selectedLayers={this.props.selectedLayers}
-          key='LegendControl'
         />
       ];
     }

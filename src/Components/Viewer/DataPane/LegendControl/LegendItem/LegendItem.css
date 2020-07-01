@@ -34,3 +34,8 @@
 {
 	text-align: right;
 }
+
+.legendItemContainer+.legendItemContainer
+{
+	margin-top: 1rem;
+}

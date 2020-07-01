@@ -288,7 +288,7 @@ class Viewer extends PureComponent {
     }
   }
 
-  openPane = (paneName, closePane) => {
+  openPane = (paneName, closePane, cb = null) => {
     let currentPanes = this.state.panes;
 
     let changed = false;
@@ -332,8 +332,10 @@ class Viewer extends PureComponent {
       this.setState({ panes: currentPanes }, () => {
         this.leafletMap.current.leafletElement.invalidateSize();
         this.attemptFlyTo();
+        if (cb) {cb()};
       });
     }
+    else if (cb) {cb()};
   }
 
   onSelectMap = (id, cb) => {
@@ -1008,6 +1010,8 @@ class Viewer extends PureComponent {
             onWatchlistClick={this.onWatchlistClick}
             selectedPlantingSite={this.state.selectedPlantingSite}
             selectedPlantingLine={this.state.selectedPlantingLine}
+            openPane={this.openPane}
+            dataPaneRef={this.dataPane}
           />
 
           <div className='viewer-pane map-pane' style={mapPaneStyle}>

@@ -11,11 +11,13 @@ import IconButton from '@material-ui/core/IconButton';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader';
 import Radio from '@material-ui/core/Radio';
 import Typography from '@material-ui/core/Typography';
 
+import InfoIcon from '@material-ui/icons/Info';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 import ViewerUtility from '../../ViewerUtility';
@@ -352,6 +354,15 @@ class TileLayersControl extends PureComponent {
             />
           </ListItemIcon>
           <ListItemText primary={ViewerUtility.capitalize(availableLayer.name)}/>
+          {
+            (this.props.mode === ViewerUtility.identificationMode || this.props.mode === ViewerUtility.plannerMode) && i >= 3 && ((this.lowRes && i < availableLayers.length - 2) || (!this.lowRes && i <= availableLayers.length - 1))
+            ? <ListItemSecondaryAction>
+                <IconButton edge='end' onClick={() => this.openDataPane(availableLayer.name)}>
+                  <InfoIcon/>
+                </IconButton>
+              </ListItemSecondaryAction>
+            : null
+          }
         </ListItem>)
       }
 
@@ -461,6 +472,7 @@ class TileLayersControl extends PureComponent {
             zIndex={zIndex++}
             format={'image/png'}
             transparent={true}
+            noWrap={true}
           />)
       }
       else if (subMap)
@@ -588,6 +600,15 @@ class TileLayersControl extends PureComponent {
     }
 
     this.props.onSelectedLayersChange(ViewerUtility.tileLayerType, layerChanges, resetTimestamps);
+  }
+
+  openDataPane = (layerName) => {
+    let selectedLayers = this.props.selectedLayers[ViewerUtility.tileLayerType];
+    if (!selectedLayers.includes(layerName))
+    {
+      this.onLayerChange(layerName, true)
+    }
+    this.props.openPane();
   }
 
   onExpandClick = () => {

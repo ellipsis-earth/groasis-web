@@ -67,6 +67,13 @@ class ControlsPane extends PureComponent {
     this.props.onLayersChange(allLayers);
   }
 
+  goToDataPaneHome = () => {
+    if(this.props.dataPaneRef && this.props.dataPaneRef.current)
+    {
+      this.props.dataPaneRef.current.goToHome();
+    }
+  }
+
   render() {
     let style = {};
     if (!this.props.isOpen) {
@@ -83,6 +90,7 @@ class ControlsPane extends PureComponent {
           onSelectedLayersChange={this.props.onSelectedLayersChange}
           onLayersChange={(layers) => this.onLayersChange(ViewerUtility.tileLayerType, layers)}
           mode={this.props.mode}
+          openPane={() => {this.props.openPane('data_pane', false, this.goToDataPaneHome)}}
         />
 
         <PolygonLayersControl

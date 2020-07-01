@@ -22,6 +22,22 @@ const WEATHER_TYPE = 'weather';
 const REQUEST_MAP_ID = '15d843ba-11e5-4995-aa6f-c3449a8f93e2';
 /*const plantingSitesLayer = 'Proposed planting sites';*/
 
+const METRIC_TABLE = {
+    'T': Math.pow(10, 12),
+    'G': Math.pow(10, 9),
+    'M': Math.pow(10, 6),
+    'k': Math.pow(10, 3),
+    'h': Math.pow(10, 2),
+   'da': Math.pow(10, 1),
+ 'base': Math.pow(10, 0),
+    'd': Math.pow(10, -1),
+    'c': Math.pow(10, -2),
+    'm': Math.pow(10, -3),
+    'μ': Math.pow(10, -6),
+    'n': Math.pow(10, -9),
+    'p': Math.pow(10, -12),
+}
+
 const MAP_TYPES = [
   ALTITUDE_TYPE,
   HIGHRES_TYPE,
@@ -593,7 +609,35 @@ const GroasisUtility = {
     }
   },
 
+  unitRecalculation: (units) => {
+    if (units[0].includes('m3') && units[1].includes('m3'))
+    {
+      let unitValues = units.map(x => {
+        let type = x.length === 2 ? 'base' : x.charAt(0);
+        return METRIC_TABLE[type]
+      })
+
+      return Math.pow(unitValues[1] / unitValues[0], 3) / 100;
+    }
+    else if (units[0] === 'g' || (units[0].slice(-1) === 'g' && units[1].slice(-1) === 'g'))
+    {
+      let unitValues = units.map(x => {
+        let type = x.length === 1 ? 'base' : x.charAt(0);
+        return METRIC_TABLE[type]
+      })
+
+      return unitValues[1] / unitValues[0] / 100;
+    }
+
+    return null
+  }
+
+
+
+
+
 }
+
 
 /*function groupMaps(maps) {
   let groasisMaps = {

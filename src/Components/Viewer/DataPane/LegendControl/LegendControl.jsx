@@ -6,6 +6,7 @@ import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 
 import LegendItem from './LegendItem/LegendItem';
+import LegendInfo from './LegendInfo';
 
 import GroasisUtility from '../../GroasisUtility';
 
@@ -111,7 +112,7 @@ class LegendControl extends PureComponent {
         let selectedLayer = this.props.selectedLayers.image_tile[i];
         if (this.state.layerData[selectedLayer])
         {
-          legendItems.push(<LegendItem key={'legendItem_' + selectedLayer.replace(' ', '-')} selectedLayer={selectedLayer} colors={this.state.layerData[selectedLayer].colors} unit={this.state.layerData[selectedLayer].unit}/>);
+          legendItems.push(<LegendItem key={'legendItem_' + selectedLayer.replace(' ', '-')} open={null} info={LegendInfo[selectedLayer]} selectedLayer={selectedLayer} colors={this.state.layerData[selectedLayer].colors} unit={this.state.layerData[selectedLayer].unit}/>);
         }
       }
     }
