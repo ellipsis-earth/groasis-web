@@ -375,6 +375,7 @@ class Viewer extends PureComponent {
       else
       {
         map = this.state.groasisMaps.areas.find(x => x.id === id);
+        map.metadata = this.state.groasisMaps.metadata;
 
         let totalCb = () => GroasisUtility.getAreaData(map, this.props.user, this.onPlantingSiteClick)
         .then(() => {

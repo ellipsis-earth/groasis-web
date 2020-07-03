@@ -12,22 +12,13 @@ import GroasisUtility from '../../GroasisUtility';
 
 import './LegendControl.css';
 
-const LAYERS = {
-  [GroasisUtility.layers.tile.soilClasses]: 'MostProbable',
-  [GroasisUtility.layers.tile.organic]: 'soc_0-5cm_mean',
-  [GroasisUtility.layers.tile.clay]: 'clay_0-5cm_mean',
-  [GroasisUtility.layers.tile.sand]: 'sand_0-5cm_mean',
-  [GroasisUtility.layers.tile.coarse]: 'cfvo_0-5cm_mean',
-  [GroasisUtility.layers.tile.ph]: 'phh2o_0-5cm_mean',
-}
 
 class LegendControl extends PureComponent {
-
   constructor(props, context) {
     super(props, context);
 
     this.state = {
-      layerData: {},
+      layerData: this.props.map && this.props.map.metadata && this.props.map.metadata.soilLayers ? this.props.map.metadata.soilLayers : {},
     };
   }
 
@@ -40,6 +31,11 @@ class LegendControl extends PureComponent {
     {
       this.getData();
     }
+
+    if (this.props.map && this.props.map.metadata !== prevProps.metadata && this.props.map.metadata.soilLayers)
+    {
+      this.setState({layerData: this.props.map.metadata.soilLayers});
+    }
   }
 
   getData = async () => {
@@ -47,7 +43,7 @@ class LegendControl extends PureComponent {
     let dataPromises = [];
 
     for (let i = 0; i < layers.length; i++) {
-      let url = this.getUrl(layers[i]);
+      let url = GroasisUtility.getSoilUrl(layers[i]);
       if(!this.state.layerData[layers[i]] && url)
       {
         dataPromises.push(fetch(url, {
@@ -68,7 +64,7 @@ class LegendControl extends PureComponent {
       for (let i = 0; i < results.length; i++)
       {
         let x = results[i];
-        let name = this.getName(x.StyledLayerDescriptor.NamedLayer.Name);
+        let name = GroasisUtility.getSoilName(x.StyledLayerDescriptor.NamedLayer.Name);
         let colors = x.StyledLayerDescriptor.NamedLayer.UserStyle.FeatureTypeStyle.Rule.RasterSymbolizer.ColorMap.ColorMapEntry;
         let unit = x.StyledLayerDescriptor.NamedLayer.UserStyle.FeatureTypeStyle.Rule.RasterSymbolizer.Geometry.PropertyName.split(' - ')[0];
         returnData[name] = {colors: colors, unit: unit};
@@ -80,26 +76,20 @@ class LegendControl extends PureComponent {
 
     let layerData = {...this.state.layerData, ...gottenData};
 
+    if (this.props.map && Object.keys(layerData).length !== 0)
+    {
+      if (!this.props.map.metadata)
+      {
+        this.props.map.metadata = {soilLayers: layerData}
+      }
+      else
+      {
+        this.props.map.metadata.soilLayers = layerData;
+      }
+      console.log(this.props.map.metadata);
+    }
+
     this.setState({layerData: layerData})
-  }
-
-  createLegendElement = () => {
-
-  }
-
-  getName = (type) => {
-    return Object.keys(LAYERS).find(key => LAYERS[key] === type)
-  }
-
-  getUrl = (type) => {
-    if (LAYERS[type])
-    {
-      return 'https://maps.isric.org/sld/' + LAYERS[type] + '.json';
-    }
-    else
-    {
-      return null
-    }
   }
 
   render() {

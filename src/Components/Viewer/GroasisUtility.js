@@ -51,6 +51,41 @@ const TREE_RADIUS = 2.5;
 
 const WATCH_FORM = 'watch';
 
+const tileLayers = {
+  base: 'base',
+  road: 'road',
+  terrain: 'terrain',
+  highRes: 'rgb (high res)',
+  highResCir: 'CIR (high res)',
+  highResLabel: 'label (high res)',
+  lowRes: 'rgb (low res)',
+  lowResCir: 'CIR (low res)',
+  contour: 'contour',
+};
+
+const soilLayers = {
+  organic: 'Organic Content',
+  clay: 'Clay Content',
+  sand: 'Sand Content',
+  coarse: 'Coarse Content',
+  ph: 'PH',
+  soilClasses: 'Soil Classes'
+};
+
+const additionalSoilLayers = {
+  silt: 'Silt Content'
+}
+
+const soilTypeLayerNames = {
+  [soilLayers.soilClasses]: 'MostProbable',
+  [soilLayers.organic]: 'soc_0-5cm_mean',
+  [soilLayers.clay]: 'clay_0-5cm_mean',
+  [soilLayers.sand]: 'sand_0-5cm_mean',
+  [soilLayers.coarse]: 'cfvo_0-5cm_mean',
+  [soilLayers.ph]: 'phh2o_0-5cm_mean',
+  [additionalSoilLayers.silt]: 'silt_0-5cm_mean',
+};
+
 const GroasisUtility = {
   markerSize: ViewerUtility.markerSize,
 
@@ -63,28 +98,66 @@ const GroasisUtility = {
   },
 
   layers: {
-    tile: {
-      base: 'base',
-      road: 'road',
-      terrain: 'terrain',
-      highRes: 'rgb (high res)',
-      highResCir: 'CIR (high res)',
-      highResLabel: 'label (high res)',
-      lowRes: 'rgb (low res)',
-      lowResCir: 'CIR (low res)',
-      contour: 'contour',
-      organic: 'Organic Content',
-      clay: 'Clay Content',
-      sand: 'Sand Content',
-      coarse: 'Coarse Content',
-      ph: 'PH',
-      soilClasses: 'Soil Classes'
-    },
+    tile: {...tileLayers, ...soilLayers},
     polygon: {
       plantingSites: 'Planting sites',
       plantingLines: 'Planting lines',
       trees: 'Trees',
       /*objectOfInterest: 'Objects of interest',*/
+    }
+  },
+
+  soilLayers: soilLayers,
+  additionalSoilLayers: additionalSoilLayers,
+  soilTypeLayerNames: soilTypeLayerNames,
+
+  getUnit: (input) => {
+    let unit = input.split('(')
+    if (unit.length > 1)
+    {
+      unit = unit[1].replace(')', '');
+    }
+    else
+    {
+      unit = unit[0];
+    }
+
+    let value = null;
+
+    if (unit.includes('/'))
+    {
+      let calcUnits = unit.split('/');
+      calcUnits[0] = calcUnits[0].split(' ');
+      calcUnits[0] = calcUnits[0][calcUnits[0].length - 1];
+      unit = '%';
+
+      value = GroasisUtility.unitRecalculation(calcUnits);
+    }
+    else if(unit.includes('*'))
+    {
+      let calcUnits = unit.split('*');
+      unit = '';
+      value = calcUnits[1];
+    }
+
+    return {unit: unit, value: parseInt(value)}
+  },
+
+  getGroasisNameFromAnalyse: (layerName) => {
+    let key = layerName.split(' ')[0];
+    let name = ViewerUtility.capitalize(key);
+    let layers = {...soilLayers, ...additionalSoilLayers};
+    return layers[Object.keys(layers).find(x => layers[x].includes(name))]
+  },
+
+  getSoilName: (type) => {
+    return Object.keys(soilTypeLayerNames).find(key => soilTypeLayerNames[key] === type)
+  },
+
+  getSoilUrl: (type) => {
+    if (soilTypeLayerNames[type])
+    {
+      return 'https://maps.isric.org/sld/' + soilTypeLayerNames[type] + '.json';
     }
   },
 
@@ -101,12 +174,6 @@ const GroasisUtility = {
     species: 'Species',
     plantingDate: 'Planting date'
   },
-
-  species: [
-    'Douglas',
-    'Oak',
-    'Willow'
-  ],
 
   watchForm: WATCH_FORM,
 

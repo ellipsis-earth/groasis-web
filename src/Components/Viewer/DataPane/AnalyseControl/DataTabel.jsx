@@ -7,20 +7,6 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 
 class DataTable extends PureComponent {
-/*
-  constructor(props, context) {
-    super(props, context);
-
-    this.state = {
-    };
-  }
-
-  componentDidMount() {
-  }
-
-  componentDidUpdate(prevProps) {
-  }
-*/
   render() {
     let data = this.props.data;
 
@@ -28,27 +14,32 @@ class DataTable extends PureComponent {
       return null;
     }
 
+    let headers = data[0];
+
     data.splice(0, 1);
     data.sort((a,b) => a[0].toLowerCase() < b[0].toLowerCase() ? -1 : (a[0].toLowerCase() > b[0].toLowerCase()) ? 1 : 0);
 
     let cleaned = [];
     data.forEach(x => {
-      cleaned.push([x[0].replace('0.00m', '0m'), x[1]]);
+      let dataRow = [...x];
+      dataRow[0] = dataRow[0].replace('0.00m', '0m');
+      cleaned.push(dataRow);
     })
 
-    let rows = cleaned.map(x =>
-      <TableRow key={x[0] + '_' + x[1]}>
-        <TableCell>{x[0]}</TableCell>
-        <TableCell>{x[1]}</TableCell>
-      </TableRow>
-    );
+    let rows = [];
+
+    cleaned.forEach((x, i) => {
+      let cells = [];
+      x.forEach((y, j) => {cells.push(<TableCell key={'soilDataCell_' + x[0] + '_' + headers[j]}>{y}</TableCell>)})
+      rows.push(<TableRow key={x.join('_').replace(' ', '-')}>{cells}</TableRow>)
+    });
+
 
     return (
       <Table size="small">
         <TableHead>
           <TableRow key={'Type_Value'}>
-            <TableCell>Type</TableCell>
-            <TableCell>Value</TableCell>
+            {headers.map(x => <TableCell key={'soilDataHeader_' + x}>{x}</TableCell>)}
           </TableRow>
         </TableHead>
         <TableBody>

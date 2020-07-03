@@ -11,3 +11,13 @@ div.analyse-card-actions {
   padding-top: 0px;
   float: right;
 }
+
+div.soilDataTableContainer+div.soilDataTableContainer
+{
+	margin-top: 1.5rem;
+}
+
+div.soilDataTableContainer p
+{
+	padding: 0 16px
+}

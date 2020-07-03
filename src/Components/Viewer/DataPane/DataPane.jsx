@@ -114,6 +114,7 @@ class DataPane extends PureComponent {
         />,
         <LegendControl
           selectedLayers={this.props.selectedLayers}
+          map={this.props.map}
           key='LegendControl'
         />,
         <TreeTypeControl

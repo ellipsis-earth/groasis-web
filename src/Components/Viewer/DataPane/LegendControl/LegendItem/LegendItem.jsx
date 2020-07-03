@@ -19,45 +19,19 @@ class LegendItem extends React.Component {
   }
 
 	render = () => {
-		let unit = this.props.unit.split('(')
-		if (unit.length > 1)
-		{
-			unit = unit[1].replace(')', '');
-		}
-		else
-		{
-			unit = unit[0];
-		}
-
-		let value = null;
-
-		if (unit.includes('/'))
-		{
-			let calcUnits = unit.split('/');
-			calcUnits[0] = calcUnits[0].split(' ');
-			calcUnits[0] = calcUnits[0][calcUnits[0].length - 1];
-			unit = '%';
-
-			value = GroasisUtility.unitRecalculation(calcUnits);
-		}
-		else if(unit.includes('*'))
-		{
-			let calcUnits = unit.split('*');
-			unit = '';
-			value = calcUnits[1];
-		}
+		let unit = GroasisUtility.getUnit(this.props.unit)
 
 		return <div className='legendItemContainer'>
 			<Typography>
 				{this.props.selectedLayer}
-				{value === null ? ' (' + unit + ')' : null}
+				{unit.value === null ? ' (' + unit.unit + ')' : null}
 			</Typography>
 			<div className='colorContainer'>
 			{
 				this.props.colors.map(step => {
 					if(step['@label'] !== 'NODATA')
 					{
-						return <Tooltip title={value !== null ? (step['@label'] / value) + unit : step['@label']} key={this.props.selectedLayer + '_legendStep_' + step['@label']}>
+						return <Tooltip title={unit.value !== null ? (step['@label'] / unit.value) + unit.unit : step['@label']} key={this.props.selectedLayer + '_legendStep_' + step['@label']}>
 							<div className='step' style={{backgroundColor: step['@color']}}></div>
 						</Tooltip>
 					}
@@ -65,11 +39,11 @@ class LegendItem extends React.Component {
 			}
 			</div>
 			{
-				value !== null
+				unit.value !== null
 				? <div className='labelContainer'>
-					<div className='first'>{value !== null ? this.props.colors[1]['@label'] / value : this.props.colors[1]['@label']}{unit}</div>
-					<div className='middle'>{this.props.colors[Math.round((this.props.colors.length - 1) / 2)]['@label'] / value}{unit}</div>
-					<div className='last'>{this.props.colors[this.props.colors.length - 1]['@label'] / value}{unit}</div>
+					<div className='first'>{unit.value !== null ? this.props.colors[1]['@label'] / unit.value : this.props.colors[1]['@label']}{unit.unit}</div>
+					<div className='middle'>{this.props.colors[Math.round((this.props.colors.length - 1) / 2)]['@label'] / unit.value}{unit.unit}</div>
+					<div className='last'>{this.props.colors[this.props.colors.length - 1]['@label'] / unit.value}{unit.unit}</div>
 				</div>
 				: <div className='labelContainer'>
 					<div className='first'>{this.props.colors[1]['@label']}</div>
