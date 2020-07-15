@@ -21,3 +21,18 @@ div.soilDataTableContainer p
 {
 	padding: 0 16px
 }
+
+div.analyseControl .MuiListItem-dense
+{
+	padding: 0;
+}
+
+div.analyseControl .MuiCheckbox-root
+{
+	padding: 0 9px;
+}
+
+div.analyseControl .VictoryContainer+ul
+{
+	padding-bottom: 0;
+}

@@ -13,6 +13,10 @@ import {
 } from 'victory';
 
 import Checkbox from '@material-ui/core/Checkbox';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
 
 import './react-vis-style.css';
 import './LineChart.css';
@@ -147,27 +151,30 @@ export class LineChart extends PureComponent {
       for (let x = 0; x < parsedData.data.length; x++) {
         let row = parsedData.data[x];
 
-        if (!totalValue) {
-          totalValue = parseFloat(row[AREA_COLUMN_NAME]);
-        }
+        if(row)
+        {
+          if (!totalValue) {
+            totalValue = parseFloat(row[AREA_COLUMN_NAME]);
+          }
 
 
-        let value = row[columnName];
-        let date = moment(row[DATE_COLUMN_NAME]).unix() * 1000;
+          let value = row[columnName];
+          let date = moment(row[DATE_COLUMN_NAME]).unix() * 1000;
 
-        if (!isMeasurements && columnName === ViewerUtility.specialClassName.mask &&
-          row[ViewerUtility.specialClassName.outside_area]) {
-          value += row[ViewerUtility.specialClassName.outside_area];
-        }
+          if (!isMeasurements && columnName === ViewerUtility.specialClassName.mask &&
+            row[ViewerUtility.specialClassName.outside_area]) {
+            value += row[ViewerUtility.specialClassName.outside_area];
+          }
 
-        singleSeriesData.push({
-          x: date,
-          y: value,
-          label: `date: ${moment(date).format('YYYY-MM-DD')} \n ${columnName}: ${value}`
-        });
+          singleSeriesData.push({
+            x: date,
+            y: value,
+            label: `date: ${moment(date).format('YYYY-MM-DD')} \n ${columnName}: ${value}`
+          });
 
-        if (!dates.includes(date)) {
-          dates.push(date);
+          if (!dates.includes(date)) {
+            dates.push(date);
+          }
         }
       }
 
@@ -306,29 +313,34 @@ export class LineChart extends PureComponent {
     for (let i = 0; i < columnInfo.length; i++) {
       let seriesInfo = columnInfo[i];
 
-      checkboxes.push(
-        <div className='graph-legend' key={seriesInfo.name}>
+      checkboxes.push(<ListItem dense disableGutters key={seriesInfo.name} className='graph-legend'>
+        <ListItemIcon>
           <Checkbox
             key={seriesInfo.name}
-            className='graph-checkbox'
             color='primary'
+            tabIndex={-1}
+            disableRipple
             value={seriesInfo.name}
             name={seriesInfo.name}
             onChange={this.onSeriesCheck}
             checked={this.state.checkedSeries.includes(seriesInfo.name)}
           />
-          <div className='labelContainer'>
+        </ListItemIcon>
+        <ListItemText primary={
+          <React.Fragment>
             <div className='legend-color' style={{ backgroundColor: `#${seriesInfo.color}`}}></div>
             <span className='legend-label legend-label-graph'>{seriesInfo.name}</span>
-          </div>
-        </div>
+          </React.Fragment>} />
+        </ListItem>
       );
     }
 
     return (
       <div>
         {chart}
-        {checkboxes}
+        <List dense>
+          {checkboxes}
+        </List>
       </div>
     );
   }

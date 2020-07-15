@@ -92,7 +92,7 @@ class AnalyseControl extends PureComponent {
     };
 
     return (
-      <div>
+      <div className='analyseControl'>
        {/* <Card className='data-pane-card'>
           <CardContent>
             <div>Max cloud cover: {Math.round(this.state.maxMask * 100)}%</div>

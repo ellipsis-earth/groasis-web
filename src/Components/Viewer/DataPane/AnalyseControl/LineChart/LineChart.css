@@ -18,29 +18,10 @@ span.graph-checkbox {
   padding: 3px;
 }
 
-.graph-legend
-{
-	width: 100%;
-}
-
-.graph-legend .labelContainer
-{
-	display: inline-flex;
-	height: 100%;
-	width: calc(100% - 30px);
-	padding: 3px;
-	align-items: baseline;
-}
-
 .graph-legend .legend-color {
   display: inline-block;
   height: 10px;
 	width: 10px;
 	border: 1px solid black;
 	margin-right: 0.5rem;
-}
-
-.graph-legend .legend-label
-{
-	word-break: break-all;
 }

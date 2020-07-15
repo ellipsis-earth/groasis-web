@@ -5,10 +5,13 @@ import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
 import CardContent from '@material-ui/core/CardContent';
 import CardActions from '@material-ui/core/CardActions';
-import Typography from '@material-ui/core/Typography';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Collapse from '@material-ui/core/Collapse';
 import IconButton from '@material-ui/core/IconButton';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
+import Typography from '@material-ui/core/Typography';
 
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import SaveAlt from '@material-ui/icons/SaveAlt';
@@ -102,7 +105,6 @@ class WeatherInfo extends PureComponent {
       })
       .then(result => {
         data.parsed = this.filterData(result);
-
         this.setState({ data: data, loading: false });
       })
       .catch(err => {
@@ -124,18 +126,19 @@ class WeatherInfo extends PureComponent {
 
   filterData = (data) => {
     let newData = [
-      {date_to: '2019/01/01'},
-      {date_to: '2019/02/01'},
-      {date_to: '2019/03/01'},
-      {date_to: '2019/04/01'},
-      {date_to: '2019/05/01'},
-      {date_to: '2019/06/01'},
-      {date_to: '2019/07/01'},
-      {date_to: '2019/08/01'},
-      {date_to: '2019/09/01'},
-      {date_to: '2019/10/01'},
-      {date_to: '2019/11/01'},
-      {date_to: '2019/12/01'}];
+      {date_to: '2019-01-01'},
+      {date_to: '2019-02-01'},
+      {date_to: '2019-03-01'},
+      {date_to: '2019-04-01'},
+      {date_to: '2019-05-01'},
+      {date_to: '2019-06-01'},
+      {date_to: '2019-07-01'},
+      {date_to: '2019-08-01'},
+      {date_to: '2019-09-01'},
+      {date_to: '2019-10-01'},
+      {date_to: '2019-11-01'},
+      {date_to: '2019-12-01'}
+    ];
 
     for(let key in data.data[0])
     {
@@ -145,21 +148,22 @@ class WeatherInfo extends PureComponent {
 
         if (key.includes('max'))
         {
-          newData[monthNumber]['Max temp'] = data.data[0][key];
+          newData[monthNumber]['Max Temperature'] = data.data[0][key];
         }
         else if(key.includes('min'))
         {
-          newData[monthNumber]['Min Temp'] = data.data[0][key]
+          newData[monthNumber]['Min Temperature'] = data.data[0][key]
         }
         else if(key.includes('precipitation'))
         {
-          newData[monthNumber].precipitation = data.data[0][key]
+          newData[monthNumber]['Precipitation'] = data.data[0][key]
         }
       }
     }
 
+    newData.push([['Cloud Cover', data.data[0].cloud_cover, '%']])
     data.data = newData;
-    data.meta.fields = ["Max temp", "Min Temp", "precipitation", "date_to"];
+    data.meta.fields = ["Max Temperature", "Min Temperature", "Precipitation", "date_to"];
 
     return data;
   }
@@ -186,19 +190,31 @@ class WeatherInfo extends PureComponent {
     if (this.state.loading) {
       dataElement = <CircularProgress className='loading-spinner'/>;
     }
-    else if (this.state.data) {
+    else if (this.state.data && this.map) {
+      let data = JSON.parse(JSON.stringify(this.state.data));
+      let additionalData = data.parsed.data[data.parsed.data.length - 1] ? data.parsed.data[data.parsed.data.length - 1] : null;
+      delete data.parsed.data[data.parsed.data.length - 1];
+
       let map = JSON.parse(JSON.stringify(this.map));
 
-      map.measurements[0].measurements = [{name: "Max temp", color: "FFC0CB"}, {name: "Min Temp", color: "87cef3"}, {name: "precipitation", color: "17a2b8"}]
+      map.measurements[0].measurements = [{name: "Max Temperature", color: "FFC0CB"}, {name: "Min Temperature", color: "87cef3"}, {name: "Precipitation", color: "17a2b8"}]
 
-      dataElement = (
+      dataElement = (<React.Fragment>
         <LineChart
           map={map}
-          data={this.state.data}
+          data={data}
           type={ViewerUtility.dataGraphType.measurements}
           maxMask={this.props.maxMask}
         />
-      );
+        {
+          additionalData
+          ? <List dense disablePadding>
+            {additionalData.map((x, i) => <ListItem dense disableGutters key={'additionalWeatherInfo_'+i}>
+              <ListItemText inset primary={x[0]+': '+x[1]+x[2]} />
+            </ListItem>)}
+            </List> : null
+        }
+      </React.Fragment>);
 
       actionElement = (
         <IconButton
