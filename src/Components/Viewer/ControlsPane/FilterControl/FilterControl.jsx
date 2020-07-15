@@ -10,8 +10,6 @@ import CardHeader from '@material-ui/core/CardHeader';
 import Checkbox from '@material-ui/core/Checkbox';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Collapse from '@material-ui/core/Collapse';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -171,11 +169,11 @@ class FilterControl extends Component {
 						title: 'Organic Content',
 						step: 5,
 						min: 0,
-						max: 1000,
-						unit: ' g/kg',
+						max: 100,
+						unit: '%',
 						category: 'soil',
 						valueName: 'organic',
-						text: 'Measured on 0.3m in g/kg'
+						text: 'Measured on 0.3m in %'
 					},
 					{
 						title: 'Clay Content',
@@ -185,27 +183,27 @@ class FilterControl extends Component {
 						unit: ' %',
 						category: 'soil',
 						valueName: 'clay',
-						text: 'Measured on 0.3m in mass percentage'
+						text: 'Measured on 0.3m in %'
 					},
 					{
 						title: 'Coarse Fragment',
 						step: 5,
 						min: 0,
 						max: 100,
-						unit: [' m', {type: 'sup' , value: '3'}],
+						unit: '%',
 						category: 'soil',
 						valueName: 'coarse',
-						text: 'Measured on 0.3m in m3'
+						text: 'Measured on 0.3m in %'
 					},
 					{
 						title: 'Sand Content',
 						step: 5,
 						min: 0,
 						max: 100,
-						unit: ' %',
+						unit: '%',
 						category: 'soil',
 						valueName: 'sand',
-						text: 'Measured on 0.3m in mass percentage'
+						text: 'Measured on 0.3m in %'
 					},
 					{
 						title: 'pH',
@@ -242,7 +240,7 @@ class FilterControl extends Component {
 						unit: '°',
 						category: 'altitude',
 						valueName: 'slope',
-						/*text: ''*/
+						text: 'Measured in degrees'
 					},
 				]
 			},
@@ -268,6 +266,16 @@ class FilterControl extends Component {
 						category: 'soil',
 						valueName: 'temperature',
 						text: 'Maximum and minimum temperature in selected area'
+					},
+					{
+						title: 'Cloud Cover',
+						step: 5,
+						min: 0,
+						max: 100,
+						unit: ' %',
+						category: 'soil',
+						valueName: 'cloud_cover',
+						text: 'Percentage of selected area covered by cloud'
 					},
 				],
 			},
@@ -483,11 +491,23 @@ class FilterControl extends Component {
 											}
 										}
 									}
+									else if (key === 'cloud_cover')
+									{
+										if (this.state.filterData[category][key].checked && this.state.filterData[category][key].value)
+										{
+											if(!filterData[j] || (!filterData[j]['cloud_cover'] && filterData[j]['cloud_cover'] !== 0) || !(filterData[j]['cloud_cover'] >= this.state.filterData[category][key].value[0] && filterData[j]['cloud_cover'] <= this.state.filterData[category][key].value[1]))
+											{
+												filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
+												delete filterData[j];
+											}
+										}
+									}
 									else if (key === 'organic')
 									{
 										if (this.state.filterData[category][key].checked && this.state.filterData[category][key].value)
 										{
-											if(filterData[j] && filterData[j]['organic content 0.3m'] && (filterData[j]['organic content 0.3m'] < this.state.filterData[category][key].value[0] || filterData[j]['organic content 0.3m'] > this.state.filterData[category][key].value[1]))
+											console.log(filterData[j], this.state.filterData[category]);
+											if(!filterData[j] || (!filterData[j]['organic content 0.3m'] && filterData[j]['organic content 0.3m'] !== 0) || !(filterData[j]['organic content 0.3m'] >= this.state.filterData[category][key].value[0] && filterData[j]['organic content 0.3m'] <= this.state.filterData[category][key].value[1]))
 											{
 												filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
 												delete filterData[j];
@@ -498,7 +518,7 @@ class FilterControl extends Component {
 									{
 										if (this.state.filterData[category][key].checked && this.state.filterData[category][key].value)
 										{
-											if(filterData[j] && filterData[j]['clay content 0.3m'] && (filterData[j]['clay content 0.3m'] < this.state.filterData[category][key].value[0] || filterData[j]['clay content 0.3m'] > this.state.filterData[category][key].value[1]))
+											if(!filterData[j] || (!filterData[j]['clay content 0.3m'] && filterData[j]['sand content 0.3m'] !== 0) || !(filterData[j]['clay content 0.3m'] >= this.state.filterData[category][key].value[0] && filterData[j]['clay content 0.3m'] <= this.state.filterData[category][key].value[1]))
 											{
 												filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
 												delete filterData[j];
@@ -509,7 +529,7 @@ class FilterControl extends Component {
 									{
 										if (this.state.filterData[category][key].checked && this.state.filterData[category][key].value)
 										{
-											if(filterData[j] && filterData[j]['sand content 0.3m'] && (filterData[j]['sand content 0.3m'] < this.state.filterData[category][key].value[0] || filterData[j]['sand content 0.3m'] > this.state.filterData[category][key].value[1]))
+											if(!filterData[j] || (!filterData[j]['sand content 0.3m'] && filterData[j]['sand content 0.3m'] !== 0) || !(filterData[j]['sand content 0.3m'] >= this.state.filterData[category][key].value[0] && filterData[j]['sand content 0.3m'] <= this.state.filterData[category][key].value[1]))
 											{
 												filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
 												delete filterData[j];
@@ -520,7 +540,7 @@ class FilterControl extends Component {
 									{
 										if (this.state.filterData[category][key].checked && this.state.filterData[category][key].value)
 										{
-											if(filterData[j] && filterData[j]['PH 0.3m'] && (filterData[j]['PH 0.3m'] < this.state.filterData[category][key].value[0] || filterData[j]['PH 0.3m'] > this.state.filterData[category][key].value[1]))
+											if(!filterData[j] || (!filterData[j]['PH 0.3m'] && filterData[j]['PH 0.3m'] !== 0) || !(filterData[j]['PH 0.3m'] >= this.state.filterData[category][key].value[0] && filterData[j]['PH 0.3m'] <= this.state.filterData[category][key].value[1]))
 											{
 												filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
 												delete filterData[j];
@@ -531,7 +551,7 @@ class FilterControl extends Component {
 									{
 										if (this.state.filterData[category][key].checked && this.state.filterData[category][key].value)
 										{
-											if(filterData[j] && filterData[j]['ndvi'] && (filterData[j]['ndvi'] < this.state.filterData[category][key].value[0] || filterData[j]['ndvi'] > this.state.filterData[category][key].value[1]))
+											if(!filterData[j] || (!filterData[j]['ndvi'] && filterData[j]['ndvi'] !== 0) || !(filterData[j]['ndvi'] >= this.state.filterData[category][key].value[0] && filterData[j]['ndvi'] <= this.state.filterData[category][key].value[1]))
 											{
 												filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
 												delete filterData[j];
@@ -542,7 +562,7 @@ class FilterControl extends Component {
 									{
 										if (this.state.filterData[category][key].checked && this.state.filterData[category][key].value)
 										{
-											if(filterData[j] && ((Math.asin(filterData[j]['slope']) * 180 / Math.PI) < this.state.filterData[category][key].value[0] || (Math.asin(filterData[j]['slope']) * 180 / Math.PI) > this.state.filterData[category][key].value[1] || !(Math.asin(filterData[j]['slope']) * 180 / Math.PI) || !filterData[j]['slope']))
+											if(!filterData[j] || (!filterData[j]['slope'] && filterData[j]['slope'] !== 0) || !((Math.asin(filterData[j]['slope']) * 180 / Math.PI) >= this.state.filterData[category][key].value[0] && (Math.asin(filterData[j]['slope']) * 180 / Math.PI) <= this.state.filterData[category][key].value[1]))
 											{
 												filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
 												delete filterData[j];
