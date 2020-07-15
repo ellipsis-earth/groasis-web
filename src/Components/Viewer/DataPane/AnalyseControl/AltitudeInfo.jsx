@@ -122,7 +122,14 @@ class AltitudeInfo extends PureComponent {
           let ignore = IGNORE_COLUMNS.find(y => x.includes(y));
 
           if (!ignore && x !== 'no data') {
-            data.formatted.push([x, data.parsed.data[0][x]]);
+            if (x === 'slope')
+            {
+              data.formatted.push([x, Math.round(((Math.asin(data.parsed.data[0][x]) * 180 / Math.PI) + Number.EPSILON) * 100) / 100])
+            }
+            else
+            {
+              data.formatted.push([x, data.parsed.data[0][x]]);
+            }
           }
 
           if(x === 'no data')
