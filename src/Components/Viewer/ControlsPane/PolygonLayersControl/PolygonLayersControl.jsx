@@ -342,94 +342,91 @@ class PolygonLayersControl extends PureComponent {
             }
           }
 
-          body = {
-            mapId: map.id,
-            type: ViewerUtility.polygonLayerType,
-            elementIds: polygonIds.ids,
-          };
+          if(polygonIds.ids.length > 0){
+            body = {
+              mapId: map.id,
+              type: ViewerUtility.polygonLayerType,
+              elementIds: polygonIds.ids,
+            };
 
-          let leafletGeojsonLayerPromise = await ApiManager.post('/geometry/get', body, this.props.user)
-            .then(polygonsGeoJson => {
-              if (!polygonsGeoJson || !polygonsGeoJson.features) {
-                this.layerGeoJsons[polygonLayer.name] = null;
-                return null;
-              }
-
-              this.layerGeoJsons[polygonLayer.name] = {
-                geoJson: polygonsGeoJson,
-                bounds: bounds
-              };
-
-              let icon = ViewerUtility.returnMarker(`#${polygonLayer.color}`, 2, 'RoomTwoTone');
-
-              let geometryCollection = {
-                type: 'FeatureCollection',
-                features: []
-              };
-
-              let linesCollection = {
-                type: 'FeatureCollection',
-                features: []
-              };
-
-              for (let i = 0; i < polygonsGeoJson.features.length; i++) {
-                let feature = polygonsGeoJson.features[i];
-                let geometry = feature.geometry;
-
-                feature.properties.mapId = map.id;
-
-
-                if (geometry.type === 'LineString') {
-                  linesCollection.features.push(feature);
+            let leafletGeojsonLayerPromise = await ApiManager.post('/geometry/get', body, this.props.user)
+              .then(polygonsGeoJson => {
+                if (!polygonsGeoJson || !polygonsGeoJson.features) {
+                  this.layerGeoJsons[polygonLayer.name] = null;
+                  return null;
                 }
-                else {
-                  if (polygonLayer.name === GroasisUtility.layers.polygon.trees && geometry.type === 'Polygon') {
-                    let treeBounds = ViewerUtility.getBounds(geometry.coordinates);
 
-                    if (treeBounds === null) {
-                      continue;
+                this.layerGeoJsons[polygonLayer.name] = {
+                  geoJson: polygonsGeoJson,
+                  bounds: bounds
+                };
+
+                let icon = ViewerUtility.returnMarker(`#${polygonLayer.color}`, 2, 'RoomTwoTone');
+
+                let geometryCollection = {
+                  type: 'FeatureCollection',
+                  features: []
+                };
+
+                let linesCollection = {
+                  type: 'FeatureCollection',
+                  features: []
+                };
+
+                for (let i = 0; i < polygonsGeoJson.features.length; i++) {
+                  let feature = polygonsGeoJson.features[i];
+                  let geometry = feature.geometry;
+
+                  feature.properties.mapId = map.id;
+
+
+                  if (geometry.type === 'LineString') {
+                    linesCollection.features.push(feature);
+                  }
+                  else {
+                    if (polygonLayer.name === GroasisUtility.layers.polygon.trees && geometry.type === 'Polygon') {
+                      let treeBounds = ViewerUtility.getBounds(geometry.coordinates);
+
+                      if (treeBounds === null) {
+                        continue;
+                      }
+
+                      let center = [
+                        treeBounds.xMin + (treeBounds.xMax - treeBounds.xMin) / 2,
+                        treeBounds.yMin + (treeBounds.yMax - treeBounds.yMin) / 2
+                      ];
+
+                      let pointGeometry = {
+                        type: 'Point',
+                        coordinates: center
+                      };
+
+                      feature.originalGeometry = feature.geometry;
+                      feature.geometry = pointGeometry;
                     }
 
-                    let center = [
-                      treeBounds.xMin + (treeBounds.xMax - treeBounds.xMin) / 2,
-                      treeBounds.yMin + (treeBounds.yMax - treeBounds.yMin) / 2
-                    ];
+                    geometryCollection.features.push(feature);
+                  }
+                }
 
-                    let pointGeometry = {
-                      type: 'Point',
-                      coordinates: center
-                    };
+                geometryCollection.count = geometryCollection.features.length;
+                linesCollection.count = linesCollection.features.length;
 
-                    feature.originalGeometry = feature.geometry;
-                    feature.geometry = pointGeometry;
+                let elementType = polygonLayer.name === GroasisUtility.layers.polygon.trees ?
+                  ViewerUtility.treeElementType : ViewerUtility.polygonLayerType;
+
+                  let onEachFeature = null;
+
+                  if (this.props.mode === ViewerUtility.plannerMode && polygonLayer.name !== GroasisUtility.layers.polygon.plantingSites && polygonLayer.name !== GroasisUtility.request.layer)
+                  {
+                    onEachFeature = (feature, layer) => {layer.on({
+                      click: () => this.props.onFeatureClick(elementType, feature, polygonLayer.hasAggregatedData)
+                    })};
                   }
 
-                  geometryCollection.features.push(feature);
-                }
-              }
-
-              geometryCollection.count = geometryCollection.features.length;
-              linesCollection.count = linesCollection.features.length;
-
-              let elementType = polygonLayer.name === GroasisUtility.layers.polygon.trees ?
-                ViewerUtility.treeElementType : ViewerUtility.polygonLayerType;
-
-                let onEachFeature = null;
-
-                if (this.props.mode === ViewerUtility.plannerMode && polygonLayer.name !== GroasisUtility.layers.polygon.plantingSites && polygonLayer.name !== GroasisUtility.request.layer)
-                {
-                  onEachFeature = (feature, layer) => {layer.on({
-                    click: () => this.props.onFeatureClick(elementType, feature, polygonLayer.hasAggregatedData)
-                  })};
-                }
-
-                let zIndex = ViewerUtility.polygonLayerZIndex[polygonLayer.name] ? ViewerUtility.polygonLayerZIndex[polygonLayer.name] : ViewerUtility.polygonLayerZIndex.base + i;
-              return (<Pane zIndex={zIndex} key={Math.random()} name={polygonLayer.name.replace(' ', '-').toLowerCase()}>
-                [<MarkerClusterGroup
-                  maxClusterRadius={30}
-                  disableClusteringAtZoom={17}
-                >
-                  <GeoJSON
+                  let zIndex = ViewerUtility.polygonLayerZIndex[polygonLayer.name] ? ViewerUtility.polygonLayerZIndex[polygonLayer.name] : ViewerUtility.polygonLayerZIndex.base + i;
+                return (<Pane zIndex={zIndex} key={Math.random()} name={polygonLayer.name.replace(' ', '-').toLowerCase()}>
+                  [<GeoJSON
                     key={Math.random()}
                     data={polygonsGeoJson}
                     style={ViewerUtility.createGeoJsonLayerStyle(`#${polygonLayer.color}`, null, null, zIndex)}
@@ -438,21 +435,21 @@ class PolygonLayersControl extends PureComponent {
                     name={polygonLayer.name}
                     zIndex={ViewerUtility.polygonLayerZIndex[polygonLayer.name]}
                     className={!onEachFeature ? 'noClick' : ''}
-                  />
-                </MarkerClusterGroup>,
-                <GeoJSON
-                  key={Math.random()}
-                  data={linesCollection}
-                  style={ViewerUtility.createGeoJsonLayerStyle(`#${polygonLayer.color}`, 3, null, zIndex)}
-                  onEachFeature={onEachFeature}
-                  name={polygonLayer.name}
-                  zIndex={ViewerUtility.polygonLayerZIndex[polygonLayer.name]}
-                  className={!onEachFeature ? 'noClick' : ''}
-                />]
-              </Pane>);
-            });
+                  />,
+                  <GeoJSON
+                    key={Math.random()}
+                    data={linesCollection}
+                    style={ViewerUtility.createGeoJsonLayerStyle(`#${polygonLayer.color}`, 3, null, zIndex)}
+                    onEachFeature={onEachFeature}
+                    name={polygonLayer.name}
+                    zIndex={ViewerUtility.polygonLayerZIndex[polygonLayer.name]}
+                    className={!onEachFeature ? 'noClick' : ''}
+                  />]
+                </Pane>);
+              });
 
-          promises.push(leafletGeojsonLayerPromise);
+            promises.push(leafletGeojsonLayerPromise);
+          }
         }
         else
         {

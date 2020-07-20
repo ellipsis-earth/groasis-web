@@ -34,7 +34,7 @@ class TreeTypeControl extends Component {
 
   componentDidUpdate = (prevProps) => {
   	if (prevProps.map && this.props.map && ((!prevProps.map.info && this.props.map && this.props.map.info) || (prevProps.map.info !== this.props.map.info))) {
-  		this.setState({trees: this.props.map.info.trees ? this.props.map.info.trees : [], speciesName: '', treeAddOpen: false})
+  		this.setState({trees: this.props.map.info && this.props.map.info.trees ? this.props.map.info.trees : [], speciesName: '', treeAddOpen: false})
   	}
   }
 
@@ -104,7 +104,7 @@ class TreeTypeControl extends Component {
 			    		? this.state.trees.map((tree, i) => <ListItem key={tree.name + '_' + i}>
 			    				<ListItemText primary={tree.name}/>
 			    				<ListItemSecondaryAction>
-			    					<IconButton onClick={() => {this.treeDelete(i)}}>
+			    					<IconButton size='small' edge='end' onClick={() => {this.treeDelete(i)}}>
 			    						<DeleteIcon/>
 			    					</IconButton>
 			    				</ListItemSecondaryAction>

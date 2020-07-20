@@ -31,7 +31,7 @@ export class MapHeader extends PureComponent {
 
     let text = 'Select an area of interest';
     if (groasisMap && groasisMap.name) {
-      text = groasisMap.name;
+      text = groasisMap.info && groasisMap.info.displayName ? groasisMap.info.displayName : groasisMap.name;
       type = 'flyTo';
     }
     else if (this.props.mode === ViewerUtility.identificationMode)

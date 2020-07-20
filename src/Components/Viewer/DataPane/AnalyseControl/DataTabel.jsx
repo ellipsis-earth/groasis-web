@@ -17,12 +17,12 @@ class DataTable extends PureComponent {
     let headers = data[0];
 
     data.splice(0, 1);
-    data.sort((a,b) => a[0].toLowerCase() < b[0].toLowerCase() ? -1 : (a[0].toLowerCase() > b[0].toLowerCase()) ? 1 : 0);
+    data.sort((a,b) => a[0] && b[0] && a[0].toLowerCase() < b[0].toLowerCase() ? -1 : (a[0] && b[0] && a[0].toLowerCase() > b[0].toLowerCase()) ? 1 : 0);
 
     let cleaned = [];
     data.forEach(x => {
       let dataRow = [...x];
-      dataRow[0] = dataRow[0].replace('0.00m', '0m');
+      dataRow[0] = dataRow[0] && dataRow[0].replace('0.00m', '0m') ? dataRow[0].replace('0.00m', '0m') : '';
       cleaned.push(dataRow);
     })
 
@@ -33,7 +33,6 @@ class DataTable extends PureComponent {
       x.forEach((y, j) => {cells.push(<TableCell key={'soilDataCell_' + x[0] + '_' + headers[j]}>{y}</TableCell>)})
       rows.push(<TableRow key={x.join('_').replace(' ', '-')}>{cells}</TableRow>)
     });
-
 
     return (
       <Table size="small">

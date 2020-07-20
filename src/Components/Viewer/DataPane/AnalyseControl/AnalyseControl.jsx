@@ -108,7 +108,7 @@ class AnalyseControl extends PureComponent {
 
         <SoilInfo {...generalProps} />
         {/*<HistoricWeatherInfo {...generalProps} />*/}
-        <WeatherInfo {...generalProps} />
+        {/*<WeatherInfo {...generalProps} />*/}
         {this.props.element.type === ViewerUtility.standardTileLayerType ? null : <ClassesInfo {...generalProps} />}
         <SpectralIndicesInfo {...generalProps} />
         <AltitudeInfo {...generalProps} />

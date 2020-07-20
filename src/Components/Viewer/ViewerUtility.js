@@ -40,6 +40,7 @@ const ViewerUtility = {
   treeElementType: 'tree',
   newTreeElementType: 'new_tree',
   ooiElementType: 'ooi',
+  identificationZoneElementType: 'identification_zone',
   newPlantingLineElementType: 'new_planting_line',
   plantingSiteElementType: 'planting_site',
   newPlantingSiteElementType: 'new_planting_site',
@@ -68,7 +69,8 @@ const ViewerUtility = {
     gallery: 'gallery',
     multiply: 'multiply',
     planTrees: 'plan_trees',
-    deletePlantingLineTrees: 'delete_planting_line_trees'
+    deletePlantingLineTrees: 'delete_planting_line_trees',
+    editIdentificationZoneName: 'edit_identification_zone_name',
   },
 
   dataGraphType: {
@@ -240,8 +242,8 @@ const ViewerUtility = {
 
   isPrivateProperty: 'isPrivate',
 
-  capitalize: (str, lower = false) => {
-    return (lower ? str.toLowerCase() : str).replace(/(?:^|\s|["'([{])+\S/g, match => match.toUpperCase());
+  capitalize: (str) => {
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   },
 
   getLineLength: (coordinates = null) => {

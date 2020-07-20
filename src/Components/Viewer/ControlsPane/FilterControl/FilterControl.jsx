@@ -10,6 +10,7 @@ import CardHeader from '@material-ui/core/CardHeader';
 import Checkbox from '@material-ui/core/Checkbox';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Collapse from '@material-ui/core/Collapse';
+import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -27,6 +28,7 @@ import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import InfoIcon from '@material-ui/icons/Info';
 
 import Utility from '../../../../Utility';
+import GroasisUtility from '../../GroasisUtility';
 import ViewerUtility from '../../ViewerUtility';
 
 import './FilterControl.css';
@@ -103,6 +105,42 @@ class FilterControl extends Component {
 		this.setState({ loading: true }, this.onLayerChange({target: {value: 'standard tiles', checked: e.target.checked}}));
 	}
 
+	getSoilLayerData = async (layerName) => {
+    let dataPromises = [];
+    let url = GroasisUtility.getSoilUrl(GroasisUtility.getGroasisNameFromAnalyse(layerName));
+
+    if(url)
+    {
+      dataPromises.push(fetch(url, {
+        method: 'GET'
+      })
+      .then(result => {
+        if (result.status === 200 && result.ok)
+        {
+          return result.json()
+        }
+      }))
+    }
+
+    let gottenData = await Promise.all(dataPromises)
+    .then(results => {
+      let returnData = {};
+      for (let i = 0; i < results.length; i++)
+      {
+        let x = results[i];
+        let name = GroasisUtility.getSoilName(x.StyledLayerDescriptor.NamedLayer.Name);
+        let colors = x.StyledLayerDescriptor.NamedLayer.UserStyle.FeatureTypeStyle.Rule.RasterSymbolizer.ColorMap.ColorMapEntry;
+        let unit = x.StyledLayerDescriptor.NamedLayer.UserStyle.FeatureTypeStyle.Rule.RasterSymbolizer.Geometry.PropertyName.split(' - ')[0];
+        returnData[name] = {colors: colors, unit: unit};
+      }
+
+      return returnData;
+    })
+    .catch(err => console.error(err));
+
+    return gottenData;
+  }
+
 	filterChange = (e, value, valueName, category) => {
 		let stateObj = this.state.filterData;
 
@@ -116,13 +154,13 @@ class FilterControl extends Component {
 			stateObj[category][valueName] = {};
 		}
 
-		stateObj[category][valueName].value = value;
+		stateObj[category][valueName].value = value.map(x => x*stateObj[category][valueName].offset);
 		stateObj[category][valueName].checked = true;
 
 		this.setState({filterData: stateObj});
 	}
 
-	filterSelectionChange = (e, checked, valueName, category) => {
+	filterSelectionChange = async (e, checked, valueName, category) => {
 		let stateObj = this.state.filterData;
 
 		if (!stateObj[category])
@@ -133,6 +171,23 @@ class FilterControl extends Component {
 		if (!stateObj[category][valueName])
 		{
 			stateObj[category][valueName] = {};
+		}
+
+		if (category === 'soil' && GroasisUtility.soilLayers[valueName.toLowerCase()])
+		{
+			let soilLayerName = GroasisUtility.soilLayers[valueName.toLowerCase()]
+      let soilData = this.props.map.metadata && this.props.map.metadata.soilLayers ? this.props.map.metadata.soilLayers : {};
+			let name = Object.keys(soilData).find(x => x === soilLayerName);
+
+      if (!name)
+      {
+        let gottenData = await this.getSoilLayerData(soilLayerName);
+        soilData = {...soilData, ...gottenData};
+        name = Object.keys(soilData).find(x => x === soilLayerName);
+      }
+
+	    let units = GroasisUtility.getUnit(soilData[name].unit);
+			stateObj[category][valueName].offset = units.value;
 		}
 
 		if(stateObj[category][valueName].checked !== checked)
@@ -166,7 +221,7 @@ class FilterControl extends Component {
 				name: 'soil',
 				filters: [
 					{
-						title: 'Organic Content',
+						title: GroasisUtility.soilLayers.organic,
 						step: 5,
 						min: 0,
 						max: 100,
@@ -176,7 +231,7 @@ class FilterControl extends Component {
 						text: 'Measured on 0.3m in %'
 					},
 					{
-						title: 'Clay Content',
+						title: GroasisUtility.soilLayers.clay,
 						step: 5,
 						min: 0,
 						max: 100,
@@ -186,7 +241,7 @@ class FilterControl extends Component {
 						text: 'Measured on 0.3m in %'
 					},
 					{
-						title: 'Coarse Fragment',
+						title: GroasisUtility.soilLayers.coarse,
 						step: 5,
 						min: 0,
 						max: 100,
@@ -196,7 +251,7 @@ class FilterControl extends Component {
 						text: 'Measured on 0.3m in %'
 					},
 					{
-						title: 'Sand Content',
+						title: GroasisUtility.soilLayers.sand,
 						step: 5,
 						min: 0,
 						max: 100,
@@ -206,7 +261,7 @@ class FilterControl extends Component {
 						text: 'Measured on 0.3m in %'
 					},
 					{
-						title: 'pH',
+						title: GroasisUtility.soilLayers.ph,
 						step: 0.1,
 						min: 0,
 						max: 14,
@@ -220,7 +275,7 @@ class FilterControl extends Component {
 						step: 0.1,
 						min: -1,
 						max: 1,
-						unit: ' ',
+						unit: '',
 						category: 'indices',
 						valueName: 'moisture',
 						marks: [
@@ -243,7 +298,7 @@ class FilterControl extends Component {
 						text: 'Measured in degrees'
 					},
 				]
-			},
+			}/*,
 			{
 				name: 'climate',
 				filters: [
@@ -278,7 +333,7 @@ class FilterControl extends Component {
 						text: 'Percentage of selected area covered by cloud'
 					},
 				],
-			},
+			},*/
 		]
 
 		let filterForm = [];
@@ -354,10 +409,9 @@ class FilterControl extends Component {
 
 	prepareStandardTilesLayer = async (map, timestampRange) => {
 		let bounds = this.props.leafletMapViewport.bounds;
-
-		let soilMap = this.props.map.maps.find(x => x.dataSources[0].id === "ce6650f0-91b8-481c-bc17-7a38f12658a1");
-		let lowResMap = this.props.map.maps.find(x => ["4c450c42-1bf6-11e9-96ea-f0038c0f0121", "48d31d14-8cdd-401e-84a0-42941ad19dd6"].includes(x.dataSources[0].id));
-		let altitudeMap = this.props.map.maps.find(x => x.dataSources[0].id === "bcf28bab-33e2-4259-a64f-466368efdc8d")
+		let soilMap = this.props.map.maps.find(x => x.dataSource.id === "ce6650f0-91b8-481c-bc17-7a38f12658a1");
+		let lowResMap = this.props.map.maps.find(x => ["4c450c42-1bf6-11e9-96ea-f0038c0f0121", "48d31d14-8cdd-401e-84a0-42941ad19dd6"].includes(x.dataSource.id));
+		let altitudeMap = this.props.map.maps.find(x => x.dataSource.id === "bcf28bab-33e2-4259-a64f-466368efdc8d")
 		let timestampNumber = lowResMap.timestamps[lowResMap.timestamps.length - 1].timestamp;
 
 		let body = {
@@ -507,7 +561,7 @@ class FilterControl extends Component {
 										if (this.state.filterData[category][key].checked && this.state.filterData[category][key].value)
 										{
 											console.log(filterData[j], this.state.filterData[category]);
-											if(!filterData[j] || (!filterData[j]['organic content 0.3m'] && filterData[j]['organic content 0.3m'] !== 0) || !(filterData[j]['organic content 0.3m'] >= this.state.filterData[category][key].value[0] && filterData[j]['organic content 0.3m'] <= this.state.filterData[category][key].value[1]))
+											if(!filterData[j] || (!filterData[j]['Soil organic carbon content 15-30cm'] && filterData[j]['Soil organic carbon content 15-30cm'] !== 0) || !(filterData[j]['Soil organic carbon content 15-30cm'] >= this.state.filterData[category][key].value[0] && filterData[j]['Soil organic carbon content 15-30cm'] <= this.state.filterData[category][key].value[1]))
 											{
 												filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
 												delete filterData[j];
@@ -518,7 +572,7 @@ class FilterControl extends Component {
 									{
 										if (this.state.filterData[category][key].checked && this.state.filterData[category][key].value)
 										{
-											if(!filterData[j] || (!filterData[j]['clay content 0.3m'] && filterData[j]['sand content 0.3m'] !== 0) || !(filterData[j]['clay content 0.3m'] >= this.state.filterData[category][key].value[0] && filterData[j]['clay content 0.3m'] <= this.state.filterData[category][key].value[1]))
+											if(!filterData[j] || (!filterData[j]['clay 15-30cm'] && filterData[j]['clay 15-30cm'] !== 0) || !(filterData[j]['clay 15-30cm'] >= this.state.filterData[category][key].value[0] && filterData[j]['clay 15-30cm'] <= this.state.filterData[category][key].value[1]))
 											{
 												filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
 												delete filterData[j];
@@ -529,7 +583,7 @@ class FilterControl extends Component {
 									{
 										if (this.state.filterData[category][key].checked && this.state.filterData[category][key].value)
 										{
-											if(!filterData[j] || (!filterData[j]['sand content 0.3m'] && filterData[j]['sand content 0.3m'] !== 0) || !(filterData[j]['sand content 0.3m'] >= this.state.filterData[category][key].value[0] && filterData[j]['sand content 0.3m'] <= this.state.filterData[category][key].value[1]))
+											if(!filterData[j] || (!filterData[j]['sand 15-30cm'] && filterData[j]['sand 15-30cm'] !== 0) || !(filterData[j]['sand 15-30cm'] >= this.state.filterData[category][key].value[0] && filterData[j]['sand 15-30cm'] <= this.state.filterData[category][key].value[1]))
 											{
 												filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
 												delete filterData[j];
@@ -540,7 +594,7 @@ class FilterControl extends Component {
 									{
 										if (this.state.filterData[category][key].checked && this.state.filterData[category][key].value)
 										{
-											if(!filterData[j] || (!filterData[j]['PH 0.3m'] && filterData[j]['PH 0.3m'] !== 0) || !(filterData[j]['PH 0.3m'] >= this.state.filterData[category][key].value[0] && filterData[j]['PH 0.3m'] <= this.state.filterData[category][key].value[1]))
+											if(!filterData[j] || (!filterData[j]['ph 15-30cm'] && filterData[j]['ph 15-30cm'] !== 0) || !(filterData[j]['ph 15-30cm'] >= this.state.filterData[category][key].value[0] && filterData[j]['ph 15-30cm'] <= this.state.filterData[category][key].value[1]))
 											{
 												filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
 												delete filterData[j];
@@ -551,7 +605,7 @@ class FilterControl extends Component {
 									{
 										if (this.state.filterData[category][key].checked && this.state.filterData[category][key].value)
 										{
-											if(!filterData[j] || (!filterData[j]['ndvi'] && filterData[j]['ndvi'] !== 0) || !(filterData[j]['ndvi'] >= this.state.filterData[category][key].value[0] && filterData[j]['ndvi'] <= this.state.filterData[category][key].value[1]))
+											if(!filterData[j] || (!filterData[j]['mi'] && filterData[j]['mi'] !== 0) || !(filterData[j]['mi'] >= this.state.filterData[category][key].value[0] && filterData[j]['mi'] <= this.state.filterData[category][key].value[1]))
 											{
 												filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
 												delete filterData[j];
@@ -750,32 +804,41 @@ class FilterControl extends Component {
 				            disableRipple
 				          />
 				        </ListItemIcon>
-				        <ListItemText primary='Show Tiles'/>
+				        <ListItemText primary='Show Tiles' secondary={this.state.selectedLayers.includes(STANDARD_TILES_LAYER) ? this.state.count : null}/>
+				        {
+				        	this.state.loading
+				        	? <ListItemSecondaryAction>
+				        			<CircularProgress size={20} />
+			        			</ListItemSecondaryAction>
+				        	: null
+			        	}
 				      </ListItem>
-						{this.state.loading ? <CircularProgress size={20} /> : null}
 						{
-							this.state.filterForm.map(x => {
+							this.state.filterForm.length > 1
+							? this.state.filterForm.map(x => {
 								let open = this.state.open.includes(x.name)
 								return(<React.Fragment key={'filterList_' + x.name}>
-					       <ListItem
-								  button
-								  dense
-								  disableGutters
-								  onClick={() => {this.changeOpen(x.name)}}
-				      	>
-				      		<ListItemText primary={<ListSubheader component={Typography} color='primary'>{ViewerUtility.capitalize(x.name)}</ListSubheader>}/>
-				      		<ListItemSecondaryAction>
-				      			<IconButton edge="end" color='secondary' onClick={() => {this.changeOpen(x.name)}}>
-				      				{open ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-			      				</IconButton>
-				      		</ListItemSecondaryAction>
-					    	</ListItem>
-					    	<ListItem dense disableGutters>
-						    	<Collapse in={this.state.open.includes(x.name)} className='filterFormItemCollapse'>
-							    	{x.inputs}
-						    	</Collapse>
-					    	</ListItem>
-				    	</React.Fragment>)})}
+				       		<ListItem
+									  button
+									  dense
+									  disableGutters
+									  onClick={() => {this.changeOpen(x.name)}}
+					      	>
+					      		<ListItemText primary={<ListSubheader component={Typography} color='primary'>{ViewerUtility.capitalize(x.name)}</ListSubheader>}/>
+					      		<ListItemSecondaryAction>
+					      			<IconButton edge="end" color='secondary' onClick={() => {this.changeOpen(x.name)}}>
+					      				{open ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+				      				</IconButton>
+					      		</ListItemSecondaryAction>
+						    	</ListItem>
+						    	<ListItem dense disableGutters>
+							    	<Collapse in={this.state.open.includes(x.name)} className='filterFormItemCollapse'>
+								    	{x.inputs}
+							    	</Collapse>
+						    	</ListItem>
+				    		</React.Fragment>)})
+				    	: (this.state.filterForm[0] ? <React.Fragment><Divider/>{this.state.filterForm[0].inputs}</React.Fragment> : null)
+						}
 			      </List>     
 						<div className='button_count'>
 							<Button
@@ -871,6 +934,7 @@ class FilterInput extends Component {
 	    <ListItemIcon>
 	      <Checkbox
 	        edge="start"
+	        color='primary'
 	       	checked={this.state.checked}
 	        tabIndex={-1}
 	        disableRipple

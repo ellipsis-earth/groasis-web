@@ -49,7 +49,7 @@ class SpectralIndicesInfo extends PureComponent {
 
     let body = {};
 
-    this.map = this.props.map.maps.find(x => ["4c450c42-1bf6-11e9-96ea-f0038c0f0121", "48d31d14-8cdd-401e-84a0-42941ad19dd6"].includes(x.dataSources[0].id));
+    this.map = this.props.map.maps.find(x => ["4c450c42-1bf6-11e9-96ea-f0038c0f0121", "48d31d14-8cdd-401e-84a0-42941ad19dd6"].includes(x.dataSource.id));
     let url = '/data/timestamps';
 
     if (element.type === ViewerUtility.standardTileLayerType)

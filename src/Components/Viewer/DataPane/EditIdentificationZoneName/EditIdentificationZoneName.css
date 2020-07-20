@@ -1,0 +1,14 @@
+.editIdentificationZoneName
+{
+	text-align: right;
+}
+
+.editIdentificationZoneName .data-pane-title-header
+{
+	text-align: center;
+}
+
+.editIdentificationZoneName button
+{
+	margin-top: 1rem;
+}

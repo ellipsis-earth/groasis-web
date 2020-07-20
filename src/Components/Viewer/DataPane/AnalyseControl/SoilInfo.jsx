@@ -70,7 +70,7 @@ class SoilInfo extends PureComponent {
     if (element.type === ViewerUtility.standardTileLayerType)
     {
       body = {
-        mapId: this.props.map.maps.find(x => x.dataSources[0].id === "ce6650f0-91b8-481c-bc17-7a38f12658a1").id,
+        mapId: this.props.map.maps.find(x => x.dataSource.id === "ce6650f0-91b8-481c-bc17-7a38f12658a1").id,
         dataType: ViewerUtility.dataType.meanMeasurement,
         type: ViewerUtility.standardTileLayerType,
         elementIds: [element.id],
@@ -88,7 +88,7 @@ class SoilInfo extends PureComponent {
       };
 
       body = {
-        mapId: this.props.map.maps.find(x => x.dataSources[0].id === "ce6650f0-91b8-481c-bc17-7a38f12658a1").id,
+        mapId: this.props.map.maps.find(x => x.dataSource.id === "ce6650f0-91b8-481c-bc17-7a38f12658a1").id,
         dataType: ViewerUtility.dataType.meanMeasurement,
         type: ViewerUtility.customPolygonTileLayerType,
         element: treefeature
@@ -127,7 +127,7 @@ class SoilInfo extends PureComponent {
           let x = data.parsed.meta.fields[i];
           let ignore = IGNORE_COLUMNS.find(y => x.includes(y));
 
-          if (!ignore) {
+          if (!ignore && x !== 'no data') {
             let cleanedName = x;
 
             let unit = null;
@@ -137,7 +137,7 @@ class SoilInfo extends PureComponent {
             {
               let gottenData = await this.getSoilLayerData(x);
               soilData = {...soilData, ...gottenData};
-              name = Object.keys(soilData).find(y => y === GroasisUtility.getGroasisNameFromAnalyse(x));
+              name = Object.keys(soilData).find(y => y === GroasisUtility.getGroasisNameFromAnalyse(x, true));
             }
 
             let units = GroasisUtility.getUnit(soilData[name].unit);
@@ -158,7 +158,16 @@ class SoilInfo extends PureComponent {
             let depth = cleanedName.split(' ');
             depth = depth[depth.length - 1].replace('m', '');
             let parsedName = ViewerUtility.capitalize(cleanedName.split(' ').slice(0, -1).join(' '));
-            let pushData = [parsedName, Math.round((data.parsed.data[0][x] / units.value) * 100 + Number.EPSILON) / 100 + units.unit];
+
+            let pushData = [];
+            if (units && units.value !== 0)
+            {
+              pushData = [name, Math.round((data.parsed.data[0][x] / units.value) * 100 + Number.EPSILON) / 100 + units.unit];
+            }
+            else
+            {
+              console.log(name, data.parsed.data[0])
+            }
 
             if (depths[depth])
             {
@@ -173,12 +182,12 @@ class SoilInfo extends PureComponent {
 
         data.formatted = Object.keys(depths).map(x => {return {depth: parseFloat(x), data: depths[x]}});
         data.formatted.sort((a,b) => a['depth'] < b['depth'] ? -1 : (a['depth'] > b['depth']) ? 1 : 0);
-        console.log(data.formatted)
+
         this.setState({ data: data, loading: false });
       })
       .catch(err => {
         alert('An error occurred while fetching data.');
-        console.log(err);
+        console.error(err);
         this.setState({ data: null, loading: false });
       });
   }
@@ -233,10 +242,8 @@ class SoilInfo extends PureComponent {
     let dataElement = null;
     let actionElement = null;
 
-    if (this.state.loading) {
-      dataElement = <CircularProgress className='loading-spinner'/>;
-    }
-    else if (this.state.data) {
+    if(this.state.data && this.state.data.formatted)
+    {
       dataElement = this.state.data.formatted.map(x => <div className='soilDataTableContainer' key={'soilDataTableContainer_' + x.depth}>
         <Typography color='primary'>Soil values at depth of {x.depth}m</Typography>
         <DataTable
@@ -244,16 +251,16 @@ class SoilInfo extends PureComponent {
           maxMask={this.props.maxMask}
         />
       </div>)
-
-      actionElement = (
-        <IconButton
-          onClick={() => this.props.onDownloadData(this.state.data, 'soil')}
-          aria-label='Download data'
-        >
-          <SaveAlt />
-        </IconButton>
-      );
     }
+
+    actionElement = (
+      <IconButton
+        onClick={() => this.props.onDownloadData(this.state.data, 'soil')}
+        aria-label='Download data'
+      >
+        <SaveAlt />
+      </IconButton>
+    );
 
     return (
       <div>
@@ -275,7 +282,11 @@ class SoilInfo extends PureComponent {
           />
           <Collapse in={this.state.expanded}>
             <CardContent className='data-pane-card-content'>
-              {dataElement}
+            {
+              dataElement && dataElement.length > 0
+              ? dataElement
+              : (dataElement && dataElement.length === 0 ? <Typography align='center'>no data</Typography> : <CircularProgress className='loading-spinner'/>)
+            }
             </CardContent>
             <CardActions className='analyse-card-actions'>
               {actionElement}

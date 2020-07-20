@@ -53,7 +53,7 @@ class WeatherInfo extends PureComponent {
 
     let url = null;
 
-    this.map = this.props.map.maps.find(x => x.dataSources[0].id === "ce6650f0-91b8-481c-bc17-7a38f12658a1");
+    this.map = this.props.map.maps.find(x => x.dataSource.id === "ce6650f0-91b8-481c-bc17-7a38f12658a1");
 
     if (element.type === ViewerUtility.standardTileLayerType)
     {

@@ -73,7 +73,9 @@ const soilLayers = {
 };
 
 const additionalSoilLayers = {
-  silt: 'Silt Content'
+  bulk: 'Bulk density Content',
+  silt: 'Silt Content',
+  nitrogen: 'Nitrogen Content'
 }
 
 const soilTypeLayerNames = {
@@ -84,6 +86,8 @@ const soilTypeLayerNames = {
   [soilLayers.coarse]: 'cfvo_0-5cm_mean',
   [soilLayers.ph]: 'phh2o_0-5cm_mean',
   [additionalSoilLayers.silt]: 'silt_0-5cm_mean',
+  [additionalSoilLayers.bulk]: 'bdod_0-5cm_mean',
+  [additionalSoilLayers.nitrogen]: 'nitrogen_0-5cm_mean',
 };
 
 const GroasisUtility = {
@@ -122,16 +126,24 @@ const GroasisUtility = {
       unit = unit[0];
     }
 
-    let value = null;
+    let value = 1;
 
     if (unit.includes('/'))
     {
       let calcUnits = unit.split('/');
       calcUnits[0] = calcUnits[0].split(' ');
       calcUnits[0] = calcUnits[0][calcUnits[0].length - 1];
-      unit = '%';
 
       value = GroasisUtility.unitRecalculation(calcUnits);
+
+      if (value)
+      {
+        unit = '%';
+      }
+      else
+      {
+        value = 1;
+      }
     }
     else if(unit.includes('*'))
     {
@@ -139,15 +151,26 @@ const GroasisUtility = {
       unit = '';
       value = calcUnits[1];
     }
+    else if(unit.includes('WRB'))
+    {
+      unit = '';
+      value = 0;
+    }
 
     return {unit: unit, value: parseInt(value)}
   },
 
   getGroasisNameFromAnalyse: (layerName) => {
     let key = layerName.split(' ')[0];
-    let name = ViewerUtility.capitalize(key);
+    if(layerName.includes('Soil organic'))
+    {
+      key = 'organic'
+    }
+
+    let name = key.toLowerCase();
     let layers = {...soilLayers, ...additionalSoilLayers};
-    return layers[Object.keys(layers).find(x => layers[x].includes(name))]
+
+    return layers[Object.keys(layers).find(x => layers[x].toLowerCase().includes(name))]
   },
 
   getSoilName: (type) => {

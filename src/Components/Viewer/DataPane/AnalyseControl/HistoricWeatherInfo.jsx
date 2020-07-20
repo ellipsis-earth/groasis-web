@@ -68,7 +68,7 @@ class HistoricWeatherInfo extends PureComponent {
     if (element.type === ViewerUtility.standardTileLayerType)
     {
       body = {
-        mapId: this.props.map.maps.find(x => x.dataSources[0].id === "ce6650f0-91b8-481c-bc17-7a38f12658a1").id,
+        mapId: this.props.map.maps.find(x => x.dataSource.id === "ce6650f0-91b8-481c-bc17-7a38f12658a1").id,
         dataType: ViewerUtility.dataType.meanMeasurement,
         type: ViewerUtility.standardTileLayerType,
         elementIds: [element.id],
@@ -86,7 +86,7 @@ class HistoricWeatherInfo extends PureComponent {
       };
 
       body = {
-        mapId: this.props.map.maps.find(x => x.dataSources[0].id === "ce6650f0-91b8-481c-bc17-7a38f12658a1").id,
+        mapId: this.props.map.maps.find(x => x.dataSource.id === "ce6650f0-91b8-481c-bc17-7a38f12658a1").id,
         dataType: ViewerUtility.dataType.meanMeasurement,
         type: ViewerUtility.customPolygonTileLayerType,
         element: treefeature

@@ -20,7 +20,7 @@ class LegendItem extends React.Component {
 
 	render = () => {
 		let unit = GroasisUtility.getUnit(this.props.unit)
-
+		console.log(unit)
 		return <div className='legendItemContainer'>
 			<Typography>
 				{this.props.selectedLayer}
@@ -31,7 +31,7 @@ class LegendItem extends React.Component {
 				this.props.colors.map(step => {
 					if(step['@label'] !== 'NODATA')
 					{
-						return <Tooltip title={unit.value !== null ? (step['@label'] / unit.value) + unit.unit : step['@label']} key={this.props.selectedLayer + '_legendStep_' + step['@label']}>
+						return <Tooltip title={unit.value !== null && unit.value !== 0 ? (step['@label'] / unit.value) + unit.unit : step['@label']} key={this.props.selectedLayer + '_legendStep_' + step['@label']}>
 							<div className='step' style={{backgroundColor: step['@color']}}></div>
 						</Tooltip>
 					}
@@ -39,9 +39,9 @@ class LegendItem extends React.Component {
 			}
 			</div>
 			{
-				unit.value !== null
+				unit.value !== null && unit.value !== 0
 				? <div className='labelContainer'>
-					<div className='first'>{unit.value !== null ? this.props.colors[1]['@label'] / unit.value : this.props.colors[1]['@label']}{unit.unit}</div>
+					<div className='first'>{this.props.colors[1]['@label'] / unit.value}{unit.unit}</div>
 					<div className='middle'>{this.props.colors[Math.round((this.props.colors.length - 1) / 2)]['@label'] / unit.value}{unit.unit}</div>
 					<div className='last'>{this.props.colors[this.props.colors.length - 1]['@label'] / unit.value}{unit.unit}</div>
 				</div>

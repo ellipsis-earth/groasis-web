@@ -67,7 +67,7 @@ class AltitudeInfo extends PureComponent {
     if (element.type === ViewerUtility.standardTileLayerType)
     {
       body = {
-        mapId: this.props.map.maps.find(x => x.dataSources[0].id === "bcf28bab-33e2-4259-a64f-466368efdc8d").id,
+        mapId: this.props.map.maps.find(x => x.dataSource.id === "bcf28bab-33e2-4259-a64f-466368efdc8d").id,
         dataType: ViewerUtility.dataType.meanMeasurement,
         type: ViewerUtility.standardTileLayerType,
         elementIds: [element.id],
@@ -85,7 +85,7 @@ class AltitudeInfo extends PureComponent {
       };
 
       body = {
-        mapId: this.props.map.maps.find(x => x.dataSources[0].id === "bcf28bab-33e2-4259-a64f-466368efdc8d").id,
+        mapId: this.props.map.maps.find(x => x.dataSource.id === "bcf28bab-33e2-4259-a64f-466368efdc8d").id,
         dataType: ViewerUtility.dataType.meanMeasurement,
         type: ViewerUtility.customPolygonTileLayerType,
         element: treefeature

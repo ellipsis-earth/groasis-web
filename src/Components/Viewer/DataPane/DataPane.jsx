@@ -19,12 +19,13 @@ import ViewerUtility from '../ViewerUtility';
 import LegendControl from './LegendControl/LegendControl';
 import TreeTypeControl from './TreeTypeControl/TreeTypeControl';
 import AnalyseControl from './AnalyseControl/AnalyseControl';
+import EditIdentificationZoneName from './EditIdentificationZoneName/EditIdentificationZoneName';
 import CustomPolygonControl from './CustomPolygonControl/CustomPolygonControl';
 import GeoMessageControl from './GeoMessageControl/GeoMessageControl';
 import PlanControl from './PlanControl/PlanControl';
 import MultiplyControl from './MultiplyControl/MultiplyControl';
 
-import WachtlistControl from './GeoMessageControl/WachtlistControl';
+import WatchlistControl from './WatchlistControl/WatchlistControl';
 
 
 class DataPane extends PureComponent {
@@ -94,35 +95,33 @@ class DataPane extends PureComponent {
       let map = this.props.map;
 
       if (map) {
-        title = 'Region'
+        title = ''
         idText = map.subatlas;
       }
 
-      homeElement = [
-        <WachtlistControl
-          user={this.props.user}
-          groasisMaps={this.props.groasisMaps}
-          map={this.props.map}
-          home={this.props.home}
-          onWatchlistClick={this.props.onWatchlistClick}
-          onPlantingSiteClick={this.props.onPlantingSiteClick}
-          key={this.props.groasisMaps ? this.props.groasisMaps.areas.join('_') : 'default'}
-          watchlistRefresh={this.props.watchlistRefresh}
-          selectedPlantingSite={this.props.selectedPlantingSite}
-          onFeatureClick={this.props.onFeatureClick}
-          ref={this.watchlist}
-        />,
-        <LegendControl
-          selectedLayers={this.props.selectedLayers}
-          map={this.props.map}
-          key='LegendControl'
-        />,
-        <TreeTypeControl
-          key='TreeTypeControl'
-          map={this.props.map}
-          user={this.props.user}
-        />
-      ];
+      homeElement = [<WatchlistControl
+        user={this.props.user}
+        groasisMaps={this.props.groasisMaps}
+        map={this.props.map}
+        home={this.props.home}
+        onWatchlistClick={this.props.onWatchlistClick}
+        onPlantingSiteClick={this.props.onPlantingSiteClick}
+        key={this.props.groasisMaps ? this.props.groasisMaps.areas.join('_') : 'default'}
+        watchlistRefresh={this.props.watchlistRefresh}
+        selectedPlantingSite={this.props.selectedPlantingSite}
+        onFeatureClick={this.props.onFeatureClick}
+        ref={this.watchlist}
+      />,
+      <LegendControl
+        selectedLayers={this.props.selectedLayers}
+        map={this.props.map}
+        key='LegendControl'
+      />,
+      <TreeTypeControl
+        key='TreeTypeControl'
+        map={this.props.map}
+        user={this.props.user}
+      />];
     }
     else if (action === ViewerUtility.dataPaneAction.feed) {
       title = 'Watchlist';
@@ -160,27 +159,34 @@ class DataPane extends PureComponent {
         />
       );
     }
+    else if (action === ViewerUtility.dataPaneAction.editIdentificationZoneName) {
+      title = 'Edit Identification Zone Name';
+      idText = this.props.map && this.props.map.name ? this.props.map.name : '';
+      actionControl = (<EditIdentificationZoneName
+        map={this.props.map}
+        user={this.props.user}
+        setHome={this.goToHome}
+      />);
+    }
     else if (action === ViewerUtility.dataPaneAction.geoMessage ||
       action === ViewerUtility.dataPaneAction.feed) {
-      actionControl = (
-        <GeoMessageControl
-          user={this.props.user}
-          groasisMaps={this.props.groasisMaps}
-          map={this.props.map}
-          timestampRange={this.props.timestampRange}
-          geolocation={this.props.geolocation}
-          element={this.props.element}
-          isFeed={action === ViewerUtility.dataPaneAction.feed}
-          jumpToMessage={this.props.jumpToMessage}
-          home={home}
-          onDataPaneAction={this.props.onDataPaneAction}
-          onFlyTo={this.props.onFlyTo}
-          onLayersChange={this.props.onLayersChange}
-          onFeatureClick={this.props.onFeatureClick}
-          onDeselect={this.props.onDeselect}
-          onWatchlistClick={this.props.onWatchlistClick}
-        />
-      );
+      actionControl = (<GeoMessageControl
+        user={this.props.user}
+        groasisMaps={this.props.groasisMaps}
+        map={this.props.map}
+        timestampRange={this.props.timestampRange}
+        geolocation={this.props.geolocation}
+        element={this.props.element}
+        isFeed={action === ViewerUtility.dataPaneAction.feed}
+        jumpToMessage={this.props.jumpToMessage}
+        home={home}
+        onDataPaneAction={this.props.onDataPaneAction}
+        onFlyTo={this.props.onFlyTo}
+        onLayersChange={this.props.onLayersChange}
+        onFeatureClick={this.props.onFeatureClick}
+        onDeselect={this.props.onDeselect}
+        onWatchlistClick={this.props.onWatchlistClick}
+      />);
     }
     else if (action === ViewerUtility.dataPaneAction.createCustomPolygon ||
       action === ViewerUtility.dataPaneAction.editCustomPolygon) {
@@ -245,42 +251,39 @@ class DataPane extends PureComponent {
     return (
       <div className={dataPaneClassName} style={style}>
       {
-        action != ViewerUtility.dataPaneAction.planTrees ? <Card className='data-pane-title-card'>
-          <CardActions className={actionsClassName}>
-            {
-              !home || action ?
-                <IconButton
-                  className='data-pane-title-actions-button'
-                  aria-label='Home'
-                  onClick={() => this.setState({ home: !home })}
+        action !== ViewerUtility.dataPaneAction.planTrees && title.length > 0
+        ? <Card className='data-pane-title-card'>
+            <CardActions className={actionsClassName}>
+              {
+                !home || action ?
+                  <IconButton
+                    className='data-pane-title-actions-button'
+                    aria-label='Home'
+                    onClick={() => this.setState({ home: !home })}
+                  >
+                    {home ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
+                  </IconButton> : null
+              }
+            </CardActions>
+            <CardHeader
+              className='data-pane-title-header'
+              title={
+                <Typography
+                  variant="h6"
+                  component="h2"
+                  className='no-text-transform data-pane-title'
                 >
-                  {home ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
-                </IconButton> : null
-            }
-          </CardActions>
-          <CardHeader
-            className='data-pane-title-header'
-            title={
-              <Typography
-                variant="h6"
-                component="h2"
-                className='no-text-transform data-pane-title'
-              >
-                {title}
-              </Typography>
-            }
-            subheader={
-              idText ?
-                <Button
-                  onClick={this.onFlyTo}
-                >
-                  <div>
-                    {idText}
-                  </div>
-                </Button> : null
-            }
-          />
-        </Card> : null
+                  {title}
+                </Typography>
+              }
+              subheader={
+                idText
+                ? <Button onClick={this.onFlyTo}>{idText}</Button>
+                : null
+              }
+            />
+          </Card>
+        : null
       }
         {homeElement}
         {actionControl}

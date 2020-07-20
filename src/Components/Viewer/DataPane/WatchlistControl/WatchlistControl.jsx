@@ -22,7 +22,7 @@ import ViewerUtility from '../../ViewerUtility';
 
 import './WatchlistControl.css';
 
-class WatchListControl extends PureComponent {
+class WatchlistControl extends PureComponent {
   constructor(props, context) {
     super(props, context);
 
@@ -103,7 +103,15 @@ class WatchList extends PureComponent {
       let plantingSites = selected && this.props.map.plantingSites && this.props.map.plantingSites.props ? this.props.map.plantingSites.props.data.features : false;
 
       returnItem.push(<ListItem key={x.name + '_' + selected} button selected={selected} onClick={() => this.props.onWatchlistClick({properties: {mapId: x.id}})}>
-          <ListItemText primary={x.name} />
+          <ListItemText primary={x.info && x.info.displayName ? x.info.displayName : x.name} />
+          {
+            this.props.map && x.accessLevel >= 800 && selected ?
+            <ListItemSecondaryAction>
+              <IconButton edge="end" size='small' onClick={() => {this.props.onWatchlistClick({properties: {mapId: x.id}}, ViewerUtility.dataPaneAction.editIdentificationZoneName)}}>
+                <EditIcon />
+              </IconButton>
+            </ListItemSecondaryAction> : null
+          }
         </ListItem>);
 
       if (plantingSites)
@@ -148,4 +156,4 @@ class WatchList extends PureComponent {
 
 }
 
-export default WatchListControl;
+export default WatchlistControl;
