@@ -52,7 +52,7 @@ class EditIdentificationZoneName extends PureComponent {
     ApiManager.post('/settings/projects/addMapInfo', body, this.props.user)
     .then(() => {
       this.props.map.info = info;
-      this.setState({loading: false}, () => {this.setHome()});
+      this.setState({loading: false}, () => {this.props.setHome()});
     })
     .catch(err => {
       console.error(err);
@@ -68,8 +68,6 @@ class EditIdentificationZoneName extends PureComponent {
     if (this.props.home || !this.props.map) {
       return null;
     }
-
-    console.log(this.props.map)
 
     return (<Card className='data-pane-card editIdentificationZoneName'>
       <CardHeader
