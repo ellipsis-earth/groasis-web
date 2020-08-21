@@ -40,7 +40,7 @@ class App extends Component {
     this.viewer = React.createRef();
 
 
-    this.accountsUrl = 'https://account.ellipsis-earth.com/';
+    this.accountsUrl = 'https://account.ellipsis-drive.com/';
     // this.accountsUrl = 'http://localhost:3001/';
 
     this.state = {
@@ -66,7 +66,7 @@ class App extends Component {
   }
 
   receiveMessage = (event) => {
-    if (event.origin === 'http://localhost:3000' || 'https://account.ellipsis-earth.com')
+    if (event.origin === 'http://localhost:3000' || 'https://account.ellipsis-drive.com')
     {
       if (event.data.type && event.data.type === 'login')
       {
