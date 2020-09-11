@@ -142,6 +142,7 @@ class FilterControl extends Component {
   }
 
 	filterChange = (e, value, valueName, category) => {
+
 		let stateObj = this.state.filterData;
 
 		if (!stateObj[category])
@@ -154,7 +155,11 @@ class FilterControl extends Component {
 			stateObj[category][valueName] = {};
 		}
 
-		stateObj[category][valueName].value = value.map(x => x*stateObj[category][valueName].offset);
+		if(category === 'moisture'){
+			stateObj[category][valueName].value = value
+		}else{
+			stateObj[category][valueName].value = value.map(x => x*stateObj[category][valueName].offset);
+		}
 		stateObj[category][valueName].checked = true;
 
 		this.setState({filterData: stateObj});
@@ -222,9 +227,9 @@ class FilterControl extends Component {
 				filters: [
 					{
 						title: GroasisUtility.soilLayers.organic,
-						step: 5,
+						step: 0.1,
 						min: 0,
-						max: 100,
+						max: 20,
 						unit: '%',
 						category: 'soil',
 						valueName: 'organic',
@@ -232,9 +237,9 @@ class FilterControl extends Component {
 					},
 					{
 						title: GroasisUtility.soilLayers.clay,
-						step: 5,
+						step: 0.1,
 						min: 0,
-						max: 100,
+						max: 20,
 						unit: ' %',
 						category: 'soil',
 						valueName: 'clay',
@@ -242,9 +247,9 @@ class FilterControl extends Component {
 					},
 					{
 						title: GroasisUtility.soilLayers.coarse,
-						step: 5,
+						step: 0.1,
 						min: 0,
-						max: 100,
+						max: 20,
 						unit: '%',
 						category: 'soil',
 						valueName: 'coarse',
@@ -252,9 +257,9 @@ class FilterControl extends Component {
 					},
 					{
 						title: GroasisUtility.soilLayers.sand,
-						step: 5,
+						step: 0.1,
 						min: 0,
-						max: 100,
+						max: 20,
 						unit: '%',
 						category: 'soil',
 						valueName: 'sand',
@@ -276,8 +281,8 @@ class FilterControl extends Component {
 						min: -1,
 						max: 1,
 						unit: '',
-						category: 'indices',
-						valueName: 'moisture',
+						category: 'moisture',
+						valueName: 'mi',
 						marks: [
 							{ value: -1, 		label: 'Very Dry'},
 							{ value: -0.5, 	label: 'Dry'},
@@ -285,7 +290,7 @@ class FilterControl extends Component {
 							{ value: 0.5, 	label: 'Moist'},
 							{ value: 1, 		label: 'Very Moist'}
 						],
-						text: 'Measured by NDVI'
+						text: 'Measured by MI'
 					},
 					{
 						title: 'Slope',
@@ -391,7 +396,7 @@ class FilterControl extends Component {
 				{
 					if (results[0].count > MAX_TILES)
 					{
-						countMessage = [<div key={'countDiv' + results[0].count}><span className='red' key='count'>{results[0].count}</span><span>/{MAX_TILES}</span></div>, <span key='message'>Zoom in further or change filters.</span>];
+						countMessage = [<div key={'countDiv' + results[0].count}><span className='red' key='count'>{results[0].count}</span><span>/{MAX_TILES}</span></div>, <span key='message'> <p style={{'color':'red'}}>Zoom in further or change filters.</p></span>];
 					}
 					else
 					{
@@ -414,6 +419,7 @@ class FilterControl extends Component {
 		let altitudeMap = this.props.map.maps.find(x => x.dataSource.id === "bcf28bab-33e2-4259-a64f-466368efdc8d")
 		let timestampNumber = lowResMap.timestamps[lowResMap.timestamps.length - 1].timestamp;
 
+
 		let body = {
 			mapId: soilMap.id,
 			type: ViewerUtility.standardTileLayerType,
@@ -423,6 +429,7 @@ class FilterControl extends Component {
 			yMin: bounds.yMin,
 			yMax: bounds.yMax,
 			zoom: soilMap.aggregationZoom,
+			limit: MAX_TILES
 		};
 
 		return await ApiManager.post('/geometry/ids', body, this.props.user)
@@ -432,16 +439,17 @@ class FilterControl extends Component {
 					count: standardTileIds.count ? standardTileIds.count : 0,
 					bounds: bounds,
 					geoJson: null,
-					geoJsonElement: null
+					geoJsonElement: null,
 				};
 
+
+				if(result.count >=3000 || result.count ===0){
+					return result
+				}
 				let nonDataIds = [];
 
 				let filterDataKeys = Object.keys(this.state.filterData);
-				if (result.count === 0 || (result.count > MAX_TILES && filterDataKeys === 0))
-				{
-					return result;
-				}
+
 
 				if (filterDataKeys.length !== 0 && standardTileIds.ids.length !== 0)
 				{
@@ -454,11 +462,10 @@ class FilterControl extends Component {
 							dataType: ViewerUtility.dataType.meanMeasurement,
 							elementIds: standardTileIds.ids,
 						};
-
-						if (filterDataKeys[i] === 'indices')
+						if (filterDataKeys[i] === 'moisture')
 						{
 							requestBody.mapId = lowResMap.id;
-							requestBody.timestamp = timestampNumber ? timestampNumber : 0;
+							requestBody.timestamp = 0;
 						}
 						else if (filterDataKeys[i] === 'soil')
 						{
@@ -474,7 +481,9 @@ class FilterControl extends Component {
 						if(standardTileIds.ids.length > 0)
 						{
 							let filterData = await ApiManager.post('/data/ids', requestBody, this.props.user);
+
 							filterData = Papa.parse(filterData, {header: true, dynamicTyping: true}).data;
+
 							if(standardTileIds.ids.length > filterData.length)
 							{
 								for(let j = standardTileIds.count - 1; j >= 0; j--)
@@ -489,11 +498,11 @@ class FilterControl extends Component {
 
 							let category = filterDataKeys[i];
 							let keys = Object.keys(filterData[0]);
-
 							for (let j = filterData.length - 1; j >= 0; j--)
 							{
 								for(let key in this.state.filterData[category])
 								{
+										console.log(key)
 									if (key === 'precipitation' && filterData[j])
 									{
 										let precipitationKeys = keys.filter(x => x.includes('precipitation'));
@@ -560,7 +569,6 @@ class FilterControl extends Component {
 									{
 										if (this.state.filterData[category][key].checked && this.state.filterData[category][key].value)
 										{
-											console.log(filterData[j], this.state.filterData[category]);
 											if(!filterData[j] || (!filterData[j]['Soil organic carbon content 15-30cm'] && filterData[j]['Soil organic carbon content 15-30cm'] !== 0) || !(filterData[j]['Soil organic carbon content 15-30cm'] >= this.state.filterData[category][key].value[0] && filterData[j]['Soil organic carbon content 15-30cm'] <= this.state.filterData[category][key].value[1]))
 											{
 												filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
@@ -601,8 +609,10 @@ class FilterControl extends Component {
 											}
 										}
 									}
-									else if (key === 'moisture')
+									else if (key === 'mi')
 									{
+										console.log(filterData[j]['mi'])
+										console.log(this.state.filterData)
 										if (this.state.filterData[category][key].checked && this.state.filterData[category][key].value)
 										{
 											if(!filterData[j] || (!filterData[j]['mi'] && filterData[j]['mi'] !== 0) || !(filterData[j]['mi'] >= this.state.filterData[category][key].value[0] && filterData[j]['mi'] <= this.state.filterData[category][key].value[1]))
@@ -612,11 +622,11 @@ class FilterControl extends Component {
 											}
 										}
 									}
-									else if (key === 'slope')
+									else if (key === 'altitude')
 									{
 										if (this.state.filterData[category][key].checked && this.state.filterData[category][key].value)
 										{
-											if(!filterData[j] || (!filterData[j]['slope'] && filterData[j]['slope'] !== 0) || !((Math.asin(filterData[j]['slope']) * 180 / Math.PI) >= this.state.filterData[category][key].value[0] && (Math.asin(filterData[j]['slope']) * 180 / Math.PI) <= this.state.filterData[category][key].value[1]))
+											if(!filterData[j] || (!filterData[j]['slope'] && filterData[j]['slope'] !== 0) || !((Math.atan(1/ filterData[j]['slope']) * 180 / Math.PI) >= this.state.filterData[category][key].value[0] && (Math.atan(filterData[j]['slope']) * 180 / Math.PI) <= this.state.filterData[category][key].value[1]))
 											{
 												filteredIds.push({tileX: filterData[j].tileX, tileY: filterData[j].tileY});
 												delete filterData[j];
@@ -851,7 +861,6 @@ class FilterControl extends Component {
 							>
 								Filter
 							</Button>
-							<div className='countMessage' key={this.state.count}>{this.state.count}</div>
 						</div>
 					</CardContent>
 				</Collapse>

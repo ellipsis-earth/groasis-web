@@ -245,7 +245,7 @@ class SoilInfo extends PureComponent {
     if(this.state.data && this.state.data.formatted)
     {
       dataElement = this.state.data.formatted.map(x => <div className='soilDataTableContainer' key={'soilDataTableContainer_' + x.depth}>
-        <Typography color='primary'>Soil values at depth of {x.depth}m</Typography>
+        <Typography color='primary'>Soil values at depth of {x.depth}cm</Typography>
         <DataTable
           data={x.data}
           maxMask={this.props.maxMask}

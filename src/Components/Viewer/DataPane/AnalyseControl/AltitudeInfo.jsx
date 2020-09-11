@@ -99,6 +99,7 @@ class AltitudeInfo extends PureComponent {
 
     ApiManager.post(url, body, this.props.user)
       .then(result => {
+        console.log(result)
         data.raw = result;
 
         let parseFunc = async () => {
@@ -124,11 +125,11 @@ class AltitudeInfo extends PureComponent {
           if (!ignore && x !== 'no data') {
             if (x === 'slope')
             {
-              data.formatted.push([x, Math.round(((Math.asin(data.parsed.data[0][x]) * 180 / Math.PI) + Number.EPSILON) * 100) / 100])
+              data.formatted.push([x, Math.round(  Math.atan(1/data.parsed.data[0][x]) * 180 / Math.PI).toString()  + ' degrees' ] )
             }
             else
             {
-              data.formatted.push([x, data.parsed.data[0][x]]);
+              data.formatted.push([x, data.parsed.data[0][x].toString() + ' meter']);
             }
           }
 
