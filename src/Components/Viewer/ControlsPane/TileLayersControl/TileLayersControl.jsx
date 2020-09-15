@@ -275,33 +275,33 @@ class TileLayersControl extends PureComponent {
       if (this.props.mode === ViewerUtility.identificationMode || this.props.mode === ViewerUtility.plannerMode)
       {
         if (i === 0) {
-          options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Base Layers</ListSubheader>);
+          options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Base layers</ListSubheader>);
         }
         else if (i === 3) {
-          options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Soil Layers</ListSubheader>);
+          options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Soil layers</ListSubheader>);
         }
         else if(this.lowRes && i === availableLayers.length - 2)
         {
-          options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Low Resolution Layers</ListSubheader>);
+          options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Low Resolution layers</ListSubheader>);
         }
       }
       else
       {
         if (i === 0) {
-          options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Base Layers</ListSubheader>);
+          options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Base layers</ListSubheader>);
         }
         else if (i === 3) {
-          options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>High Resolution Layers</ListSubheader>);
+          options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>High Resolution layers</ListSubheader>);
         }
         else if (i === 5)
         {
           options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Classification</ListSubheader>);
         }
         else if (i === 6) {
-          options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Low Resolution Layers</ListSubheader>);
+          options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Low resolution layers</ListSubheader>);
         }
         else if (i === 8) {
-          options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Soil Layers</ListSubheader>);
+          options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Soil layers</ListSubheader>);
         }
       }
 

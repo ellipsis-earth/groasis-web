@@ -91,7 +91,7 @@ class SpectralIndicesInfo extends PureComponent {
             skipEmptyLines: true,
             header: true
           });
-
+          console.log(parsedData)
           return parsedData;
         };
 
@@ -151,7 +151,7 @@ class SpectralIndicesInfo extends PureComponent {
           <CardHeader
             title={
               <Typography variant='h6' component='h2' className='no-text-transform'>
-                Spectral Indices
+                Indices
               </Typography>
             }
             action={

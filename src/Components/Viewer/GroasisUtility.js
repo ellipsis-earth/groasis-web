@@ -64,18 +64,18 @@ const tileLayers = {
 };
 
 const soilLayers = {
-  organic: 'Organic Content',
-  clay: 'Clay Content',
-  sand: 'Sand Content',
-  coarse: 'Coarse Content',
-  ph: 'PH',
-  soilClasses: 'Soil Classes'
+  organic: 'Organic content',
+  clay: 'Clay content',
+  sand: 'Sand content',
+  coarse: 'Coarse content',
+  ph: 'pH',
+  soilClasses: 'Soil classes'
 };
 
 const additionalSoilLayers = {
-  bulk: 'Bulk density Content',
-  silt: 'Silt Content',
-  nitrogen: 'Nitrogen Content'
+  bulk: 'Bulk density content',
+  silt: 'Silt content',
+  nitrogen: 'Nitrogen content'
 }
 
 const soilTypeLayerNames = {
@@ -186,7 +186,7 @@ const GroasisUtility = {
 
   request: {
     id: REQUEST_MAP_ID,
-    layer: 'Identification Zones'
+    layer: 'Projects'
   },
 
   allTypes: MAP_TYPES,

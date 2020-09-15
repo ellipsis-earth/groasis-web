@@ -49,7 +49,7 @@ const ViewerUtility = {
   standardTileLayerZIndex: 1000,
 
   polygonLayerZIndex: {
-    'Identification Zones': 399,
+    'Projects': 399,
     'Planting sites': 401,
     'Planting lines': 402,
     'Trees': 600,

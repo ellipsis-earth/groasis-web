@@ -96,7 +96,7 @@ class TreeTypeControl extends Component {
 		if(this.props.map && this.props.map.info)
 		{
 			return (<Card className='data-pane-card treeTypeControl'>
-	      <CardHeader title={<Typography variant='h6' component='h2' className='watchlist-title'>Tree Species</Typography>}/>
+	      <CardHeader title={<Typography variant='h6' component='h2' className='watchlist-title'>Species</Typography>}/>
 	      <CardContent className='data-pane-card-content'>
       		<List dense className='treeTypeControl'>
 			    	{

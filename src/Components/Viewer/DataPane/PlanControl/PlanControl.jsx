@@ -374,7 +374,7 @@ class PlanControl extends Component {
             setDistance={this.setDistance}
             ref={this.treeControl}
           />
-          : <Typography>Add Tree Species First</Typography>
+          : <Typography>Add tree species first</Typography>
         }
 				</CardContent>
 				<CardActions>

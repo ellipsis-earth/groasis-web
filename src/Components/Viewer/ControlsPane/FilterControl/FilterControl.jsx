@@ -814,7 +814,7 @@ class FilterControl extends Component {
 				            disableRipple
 				          />
 				        </ListItemIcon>
-				        <ListItemText primary='Show Tiles' secondary={this.state.selectedLayers.includes(STANDARD_TILES_LAYER) ? this.state.count : null}/>
+				        <ListItemText primary='Show tiles' secondary={this.state.selectedLayers.includes(STANDARD_TILES_LAYER) ? this.state.count : null}/>
 				        {
 				        	this.state.loading
 				        	? <ListItemSecondaryAction>
