@@ -1,4 +1,5 @@
 const apiUrl = 'https://api.ellipsis-earth.com/v2';
+const apiUrlLatest = 'https://api.ellipsis-drive.com'
 // const apiUrl = 'https://dev.api.ellipsis-earth.com/v1';
 // const apiUrl = 'http://localhost:7553/v1';
 
@@ -24,10 +25,10 @@ const ApiManager = {
     customPolygonLayers: 800,
     userManagement: 900,
     owner: 1000,
-  
+
     mapPublicLevelOne: 300, // viewGeoMessages
     mapPublicLevelTwo: 500, // addPolygons
-  
+
     min: 0,
     max: 1000
   },
@@ -46,7 +47,11 @@ const ApiManager = {
 };
 
 async function apiManagerFetch(method, url, body, user) {
-  url = `${apiUrl}${url}`;
+  if(url === '/geometry/add'){
+    url = `${apiUrlLatest}${url}`;
+  }else{
+    url = `${apiUrl}${url}`;
+  }
   let headers = {};
 
   if (body) {
@@ -73,14 +78,14 @@ async function apiManagerFetch(method, url, body, user) {
   return await fetch(url, options)
     .then(response => {
 
-      gottenResponse = response;        
+      gottenResponse = response;
 
       let contentType = response.headers.get('Content-Type');
-      
+
       if (contentType) {
         isText = contentType.includes('text');
         isJson = contentType.includes('application/json');
-      }      
+      }
 
       if (isJson) {
         return response.json();
@@ -96,13 +101,13 @@ async function apiManagerFetch(method, url, body, user) {
       if (gottenResponse.status === 200) {
         return result
       }
-      else {  
+      else {
         if (!isText) {
           throw {
             status: gottenResponse.status,
             message: result.message
           };
-        }        
+        }
         else {
           throw {
             status: gottenResponse.status,
