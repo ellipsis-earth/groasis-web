@@ -772,7 +772,13 @@ class FilterControl extends Component {
 	render() {
 		if (!this.props.map || this.state.availableLayers.length === 0) {
 			return null;
-		}
+    }
+
+    debugger
+    
+    if (this.props.mode === ViewerUtility.plantMode) {
+      return null;
+    }
 
 		return (
 			<Card className='filter-control'>

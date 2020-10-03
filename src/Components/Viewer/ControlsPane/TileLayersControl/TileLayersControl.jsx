@@ -26,6 +26,7 @@ import GroasisUtility from '../../GroasisUtility';
 import './TileLayersControl.css';
 
 import ApiManager from '../../../../ApiManager';
+import Viewer from '../../Viewer';
 
 const IMAGES_LAYER_TYPE = 'images';
 const LABELS_LAYER_TYPE = 'labels';
@@ -243,8 +244,10 @@ class TileLayersControl extends PureComponent {
   renderCheckboxes = () => {
     let options = [];
 
+    debugger
+
     let availableLayers = AVAILABLE_LAYERS;
-    if (this.props.mode === ViewerUtility.identificationMode || this.props.mode === ViewerUtility.plannerMode)
+    if (this.props.mode === ViewerUtility.identificationMode)
     {
       availableLayers = [AVAILABLE_LAYERS[0],
         AVAILABLE_LAYERS[1],
@@ -262,7 +265,9 @@ class TileLayersControl extends PureComponent {
         availableLayers.push(AVAILABLE_LAYERS.find(x => x.name === GroasisUtility.layers.tile.lowRes));
         availableLayers.push(AVAILABLE_LAYERS.find(x => x.name === GroasisUtility.layers.tile.lowResCir));
       }
-
+    }
+    else if (this.props.mode === ViewerUtility.plantMode) {
+      availableLayers = availableLayers.filter((x) => x.type === 'radio');
     }
 
     let selectedLayers = this.props.selectedLayers[ViewerUtility.tileLayerType];

@@ -43,9 +43,12 @@ class WatchlistControl extends PureComponent {
   prepareWatchlist = (mode = 'normal', data) => {
     let watchlists = [];
 
+    debugger
+
     if (this.props.groasisMaps)
     {
       watchlists.push(<WatchList
+        mode={this.props.mode}
         user={this.props.user}
         groasisMaps={this.props.groasisMaps}
         map={this.props.map}
@@ -105,7 +108,7 @@ class WatchList extends PureComponent {
       returnItem.push(<ListItem key={x.name + '_' + selected} button selected={selected} onClick={() => this.props.onWatchlistClick({properties: {mapId: x.id}})}>
           <ListItemText primary={x.info && x.info.displayName ? x.info.displayName : x.name} />
           {
-            this.props.map && x.accessLevel >= 800 && selected ?
+            this.props.map && x.accessLevel >= 800 && selected && this.props.mode !== ViewerUtility.plantMode ?
             <ListItemSecondaryAction>
               <IconButton edge="end" size='small' onClick={() => {this.props.onWatchlistClick({properties: {mapId: x.id}}, ViewerUtility.dataPaneAction.editIdentificationZoneName)}}>
                 <EditIcon />
@@ -124,7 +127,7 @@ class WatchList extends PureComponent {
               </ListItemIcon>
               <ListItemText primary={z.properties.name} />
               {
-                this.props.map.accessLevel >= 900 && selectedPlantingSite ?
+                this.props.map.accessLevel >= 900 && selectedPlantingSite && this.props.mode !== ViewerUtility.plantMode ?
                 <ListItemSecondaryAction>
                   <IconButton edge="end" aria-label="edit planting site" size='small' onClick={() => {this.props.onFeatureClick(ViewerUtility.plantingSiteElementType, z)}}>
                     <EditIcon />

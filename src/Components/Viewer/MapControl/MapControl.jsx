@@ -177,7 +177,7 @@ export class MapControl extends PureComponent {
 
     let disabled = !map || !user;
 
-    if (this.props.mode === ViewerUtility.plannerMode) {
+    if (this.props.selectedPlantingSite) {
       plannerButtons.push(
         <Nav className='flex-column map-control map-control-planner' key={this.props.mode}>
           {/*<NavItem>
@@ -231,12 +231,17 @@ export class MapControl extends PureComponent {
         </Nav>
       );
     }
-    else if(this.props.mode === ViewerUtility.identificationMode)
+    
+    if(this.props.mode === ViewerUtility.identificationMode)
     {
       disabled = this.props.user ? false : true;
       if(this.props.map && this.props.map.type === 'area')
       {
-        plannerButtons.push(<Nav className='flex-column map-control map-control-planner' key={this.props.mode + '_' + disabled}>
+        let style = {};
+        if (this.props.selectedPlantingSite) {
+          style = { top: '170px' };
+        }
+        plannerButtons.push(<Nav style={style} className='flex-column map-control map-control-planner' key={this.props.mode + '_' + disabled}>
           <NavItem>
             <IconButton
               className='tool-button'

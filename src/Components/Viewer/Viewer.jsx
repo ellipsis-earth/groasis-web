@@ -537,15 +537,8 @@ class Viewer extends PureComponent {
     this.deselectCurrentElement();
 
     let cb = () => {this.onSelectMap(feature.properties.mapId, extraCb)}
-
-    if(this.props.mode !== ViewerUtility.identificationMode)
-    {
-      this.props.onModeChange(ViewerUtility.identificationMode, cb);
-    }
-    else
-    {
-      cb();
-    }
+  
+    cb();
   }
 
   onPlantingSiteClick = (feature) => {
@@ -569,7 +562,11 @@ class Viewer extends PureComponent {
     let selectedLayers = this.state.selectedLayers;
     selectedLayers[ViewerUtility.polygonLayerType] = newLayers;
 
-    this.setState({selectedLayers: selectedLayers, selectedPlantingLine: null, selectedPlantingSite: feature.properties.id}, () => {this.props.onModeChange(ViewerUtility.plannerMode, cb);})
+    this.setState({
+      selectedLayers: selectedLayers, 
+      selectedPlantingLine: null, 
+      selectedPlantingSite: feature.properties.id
+    }, cb)
   }
 
   watchlistRefresh = (type, data) => {
@@ -1085,6 +1082,7 @@ class Viewer extends PureComponent {
           </div>
 
           <DataPane
+            mode={this.props.mode}
             ref={this.dataPane}
             user={this.props.user}
             isOpen={this.state.panes.includes(DATA_PANE_NAME)}

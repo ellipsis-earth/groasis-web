@@ -100,6 +100,7 @@ class DataPane extends PureComponent {
       }
 
       homeElement = [<WatchlistControl
+        mode={this.props.mode}
         user={this.props.user}
         groasisMaps={this.props.groasisMaps}
         map={this.props.map}

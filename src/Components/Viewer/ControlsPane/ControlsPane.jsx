@@ -125,6 +125,7 @@ class ControlsPane extends PureComponent {
 
         {
           this.props.mode !== ViewerUtility.identificationMode || (this.props.map && this.props.map.type === 'area') ? <FilterControl
+          mode={this.props.mode}
           ref={this.filterControl}
           user={this.props.user}
           map={this.props.map}
