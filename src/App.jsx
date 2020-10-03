@@ -210,20 +210,14 @@ class App extends Component {
                   </p>
                 </Card>
 
-                <Card id='planting'  className='disabled' onClick={() => {this.onModeChange(ViewerUtility.plantMode)}}>
-                  <h1>
-                    Coming soon
-                  </h1>
+                <Card id='planting' onClick={() => {this.onModeChange(ViewerUtility.plantMode)}}>
                   <h1>Organization &amp; Implementation</h1>
                   <p>
                     Implement drawn up plans, using already planned planting lines and trees locations.
                   </p>
                 </Card>
 
-                <Card id='monitoring'  className='disabled' onClick={() => {this.onModeChange(ViewerUtility.plantMode)}}>
-                  <h1>
-                    Coming soon
-                  </h1>
+                <Card id='monitoring'  onClick={() => {this.onModeChange(ViewerUtility.plantMode)}}>
                   <h1>Growth &amp; Monitoring</h1>
                   <p>
                     Keep track of growth, and growing conditions of individual trees in projects.

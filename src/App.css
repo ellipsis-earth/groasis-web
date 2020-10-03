@@ -401,8 +401,8 @@ button.MuiTab-root {
 .modeSelector .buttonContainer #planting
 {
   background:linear-gradient(
-  rgba(211, 211, 211, 0.90) 0%,
-  rgba(211, 211, 211, 0.90) 100%),
+  rgba(0, 0, 0, 0.66) 0%,
+  rgba(0, 0, 0, 0.66) 100%),
   url("/images/planting.jpg")
   no-repeat center;
 }
@@ -419,8 +419,8 @@ button.MuiTab-root {
 .modeSelector .buttonContainer #monitoring
 {
   background:linear-gradient(
-  rgba(211, 211, 211, 0.90) 0%,
-  rgba(211, 211, 211, 0.90) 100%),
+  rgba(0, 0, 0, 0.66) 0%,
+  rgba(0, 0, 0, 0.66) 100%),
   url("/images/monitoring.jpg")
   no-repeat center;
 }
