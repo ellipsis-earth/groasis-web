@@ -18,6 +18,7 @@ import DoneIcon from '@material-ui/icons/Done';
 
 import ApiManager from '../../../../ApiManager';
 import GroasisUtility from '../../GroasisUtility';
+import ViewerUtility from '../../ViewerUtility';
 
 import './TreeTypeControl.css'
 
@@ -103,21 +104,27 @@ class TreeTypeControl extends Component {
 			    		this.state.trees.length > 0
 			    		? this.state.trees.map((tree, i) => <ListItem key={tree.name + '_' + i}>
 			    				<ListItemText primary={tree.name}/>
-			    				<ListItemSecondaryAction>
-			    					<IconButton size='small' edge='end' onClick={() => {this.treeDelete(i)}}>
-			    						<DeleteIcon/>
-			    					</IconButton>
-			    				</ListItemSecondaryAction>
+                  {
+                    this.props.mode !== ViewerUtility.plantMode ? 
+                      <ListItemSecondaryAction>
+                        <IconButton size='small' edge='end' onClick={() => {this.treeDelete(i)}}>
+                          <DeleteIcon/>
+                        </IconButton>
+                      </ListItemSecondaryAction> : null
+                  }			    				
 			    			</ListItem>)
 			    		: <ListItem>
 			    				<ListItemText primary='No tree species yet'/>
 		    				</ListItem>
 			    	}
-		    		<Collapse in={!this.state.treeAddOpen}>
-	  					<ListItem dense button onClick={this.openTreeAdd}>
-			    			<ListItemText primaryTypographyProps={{color: 'primary', align: 'center'}}>+ add species</ListItemText>
-		    			</ListItem>
-	  				</Collapse>
+            {
+              this.props.mode !== ViewerUtility.plantMode ?
+                <Collapse in={!this.state.treeAddOpen}>
+                  <ListItem dense button onClick={this.openTreeAdd}>
+                    <ListItemText primaryTypographyProps={{color: 'primary', align: 'center'}}>+ add species</ListItemText>
+                  </ListItem>
+                </Collapse> : null
+            }		    		
   				</List>
   				<Collapse in={this.state.treeAddOpen}>
   					<List dense>

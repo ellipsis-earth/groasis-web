@@ -217,7 +217,7 @@ class App extends Component {
                   </p>
                 </Card>
 
-                <Card id='monitoring'  onClick={() => {this.onModeChange(ViewerUtility.plantMode)}}>
+                <Card id='monitoring'  onClick={() => {this.onModeChange(ViewerUtility.plannerMode)}}>
                   <h1>Growth &amp; Monitoring</h1>
                   <p>
                     Keep track of growth, and growing conditions of individual trees in projects.

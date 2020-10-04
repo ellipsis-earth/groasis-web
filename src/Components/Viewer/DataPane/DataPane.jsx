@@ -119,6 +119,7 @@ class DataPane extends PureComponent {
         key='LegendControl'
       />,
       <TreeTypeControl
+        mode={this.props.mode}
         key='TreeTypeControl'
         map={this.props.map}
         user={this.props.user}
