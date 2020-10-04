@@ -94,6 +94,10 @@ class TreeTypeControl extends Component {
   }
 
 	render = () => {
+    if (this.props.mode === ViewerUtility.plannerMode) {
+      return null;
+    }
+
 		if(this.props.map && this.props.map.info)
 		{
 			return (<Card className='data-pane-card treeTypeControl'>

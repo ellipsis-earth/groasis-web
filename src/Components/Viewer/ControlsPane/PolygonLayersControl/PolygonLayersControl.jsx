@@ -567,6 +567,10 @@ class PolygonLayersControl extends PureComponent {
       return null;
     }
 
+    if (this.props.mode === ViewerUtility.plannerMode) {
+      return null;
+    }
+
     let checkboxes = this.createLayerCheckboxes();
 
     return (

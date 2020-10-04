@@ -153,6 +153,13 @@ const AVAILABLE_LAYERS = [
   },
 ];
 
+const PLANNING_LAYERS = [
+  'no2 concentration',
+  'rgb',
+  'cir',
+  'ndvi'
+];
+
 class TileLayersControl extends PureComponent {
 
   classes = null;
@@ -244,8 +251,6 @@ class TileLayersControl extends PureComponent {
   renderCheckboxes = () => {
     let options = [];
 
-    debugger
-
     let availableLayers = AVAILABLE_LAYERS;
     if (this.props.mode === ViewerUtility.identificationMode)
     {
@@ -266,113 +271,163 @@ class TileLayersControl extends PureComponent {
         availableLayers.push(AVAILABLE_LAYERS.find(x => x.name === GroasisUtility.layers.tile.lowResCir));
       }
     }
+    else if (this.props.mode === ViewerUtility.plannerMode) {
+      availableLayers = [
+        AVAILABLE_LAYERS[0].name,
+        AVAILABLE_LAYERS[1].name,
+        AVAILABLE_LAYERS[2].name,
+        ...PLANNING_LAYERS
+      ];
+    }
     else if (this.props.mode === ViewerUtility.plantMode) {
       availableLayers = availableLayers.filter((x) => x.type === 'radio');
     }
 
     let selectedLayers = this.props.selectedLayers[ViewerUtility.tileLayerType];
 
-    for (let i = 0; i < availableLayers.length; i++) {
-
-      let availableLayer = availableLayers[i];
-      let checked = selectedLayers.find(x => x === availableLayer.name) ? true : false;
-
-      if (this.props.mode === ViewerUtility.identificationMode || this.props.mode === ViewerUtility.plannerMode)
-      {
-        if (i === 0) {
-          options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Base layers</ListSubheader>);
-        }
-        else if (i === 3) {
-          options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Soil layers</ListSubheader>);
-        }
-        else if(this.lowRes && i === availableLayers.length - 2)
+    if (this.props.mode !== ViewerUtility.plannerMode) {
+      for (let i = 0; i < availableLayers.length; i++) {
+        let availableLayer = availableLayers[i];
+        let checked = selectedLayers.find(x => x === availableLayer.name) ? true : false;
+  
+        if (this.props.mode === ViewerUtility.identificationMode || this.props.mode === ViewerUtility.plannerMode)
         {
-          options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Low Resolution layers</ListSubheader>);
-        }
-      }
-      else
-      {
-        if (i === 0) {
-          options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Base layers</ListSubheader>);
-        }
-        else if (i === 3) {
-          options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>High Resolution layers</ListSubheader>);
-        }
-        else if (i === 5)
-        {
-          options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Classification</ListSubheader>);
-        }
-        else if (i === 6) {
-          options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Low resolution layers</ListSubheader>);
-        }
-        else if (i === 8) {
-          options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Soil layers</ListSubheader>);
-        }
-      }
-
-      /*let name = 'base';
-      if (i === 1 || i === 4) {
-        name = 'rgb';
-      }
-      else if (i === 3) {
-        name = 'label';
-      }
-      else if (i === 2 || i === 5) {
-        name = 'CIR';
-      }*/
-
-      let option = null;
-
-      if (availableLayer.type === 'radio')
-      {
-        option = (<ListItem
-          button
-          dense
-          onClick={() => this.onRadioChange(availableLayer.name)}
-          key={'tileLayerControlListItem_'+availableLayer.name}
-        >
-          <ListItemIcon>
-            <Radio
-              color='primary'
-              checked={checked}
-              edge="start"
-              disableRipple
-            />
-          </ListItemIcon>
-          <ListItemText primary={ViewerUtility.capitalize(availableLayer.name)}/>
-        </ListItem>)
-      }
-      else
-      {
-        option = (<ListItem
-          button
-          dense
-          onClick={() => this.onLayerChange(availableLayer.name, !checked)}
-          key={'tileLayerControlListItem_'+availableLayer.name}
-        >
-          <ListItemIcon>
-            <Checkbox
-              color='primary'
-              checked={checked}
-              edge="start"
-              disableRipple
-            />
-          </ListItemIcon>
-          <ListItemText primary={ViewerUtility.capitalize(availableLayer.name)}/>
-          {
-            (this.props.mode === ViewerUtility.identificationMode || this.props.mode === ViewerUtility.plannerMode) && i >= 3 && ((this.lowRes && i < availableLayers.length - 2) || (!this.lowRes && i <= availableLayers.length - 1))
-            ? <ListItemSecondaryAction>
-                <IconButton edge='end' onClick={() => this.openDataPane(availableLayer.name)}>
-                  <InfoIcon/>
-                </IconButton>
-              </ListItemSecondaryAction>
-            : null
+          if (i === 0) {
+            options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Base layers</ListSubheader>);
           }
-        </ListItem>)
+          else if (i === 3) {
+            options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Soil layers</ListSubheader>);
+          }
+          else if(this.lowRes && i === availableLayers.length - 2)
+          {
+            options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Low Resolution layers</ListSubheader>);
+          }
+        }
+        else
+        {
+          if (i === 0) {
+            options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Base layers</ListSubheader>);
+          }
+          else if (i === 3) {
+            options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>High Resolution layers</ListSubheader>);
+          }
+          else if (i === 5)
+          {
+            options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Classification</ListSubheader>);
+          }
+          else if (i === 6) {
+            options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Low resolution layers</ListSubheader>);
+          }
+          else if (i === 8) {
+            options.push(<ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Soil layers</ListSubheader>);
+          }
+        }
+  
+        /*let name = 'base';
+        if (i === 1 || i === 4) {
+          name = 'rgb';
+        }
+        else if (i === 3) {
+          name = 'label';
+        }
+        else if (i === 2 || i === 5) {
+          name = 'CIR';
+        }*/
+  
+        let option = null;
+  
+        if (availableLayer.type === 'radio')
+        {
+          option = (<ListItem
+            button
+            dense
+            onClick={() => this.onRadioChange(availableLayer.name)}
+            key={'tileLayerControlListItem_'+availableLayer.name}
+          >
+            <ListItemIcon>
+              <Radio
+                color='primary'
+                checked={checked}
+                edge="start"
+                disableRipple
+              />
+            </ListItemIcon>
+            <ListItemText primary={ViewerUtility.capitalize(availableLayer.name)}/>
+          </ListItem>)
+        }
+        else
+        {
+          option = (<ListItem
+            button
+            dense
+            onClick={() => this.onLayerChange(availableLayer.name, !checked)}
+            key={'tileLayerControlListItem_'+availableLayer.name}
+          >
+            <ListItemIcon>
+              <Checkbox
+                color='primary'
+                checked={checked}
+                edge="start"
+                disableRipple
+              />
+            </ListItemIcon>
+            <ListItemText primary={ViewerUtility.capitalize(availableLayer.name)}/>
+            {
+              (this.props.mode === ViewerUtility.identificationMode || this.props.mode === ViewerUtility.plannerMode) && i >= 3 && ((this.lowRes && i < availableLayers.length - 2) || (!this.lowRes && i <= availableLayers.length - 1))
+              ? <ListItemSecondaryAction>
+                  <IconButton edge='end' onClick={() => this.openDataPane(availableLayer.name)}>
+                    <InfoIcon/>
+                  </IconButton>
+                </ListItemSecondaryAction>
+              : null
+            }
+          </ListItem>)
+        }
+  
+        options.push(option);
       }
-
-      options.push(option);
     }
+    else {
+      for (let i = 0; i < availableLayers.length; i++) {
+        if (i === 0) {
+          options.push(
+            <ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Base layers</ListSubheader>
+          );
+        }
+        else if (i === 3) {
+          options.push(
+            <ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>Air quality</ListSubheader>
+          );
+        }
+        else if (i === 4) {
+          options.push(
+            <ListSubheader disableSticky inset key={'tileSubHeader_' + i} color='primary'>High resolution layers</ListSubheader>
+          );
+        }
+
+        let layer = availableLayers[i];
+        let checked = selectedLayers.includes(layer) ? true : false;
+        
+        options.push(
+          <ListItem
+            button
+            dense
+            onClick={() => this.onLayerChange(layer, !checked)}
+            key={'tileLayerControlListItem_' + layer}
+          >
+            <ListItemIcon>
+              <Checkbox
+                color='primary'
+                checked={checked}
+                edge="start"
+                disableRipple
+              />
+            </ListItemIcon>
+            <ListItemText primary={ViewerUtility.capitalize(layer)}/>
+          </ListItem>
+        );      
+      }     
+    }   
 
     return options;
   }
@@ -394,7 +449,7 @@ class TileLayersControl extends PureComponent {
     let map = this.props.map;
     let timestampRange = this.props.timestampRange;
 
-    if (!map || !timestampRange || this.props.mode === ViewerUtility.identificationMode ||  this.props.mode === ViewerUtility.plannerMode) {
+    if (this.props.mode !== ViewerUtility.plannerMode && (!map || !timestampRange || this.props.mode === ViewerUtility.identificationMode ||  this.props.mode === ViewerUtility.plannerMode)) {
       for (let i = 3; i < AVAILABLE_LAYERS.length; i++) {
         let timestampStart = AVAILABLE_LAYERS[i].stacking ? timestampRange.start : timestampRange.end;
         let timestampEnd = timestampRange.end;
@@ -512,6 +567,65 @@ class TileLayersControl extends PureComponent {
         }
       }
     }
+
+    if (this.props.mode === ViewerUtility.plannerMode) {
+      if (selectedLayers.includes('no2 concentration')) {
+        layerElements.push(
+          <TileLayer
+            key={'no2 concentration'}
+            url={'https://api.ellipsis-drive.com/v1/tileService/a154d7ce-0983-491e-8716-16efb5e9be0f/1/rainbow_nitrogen%20dioxide%20(NO2)/{z}/{x}/{y}'}
+            tileSize={256}
+            noWrap={true}
+            maxNativeZoom={7}
+            format={'image/png'}
+            zIndex={layerElements.length + 1}
+          />
+        )
+      }
+
+      if (selectedLayers.includes('rgb')) {
+        layerElements.push(
+          <TileLayer
+            key={'rgb'}
+            url={'https://api.ellipsis-drive.com/v1/tileService/2c547d8d-d4a2-46f4-97b9-152217906d86/0/rgb/{z}/{x}/{y}'}
+            tileSize={256}
+            noWrap={true}
+            maxNativeZoom={18}
+            format={'image/png'}
+            zIndex={layerElements.length + 2}
+          />
+        )
+      }
+
+      if (selectedLayers.includes('cir')) {
+        layerElements.push(
+          <TileLayer
+            key={'cir'}
+            url={'https://api.ellipsis-drive.com/v1/tileService/2c547d8d-d4a2-46f4-97b9-152217906d86/0/CIR/{z}/{x}/{y}'}
+            tileSize={256}
+            noWrap={true}
+            maxNativeZoom={18}
+            format={'image/png'}
+            zIndex={layerElements.length + 3}
+          />
+        )
+      }
+
+      if (selectedLayers.includes('ndvi')) {
+        layerElements.push(
+          <TileLayer
+            key={'ndvi'}
+            url={'https://api.ellipsis-drive.com/v1/tileService/2c547d8d-d4a2-46f4-97b9-152217906d86/0/ndvi/{z}/{x}/{y}'}
+            tileSize={256}
+            noWrap={true}
+            maxNativeZoom={18}
+            format={'image/png'}
+            zIndex={layerElements.length + 4}
+          />
+        )
+      }
+    }
+   
 
     this.props.onLayersChange(layerElements);
   }

@@ -773,10 +773,8 @@ class FilterControl extends Component {
 		if (!this.props.map || this.state.availableLayers.length === 0) {
 			return null;
     }
-
-    debugger
     
-    if (this.props.mode === ViewerUtility.plantMode) {
+    if (this.props.mode === ViewerUtility.plantMode || this.props.mode === ViewerUtility.plannerMode) {
       return null;
     }
 

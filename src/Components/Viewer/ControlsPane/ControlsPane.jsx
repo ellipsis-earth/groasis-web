@@ -94,6 +94,7 @@ class ControlsPane extends PureComponent {
         />
 
         <PolygonLayersControl
+          mode={this.props.mode}
           ref={this.polygonLayersControl}
           leafletMap={this.props.leafletMap}
           user={this.props.user}
