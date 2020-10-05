@@ -130,8 +130,8 @@ export class MainMenu extends Component {
 
     let modeText = 'select mode';
     if(this.props.mode === 0) {modeText = 'Identification'}
-    if(this.props.mode === 1) {modeText = 'Growth'}
-    if(this.props.mode === 2) {modeText = 'Organization'}
+    if(this.props.mode === 1) {modeText = 'Monitoring'}
+    if(this.props.mode === 2) {modeText = 'Implementation'}
     if(this.props.mode === 3) {modeText = 'Learning'}
 
     return (
