@@ -157,7 +157,7 @@ const PLANNING_LAYERS = [
   'no2 concentration',
   'rgb',
   'cir',
-  'ndvi'
+  'Tree cover'
 ];
 
 class TileLayersControl extends PureComponent {
@@ -611,10 +611,10 @@ class TileLayersControl extends PureComponent {
         )
       }
 
-      if (selectedLayers.includes('ndvi')) {
+      if (selectedLayers.includes('Tree cover')) {
         layerElements.push(
           <TileLayer
-            key={'ndvi'}
+            key={'Tree cover'}
             url={'https://api.ellipsis-drive.com/v1/tileService/2c547d8d-d4a2-46f4-97b9-152217906d86/0/ndvi/{z}/{x}/{y}'}
             tileSize={256}
             noWrap={true}
